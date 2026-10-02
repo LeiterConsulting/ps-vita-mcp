@@ -1,0 +1,24 @@
+# Local pairing and credentials
+.devloop-private/
+.env
+.env.*
+!.env.example
+
+# Generated output and private device evidence
+build/
+dist/
+evidence/
+previews/
+*.vpk
+*.velf
+*.self
+*.elf
+
+# Host runtime and editor state
+.venv/
+.venv-devloop/
+__pycache__/
+*.py[cod]
+.codex/
+.DS_Store
+Thumbs.db
