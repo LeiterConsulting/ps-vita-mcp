@@ -4,13 +4,14 @@ The first public project is the DevLoop MCP development loop. Broader Vita proje
 
 ## 1. Publish a usable developer preview
 
-- Import the focused native host, desktop bridge, build scripts and tests into this repository.
-- Include starter Lua examples and upstream dependency notices.
-- Replace development-machine assumptions with documented configuration.
-- Complete release-candidate exit and sleep/return verification.
-- Provide a VPK, package hash, build instructions, pairing/setup guide and scoped validation summary.
+- [x] Import the focused native host, desktop bridge, build scripts and tests.
+- [x] Include starter Lua examples, original screenshots and dependency notices.
+- [x] Document isolated build, pairing and MCP client configuration.
+- [ ] Qualify the 01.03 candidate on the device, including exit and sleep/return.
+- [ ] Complete notices for all linked SDK libraries before binary distribution.
+- [ ] Publish the accepted VPK with its package hash and scoped validation summary.
 
-The working development prototype is 01.02. Public release numbering will be established when the imported candidate is qualified.
+The working development prototype is 01.02. The imported source builds 01.03 with a graphics shutdown fix; hardware results from 01.02 do not certify that changed candidate.
 
 ## 2. Make experiments practical projects
 

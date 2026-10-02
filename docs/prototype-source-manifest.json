@@ -1,0 +1,632 @@
+{
+  "prototypeVersion": "01.02",
+  "prototypePackageSha256": "06f37e958acefb16305edc20c55d5a821c5094bcc505d9db3f218503cd92d2c6",
+  "meaning": "Hashes of original inputs before public build/setup and lifecycle changes; not the final public candidate manifest",
+  "files": [
+    {
+      "file": "apps/vita_devloop.c",
+      "bytes": 3708,
+      "sha256": "2c3d6f24fb965ff901ef04c14c980003140e4cb24e6dded266e121b99503ca42"
+    },
+    {
+      "file": "assets/devloop-licenses.txt",
+      "bytes": 1296,
+      "sha256": "82c785b3c278b0c529fa40a988e13598caa73bc02a7a948e029ab754ab078978"
+    },
+    {
+      "file": "assets/template.xml",
+      "bytes": 233,
+      "sha256": "a9403498431b773a9fb2b592be5d9e2ca31173b27bda23a61aa77c195b511400"
+    },
+    {
+      "file": "assets/vita_devloop/bg.png",
+      "bytes": 10667,
+      "sha256": "2a14300dbbc67acb4dddce68d3067ae0e659e03d175461b66b75fa9e0e636b8b"
+    },
+    {
+      "file": "assets/vita_devloop/icon0.png",
+      "bytes": 1228,
+      "sha256": "0b5e608d2904945d02f84c51647fee58218f8975e4be7a48da3aa13ae48d1a42"
+    },
+    {
+      "file": "assets/vita_devloop/startup.png",
+      "bytes": 3046,
+      "sha256": "cc37238205009e5b3b0436791b34b7bf2109bbbcf6cbf9e947f9d5151401890c"
+    },
+    {
+      "file": "bridge/call_tool.py",
+      "bytes": 1005,
+      "sha256": "300e090741b71501076b1aea5eb3232a5a91883ae7f0dd57256457ee7d50bb1e"
+    },
+    {
+      "file": "bridge/configure.py",
+      "bytes": 1092,
+      "sha256": "d03043f6cffd6d13490c763da9ece09f05f3d0a496f8fd5d39ebc2a24ea49da1"
+    },
+    {
+      "file": "bridge/configure_ftp.py",
+      "bytes": 878,
+      "sha256": "a4642106c2ad574191ec9213bda18195ddb23b6c4709e49d5aaf731caa50bfcf"
+    },
+    {
+      "file": "bridge/ftp_staging.py",
+      "bytes": 8657,
+      "sha256": "bcf5e53c3f2c8be8b52a7b3c24f13acbc5cb356d3522266c38c50f5976d2c8a8"
+    },
+    {
+      "file": "bridge/prove_device.py",
+      "bytes": 6775,
+      "sha256": "436b32460143ccd261b14bf8c0cf7f32055b1ae3cd0913c98bcf9eccc210dde4"
+    },
+    {
+      "file": "bridge/prove_scripts.py",
+      "bytes": 7065,
+      "sha256": "0985b0287f5c8a52d1e9001d01d1a271845bb59b4d52c54a08d803570f71ab68"
+    },
+    {
+      "file": "bridge/prove_upload.py",
+      "bytes": 3028,
+      "sha256": "c8364265e9b25db648acb32b6bca0c4cd18c20de518b9f84be1e1b6754d67007"
+    },
+    {
+      "file": "bridge/requirements-lock.txt",
+      "bytes": 595,
+      "sha256": "598a6cafe15bee7df2ceebe90e771b2650ca9fb3fd052654dc86b34a2a9a39cb"
+    },
+    {
+      "file": "bridge/requirements.txt",
+      "bytes": 27,
+      "sha256": "01a029538ad226f0b92d84ef357b7cad0792ee3d5bff2326ec1b0e8e2d49c291"
+    },
+    {
+      "file": "bridge/run_script.py",
+      "bytes": 4726,
+      "sha256": "4597ecc7976b7469f8ade9ac0d37d9a79024a0e9142c8c5cf0875a5a5c83bee2"
+    },
+    {
+      "file": "bridge/server.py",
+      "bytes": 11596,
+      "sha256": "42f507dc760418cb917d92731ca56d8018905abc6f97a39828acd649cf8b865f"
+    },
+    {
+      "file": "Build-DevLoop.ps1",
+      "bytes": 2417,
+      "sha256": "b71269507664fe6b4e2f166cf15c3ffeaf416b7da40e678b4b7e3bdf92c2cff7"
+    },
+    {
+      "file": "CMakeLists.txt",
+      "bytes": 2707,
+      "sha256": "8c4de7f4243656315ad4059e0c76e877a1779e853723a5d61a8b24723b65e062"
+    },
+    {
+      "file": "common/math_helpers.c",
+      "bytes": 489,
+      "sha256": "75884edbf4e97325899e2bab9b5c30c9486961fbbf9d99083092f07ec27a4684"
+    },
+    {
+      "file": "common/math_helpers.h",
+      "bytes": 256,
+      "sha256": "4233dcfc125ee26177a6c49975ec761796177daa8f2b9aca9757e0fc34af0273"
+    },
+    {
+      "file": "common/physics.c",
+      "bytes": 4930,
+      "sha256": "602772e39f18ca0c771bc8f0dc1baf20ef9dd235b45340b64aff3ebe935edb5e"
+    },
+    {
+      "file": "common/physics.h",
+      "bytes": 908,
+      "sha256": "ce5b74d012a4fb9e3914e5d0ddade7a75e9d388ba6fc60879efc0f3dff9c0899"
+    },
+    {
+      "file": "common/platform.h",
+      "bytes": 1360,
+      "sha256": "5a219dfb496c29cadde7172ecbe9b0d212f990d024a998f87ed8fbbcf2443edd"
+    },
+    {
+      "file": "common/platform_host.c",
+      "bytes": 2519,
+      "sha256": "e99b1fef0a3147ec07f7b4facf67dc50ed6fe9b890d8bc7488e42c5f446390ae"
+    },
+    {
+      "file": "common/platform_vita.c",
+      "bytes": 4516,
+      "sha256": "913937171753f628c6d99a1df933870cb9728bc6d635375656a3c790ea514a80"
+    },
+    {
+      "file": "common/ui.c",
+      "bytes": 1222,
+      "sha256": "42db82331fa9043eb0033025acd25e9cd8878cb935d947035e31fdf27620e49c"
+    },
+    {
+      "file": "common/ui.h",
+      "bytes": 626,
+      "sha256": "13a1806e13916bbff007f41dd427f7074125f360f6a74c0a3ed1fac5d222056a"
+    },
+    {
+      "file": "devloop/core.c",
+      "bytes": 14502,
+      "sha256": "200a657f00e20ea6a6823b1ddccf501339618e2695e960d778852d43aed0b716"
+    },
+    {
+      "file": "devloop/core.h",
+      "bytes": 1549,
+      "sha256": "eb0d5afa7525ad0a91d335663c7bdfa6eaaae4a5a3a69dd56e16b4878a17571f"
+    },
+    {
+      "file": "devloop/script_runtime.c",
+      "bytes": 15244,
+      "sha256": "a547fea56f5d460c40e88ea14d266c195f1c859c84332c0997aef5987166c546"
+    },
+    {
+      "file": "devloop/script_runtime.h",
+      "bytes": 983,
+      "sha256": "bfd350316d40ec00e7cc5d0662dc3df305aebd4dae4850113de364c15004f167"
+    },
+    {
+      "file": "devloop/server_vita.c",
+      "bytes": 16900,
+      "sha256": "b6ec18c34063c683e2b21c4406cdd30df37ae7ebd64dc9a19f941df68e31c616"
+    },
+    {
+      "file": "devloop/server_vita.h",
+      "bytes": 262,
+      "sha256": "1f4b8e868a4723ccd8d12f520cb1c30cebe8a178e707d08f67fae52ed0a497b5"
+    },
+    {
+      "file": "devloop/sha256.c",
+      "bytes": 2507,
+      "sha256": "70ffa12bb8a409bd0ad9dd56583f6a618dab9eaf99c8d77547c959bb69ca7f84"
+    },
+    {
+      "file": "devloop/sha256.h",
+      "bytes": 137,
+      "sha256": "9c39ae8a878d48942f5cfc68b715321e590c3b49915ebc428712bc4e1466cb5b"
+    },
+    {
+      "file": "experiments/bounce.lua",
+      "bytes": 1641,
+      "sha256": "bfd6f9354e1de29d96eb653ca32a97cc7338460b2f65d011265605b998af3c9c"
+    },
+    {
+      "file": "experiments/input_scope.lua",
+      "bytes": 1805,
+      "sha256": "960ef3ec823248c322c30aacacdeaae792c9db7a5cb79568bedf2b19fb50d14d"
+    },
+    {
+      "file": "SCRIPTING.md",
+      "bytes": 7403,
+      "sha256": "c27676e56c716b6cf284df73b6333f117f9e3bbbfc56f0270dec1ac7973ebf92"
+    },
+    {
+      "file": "scripts/build_host_lua.sh",
+      "bytes": 395,
+      "sha256": "c2100b40d8d5b468acd40c644331a59533177dc2bd85559f9ad7b44777aa33ed"
+    },
+    {
+      "file": "scripts/check_publication_regression.py",
+      "bytes": 2269,
+      "sha256": "bcab7bf2641ebebbc9679c45f4fa3d0281d0628df0dda7372b31b1a8e9b439f9"
+    },
+    {
+      "file": "scripts/fetch_lua.py",
+      "bytes": 1491,
+      "sha256": "e7fd4beb1b801cff2512914d5e4bb4b11650137d859944b7a3a5ebd663018e84"
+    },
+    {
+      "file": "scripts/generate_devloop_assets.py",
+      "bytes": 1600,
+      "sha256": "26f3577fe226c04457e3a6a2b993822537a569f10b5fc5fb3a7dfcabb2ded365"
+    },
+    {
+      "file": "scripts/livearea_png.py",
+      "bytes": 2390,
+      "sha256": "3d21f1f8801f27934f073e02ab566941de53fd605dafe8787a9a771d6909a5dd"
+    },
+    {
+      "file": "scripts/test_devloop.sh",
+      "bytes": 1360,
+      "sha256": "a9df405ad63cfa65461427d85b747229fc2dd1bfa4d51767928f285139a30597"
+    },
+    {
+      "file": "scripts/verify_devloop_package.py",
+      "bytes": 4688,
+      "sha256": "cf17e4bb2256ba8b80b24fc9b0830101c3c99b5baa016ca3244fa86b7a3da699"
+    },
+    {
+      "file": "Stage-DevLoop.ps1",
+      "bytes": 4213,
+      "sha256": "4ce1270be3a0b6f06195e9126ac3d839ff425250ce6853cee4a94ab50337e6b1"
+    },
+    {
+      "file": "tests/ftp_fixture.py",
+      "bytes": 6305,
+      "sha256": "35d4f9f8992080b597eec69f992aa958a715598817133f8fb4d2e4ffaf2e60b4"
+    },
+    {
+      "file": "tests/render_stub.c",
+      "bytes": 661,
+      "sha256": "1ab7ad5c80ee780c31f28f07e27b9b133a6b80b247254bc53d3607579797bb52"
+    },
+    {
+      "file": "tests/server_host_shim.h",
+      "bytes": 4446,
+      "sha256": "d7af65b83684c7953c2d8741efe59d80e2092d13445cf293438507c0a1926d9b"
+    },
+    {
+      "file": "tests/test_bridge.py",
+      "bytes": 8270,
+      "sha256": "0831bd064584c759f507d4adcaefb77695e4af43024083d4531119614b6210ac"
+    },
+    {
+      "file": "tests/test_devloop.c",
+      "bytes": 3900,
+      "sha256": "78033e836226f74bd56f1f87a0d2a80b15115593c8255ba2f90d8c89c53a5f25"
+    },
+    {
+      "file": "tests/test_ftp_staging.py",
+      "bytes": 8239,
+      "sha256": "80863054245328ddde060735402ba0b9b5785d7714ed4db3caa1b8c5d1905ee3"
+    },
+    {
+      "file": "tests/test_livearea.py",
+      "bytes": 1673,
+      "sha256": "f80fb2e9204c584ad8be66dd6a62514551fbba9901bcf37305dd17dc85a24080"
+    },
+    {
+      "file": "tests/test_physics.c",
+      "bytes": 3088,
+      "sha256": "73a838f41428b88db6133b1421c392d93e7b3032988309d1b25b7d7fa912d1d6"
+    },
+    {
+      "file": "tests/test_script_runtime.c",
+      "bytes": 7841,
+      "sha256": "7fc47ba3907ad35d01954b5dc1d279a7bc640f9a93d7e35e1e3050a7ccebc9ce"
+    },
+    {
+      "file": "tests/test_scripts_bridge.py",
+      "bytes": 9594,
+      "sha256": "af7b5d91914213556ae9547f48af1c6ea12e6acb482bde09ef4ba50efa439193"
+    },
+    {
+      "file": "tests/test_server_vita_host.c",
+      "bytes": 11457,
+      "sha256": "b56784413ff62ca6b2859a7bb2eb401c5f48a6bef9fd46cec64cb543c14e735b"
+    },
+    {
+      "file": "third_party/lua-5.4.9/doc/readme.html",
+      "bytes": 11046,
+      "sha256": "760d00c8b494ec2f170bcdd969e36b038027b0288232c60e15ffa6b0d784e9c7"
+    },
+    {
+      "file": "third_party/lua-5.4.9/provenance.json",
+      "bytes": 283,
+      "sha256": "63fb644372703d37a98a74ed0b6a55dc2c1dc5d612bc7335ea9d3134090a2f6e"
+    },
+    {
+      "file": "third_party/lua-5.4.9/README",
+      "bytes": 151,
+      "sha256": "d79084a014fca706eefe55350ee81b2ddd8560dc85245176afce3c8d1f1b963a"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lapi.c",
+      "bytes": 36201,
+      "sha256": "cd369dc6900a7696ca55ccbd4f50eadfa799b975f34b7afe450e1b859517a56e"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lapi.h",
+      "bytes": 1427,
+      "sha256": "9522209670086adfbb11379416078a7f4dafe154043e320cd435fa1811aaabfb"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lauxlib.c",
+      "bytes": 33908,
+      "sha256": "257c287ed4964ec8bb07fe0a1fd1b52b712e4bccd6c889db62f84abb905d6996"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lauxlib.h",
+      "bytes": 9314,
+      "sha256": "2d9e18e577a6062646268e7f7228264c28bd9b972c186e1af81b8357179c0ab4"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lbaselib.c",
+      "bytes": 15478,
+      "sha256": "5dc9a64468c1ac31e59066c7d3597eeb8ea4ac8fc19a257a74c431624300b487"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lcode.c",
+      "bytes": 53215,
+      "sha256": "2cf13c7f8205e9f07c2ccf1fedc3f0f0a05d238c194b176c72cc22b2cc96210e"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lcode.h",
+      "bytes": 3636,
+      "sha256": "c5ad73fb12fd3e9f6b6a5f37fea5b60e4c09f8a262e9ac3ca85e8e047f745cea"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lcorolib.c",
+      "bytes": 4856,
+      "sha256": "5408ccec737678d045d421f84a56e1ce03192a42c55440ffef07bec356aaec89"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lctype.c",
+      "bytes": 2461,
+      "sha256": "3e21ae6a8faab3ed470ae0de19360da6b4e21a0a0f8572f502f7e13d590186f8"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lctype.h",
+      "bytes": 2115,
+      "sha256": "c800311872ecba642f6d013b290eda83ba6cd8df8061e25cdca1dd4adcbed8b5"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/ldblib.c",
+      "bytes": 13356,
+      "sha256": "349afd63c8be2cb8a522e4a04e9f444b65ed1fc7f4dabba5b4b61fd8c11d0c42"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/ldebug.c",
+      "bytes": 29785,
+      "sha256": "06d065d1f26c29546cc74b61a50267cb70567ae538691f190bf15ca5cd29d308"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/ldebug.h",
+      "bytes": 2215,
+      "sha256": "b0fd38f6461251ec481cf5633d622569cef939067e37cac23331d9f96b601702"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/ldo.c",
+      "bytes": 35857,
+      "sha256": "af1522801876fe267bf2f892caa24209c395459331ac9a1fdf7ad3ed82402a6c"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/ldo.h",
+      "bytes": 3298,
+      "sha256": "a577744f7c773bd91263540a1effefe75d3dfbfc8a9874349844f9a1ddae8d52"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/ldump.c",
+      "bytes": 4879,
+      "sha256": "3c05402c5e282e06c2218f2469b1f38e1b84c783b9387aec7740c60b287d82c9"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lfunc.c",
+      "bytes": 8423,
+      "sha256": "38809428b76fafa79db9f65b7248cc0c02c9b696e7410fc4ab1699940768f1b2"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lfunc.h",
+      "bytes": 1708,
+      "sha256": "81dc02d55ae8000461ab90bb9689d2600ba51f2ea9ac9fb019386995c07e3e4a"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lgc.c",
+      "bytes": 57057,
+      "sha256": "caa4df2eccfae0899686d1aed3f2bad91184de3bd12176fdfead91147f704e0b"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lgc.h",
+      "bytes": 6431,
+      "sha256": "c83d3b8e31345c0aacd37442954a7f2434312ee48f98a8b9ae4fc8aad26d0c99"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/linit.c",
+      "bytes": 1621,
+      "sha256": "3578568e27b9c1e2f4a7f9a53fdb4bc8ac095db75cc86e966bb1deec2792158e"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/liolib.c",
+      "bytes": 22211,
+      "sha256": "bd3176d1c5d30d61fdfc2aa17d7af0819f2da51694942a24b6c185ef797f0060"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/ljumptab.h",
+      "bytes": 1663,
+      "sha256": "6c3e9858b9dad03ccd61445ab0bff0eb6ddfa5e731e044f93350fe6c6b2ad8d5"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/llex.c",
+      "bytes": 17100,
+      "sha256": "5cfbaabf3dc0d75835aaafc37fcd87a92f3dba451e002732747b602fda122958"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/llex.h",
+      "bytes": 2402,
+      "sha256": "5ce0302528260ed6a40ec3ebf5e27d3bc108242d9dca57e8cdbe80fe34e13410"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/llimits.h",
+      "bytes": 9294,
+      "sha256": "d588bdac3c8e1adc88df3dc92c950a1bfa29663d15f9221f58e2aa553b05a422"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lmathlib.c",
+      "bytes": 19616,
+      "sha256": "da5c7d74cffce22f0a9eb468e6e7e80b543ea6bec5c21aefb8cf285a3556722a"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lmem.c",
+      "bytes": 6174,
+      "sha256": "6154c2865bec97e61a92d8284be7e8ba21818f6edc95f5d72adb5dcf3e9532ca"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lmem.h",
+      "bytes": 3368,
+      "sha256": "8318a170a1d4bf21c3cb4deb1f8661f1dc7cf4eb688e4ec9a1e7ea16bfc3b5cf"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/loadlib.c",
+      "bytes": 22892,
+      "sha256": "f21cafa3258669d6f8c4f09195c654a4a588ab402f5e976c731918658b747a5b"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lobject.c",
+      "bytes": 19504,
+      "sha256": "7a9748e38c52e45bc468cae74ccea08b98f8c53a523c1b0f9a117e5cf162c921"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lobject.h",
+      "bytes": 22773,
+      "sha256": "8539beae7dd9a08efc09b04d64c09663e9afc0f2ad342abc612bb000c0c9be70"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lopcodes.c",
+      "bytes": 4126,
+      "sha256": "bdc9d39fd8bf1a350c0249f726c5f61bef64b122b93a0fbc172b0328dc01f594"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lopcodes.h",
+      "bytes": 13367,
+      "sha256": "b3f511933be3039a4b92ba79601b2e5daf75b34f268bfc757adf3e24ea4f1ec9"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lopnames.h",
+      "bytes": 1143,
+      "sha256": "fbdbebc96b136efc6165cba1ac2b311b0c52413aaef59ae9ec750748f13c9e9a"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/loslib.c",
+      "bytes": 11825,
+      "sha256": "474f2a3ee7ca8083e4552177da426ea159be82b4b34f3bd2151239810b57bb0e"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lparser.c",
+      "bytes": 56439,
+      "sha256": "e24f9e869afd690749404b3075fd82efaf3af882a13a131b612c6ff28e052a8c"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lparser.h",
+      "bytes": 5927,
+      "sha256": "68c34ef2d6e5a227f7cff18436a42c6739b1470ce12f059f168d9bb69fc8d49c"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lprefix.h",
+      "bytes": 828,
+      "sha256": "626785d4eda75e9435f0ac21a780ae3b11f8b27dc36934e637a5c2305f906531"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lstate.c",
+      "bytes": 11776,
+      "sha256": "e5f3b17104f6764bad609d18ce8f3008a87731491a41cb78b79aed78777c21d8"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lstate.h",
+      "bytes": 15311,
+      "sha256": "8816454aa1df7c6cb1bc6366ca163b575e259e36497b75db354c572a81836cee"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lstring.c",
+      "bytes": 7580,
+      "sha256": "b6162f3a65735a902911ffafcafe1db0994c3b0df441581dcbb04dca6bc0b71d"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lstring.h",
+      "bytes": 1603,
+      "sha256": "a8cb0d737276f6a41071a0776ee1d8aa13cf02fa7c79ea096d202b14ea792e31"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lstrlib.c",
+      "bytes": 56498,
+      "sha256": "d386f8bbb75d5ef7b04c8ca9e747ff256525a9546bb6ff01c788b912b6995aa6"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/ltable.c",
+      "bytes": 32757,
+      "sha256": "27a711276b1e22aaea3b9182e2d17693f598cfe9bc7fd203c05d400df6673853"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/ltable.h",
+      "bytes": 2052,
+      "sha256": "1c8736b87aa408ef2afebfe693f46ae5424d658d798fb2a8a88b6868cf5569b5"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/ltablib.c",
+      "bytes": 13227,
+      "sha256": "3d430a6f9cde66d0b791444c6164e7559ccf62b7cdc3a6325882408c6806e26c"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/ltm.c",
+      "bytes": 8268,
+      "sha256": "7cbe645ed7e1161d31eb32ea467d8220b592c0acfa6107f0194487f0ddbf954b"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/ltm.h",
+      "bytes": 2907,
+      "sha256": "5b2f6e59951edeef6e71bebe5ac4351f4b3602ee0461729308b80dcee8cea910"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lua.c",
+      "bytes": 20564,
+      "sha256": "ee7b72f64fa489d3e5393494f09c2517f5bdceb43f768c087a9ced74060af254"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lua.h",
+      "bytes": 15949,
+      "sha256": "06138352a12f0710bc214eb3a2e134889979cadc9a7a761a4e43dafa926419af"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lua.hpp",
+      "bytes": 191,
+      "sha256": "fd83f7e823cfbb03ac2da937ec83f01b4a6ddaac220a4fa1ffd6c6c3842c5890"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/luac.c",
+      "bytes": 15145,
+      "sha256": "3a424e6cb4177886c8790821cf15345f488764bc215eb29719c80002ef24cdc1"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/luaconf.h",
+      "bytes": 21743,
+      "sha256": "af243c94bee6d2601383e8b65ed66a0d1b4ab3b7418ff903fcd0679912160e3a"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lualib.h",
+      "bytes": 1116,
+      "sha256": "4ea0f67d3e467f5d6a327616e22a3c2da8e03d47a3c3660916275f2842f521ea"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lundump.c",
+      "bytes": 7976,
+      "sha256": "7f7b078026e162161d402feba73a69cbe66a98558ec0745a445a595f42eac688"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lundump.h",
+      "bytes": 805,
+      "sha256": "1137c0c9d8654ce223374d21c52a599fd1cc1ccb869801f87a27238a7bf55e8e"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lutf8lib.c",
+      "bytes": 8248,
+      "sha256": "441251bdf176e066e60a36735594f0cb92c067143fed32e373949bdb65a52866"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lvm.c",
+      "bytes": 59380,
+      "sha256": "7df5095ee2f6c88162d3536afb1fa04527b98fa3265cb579fc9aa6dcf05606de"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lvm.h",
+      "bytes": 4552,
+      "sha256": "aba601b887236d5e135392e0c49370df3b5a9ac5c66ab2d44156b3244f2dcef3"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lzio.c",
+      "bytes": 1322,
+      "sha256": "fba61ceeeb257a3fe5f63310f21e14fc26c4be647583dcf8e74cbc7fb7e43e8a"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/lzio.h",
+      "bytes": 1438,
+      "sha256": "9673f62eac2d0fe3010f9d23148be7b8113319fdf4c4490015cd9feae2ecaad4"
+    },
+    {
+      "file": "third_party/lua-5.4.9/src/Makefile",
+      "bytes": 7685,
+      "sha256": "d945aee4718785b5bbdbc575d76a16ef60bd65cbfed47ef53e7ced99b580371d"
+    },
+    {
+      "file": "toolchain.lock.json",
+      "bytes": 235,
+      "sha256": "3f515eaf5fcac596a24d9bfa37623e64856e467a13ebca3995168f3404ea44f4"
+    }
+  ]
+}

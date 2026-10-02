@@ -1,0 +1,6 @@
+{
+  "image": "vitasdk/vitasdk@sha256:fd82d88ff456d118eef16533ebf9a3a6ae0e292684fb8a3a35f15f0707b4692d",
+  "sourceTag": "vitasdk/vitasdk:2026.08",
+  "retrievedUtc": "2026-10-02",
+  "documentation": "https://github.com/vitasdk/docker"
+}

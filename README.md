@@ -6,9 +6,13 @@ PS Vita MCP connects an MCP client on your computer to a development app running
 
 The aim is a useful development loop on real hardware: **edit → run → observe → recover**.
 
+![Lua playground captured on a physical Vita](docs/images/bounce-running-result.png)
+
+*Original framebuffer capture from the tested 01.02 prototype, paused after a short run. [Screenshots and their provenance](docs/SCREENSHOTS.md).*
+
 ## Project status
 
-This repository currently contains the public project foundation. The DevLoop prototype has been built and exercised on a physical Vita; its source import, public setup guide and first installable preview are the next milestones. **There is no public VPK or runnable server in this repository yet.**
+The native host, Python MCP bridge, starter experiments, build scripts and tests are now included. The public source builds **DevLoop 01.03**, a development candidate that adds a graphics shutdown fix to the physically tested 01.02 prototype. **01.03 still needs device installation, live-loop, exit and sleep/return checks before an installable release.**
 
 The prototype was tested on a homebrew-enabled Vita running firmware 3.65, with a Windows desktop bridge. Other device, firmware and host combinations need their own verification. See [validation and release criteria](docs/VALIDATION.md).
 
@@ -23,7 +27,28 @@ The prototype was tested on a homebrew-enabled Vita running firmware 3.65, with 
 | Experiment recovery | Pause, restart, retain one previous Lua VM for rollback, or return to the native experiment |
 | Verified package staging | Transfer the selected DevLoop VPK through the file manager's FTP server and verify two SHA-256 read-backs before manual installation |
 
-The current bridge exposes [ten MCP tools](docs/TOOLS.md). These capabilities belong to the running DevLoop app. System-wide capture, arbitrary game control and automatic installation are future possibilities requiring separate designs and tests.
+The bridge exposes [ten MCP tools](docs/TOOLS.md). Live capabilities belong to the foreground DevLoop app; native updates use the file manager's FTP server and manual installation.
+
+## Build and try it
+
+The documented build uses Windows, PowerShell 7, Python 3.13 and Docker Desktop:
+
+```powershell
+git clone https://github.com/LeiterConsulting/ps-vita-mcp.git
+cd ps-vita-mcp
+.\Setup-DevLoop.ps1
+.\Build-DevLoop.ps1
+```
+
+This runs host, MCP and FTP fixture tests, builds the ARM app, and writes the verified VPK and hash report to `dist/devloop/`. Follow [setup and pairing](docs/SETUP.md) to install the experimental candidate manually, configure the bridge and connect an MCP client. No prebuilt GitHub release is available yet.
+
+After pairing and opening DevLoop:
+
+```powershell
+.\.venv-devloop\Scripts\python.exe bridge\run_script.py experiments\bounce.lua --resume --capture
+```
+
+Edit the example and send it again, or use the explicit foreground `--watch` option. The [Lua interface](SCRIPTING.md) covers drawing, physical input, metrics and recovery.
 
 ## How it fits together
 
@@ -39,16 +64,22 @@ flowchart LR
 
 The MCP server runs on the computer. The Vita runs a native development host with a small HTTP interface. The app must be open for live inspection and script changes. [Architecture and boundaries](docs/ARCHITECTURE.md).
 
-## First public preview
+## Starter experiments
 
-The first preview will focus on one complete experience:
+| Example | What to try |
+| --- | --- |
+| [Bounce playground](experiments/bounce.lua) | Change the scene's colours, move the ball with the left stick, or place it with front touch |
+| [Input scope](experiments/input_scope.lua) | Inspect buttons, both sticks, both touch panels and motion read status |
 
-1. Build or install the DevLoop app and pair it with the desktop bridge.
-2. Open a small example and send it to the Vita.
-3. Make a visible change, inspect its metrics and capture the result.
-4. Try a failed edit and recover to the previous working experiment.
+![Live Lua edit captured on the Vita](docs/images/hot-reloaded.png)
 
-An input inspector and a small animated scene will be the starter examples. Persistent projects, sprites/audio and integration into other native apps follow on the [roadmap](ROADMAP.md).
+*A source edit changes the title and ball colour without reinstalling the app. This capture is paused after candidate preflight.*
+
+![Controlled runtime fault with inspection still available](docs/images/controlled-fault.png)
+
+*An intentional Lua callback error pauses the experiment and exposes recovery instructions. Both captures are from 01.02. [Full gallery](docs/SCREENSHOTS.md).*
+
+Persistent projects, sprites/audio and integration into other native apps follow on the [roadmap](ROADMAP.md).
 
 ## Current prototype limits
 
@@ -64,7 +95,7 @@ These are current host limits, not claims about the Vita's maximum capabilities.
 
 Useful contributions include reproductions on additional hardware, small original examples, setup improvements and narrowly scoped capability additions. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before proposing a change.
 
-Original project code and documentation are licensed under [MIT](LICENSE). Dependencies and any separately supplied content retain their own licenses. This is an independent homebrew project.
+Original project code and documentation are licensed under [MIT](LICENSE). Dependencies retain their own licenses; see [third-party notices](THIRD_PARTY_NOTICES.md). This is an independent homebrew project.
 
 ## References
 

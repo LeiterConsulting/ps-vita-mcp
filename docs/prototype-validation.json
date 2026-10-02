@@ -1,0 +1,32 @@
+{
+  "verifiedUtc": "2026-10-02T14:06:22.469540+00:00",
+  "version": "01.02",
+  "packageSha256": "06f37e958acefb16305edc20c55d5a821c5094bcc505d9db3f218503cd92d2c6",
+  "packageBytes": 464530,
+  "evidenceTier": "actual physical Vita through MCP stdio",
+  "startedUtc": "2026-10-02T13:58:53.925319+00:00",
+  "completedUtc": "2026-10-02T13:59:04.324431+00:00",
+  "passed": true,
+  "checks": {
+    "bothDemosExecuted": true,
+    "liveSourceEditRendered": true,
+    "sourceHashAcknowledged": true,
+    "rollbackPreservedPriorVmState": true,
+    "restartResetState": true,
+    "syntaxRejectedWithoutChangingActiveExperiment": true,
+    "infiniteLoopRejectedWithoutChangingActiveExperiment": true,
+    "laterRuntimeFaultPaused": true,
+    "rollbackRecoveredFromFault": true,
+    "responseRevisionsAndFramesMonotonic": true,
+    "fiveScreenshotHashesVerified": true,
+    "nativeStateAndParametersRestored": true
+  },
+  "humanInputAcceptance": "not inferred from these calls",
+  "sleepWakeAcceptance": "not exercised in this proof",
+  "scriptPersistence": "RAM only; app exit clears scripts and VM state",
+  "firmware": "3.65",
+  "host": "Windows",
+  "deviceCount": 1,
+  "scope": "Prototype 01.02. Does not certify imported candidate 01.03.",
+  "screenshots": "screenshots.json"
+}

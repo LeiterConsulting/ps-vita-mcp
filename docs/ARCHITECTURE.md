@@ -9,7 +9,7 @@ Vita DevLoop has two cooperating components:
 | Desktop MCP bridge | Expose tools and resources, authenticate device requests, return images/structured results, and perform verified package staging |
 | Native Vita host | Read hardware, run the native or Lua experiment, draw the scene, apply queued changes, publish snapshots and capture its framebuffer |
 
-The desktop bridge currently uses Python and MCP over stdio. The Vita host uses C, libvita2d and Lua 5.4. The native build uses a digest-pinned VitaSDK container. The public source import will retain those build inputs and dependency notices.
+The desktop bridge uses Python and MCP over stdio. The Vita host uses C, libvita2d and Lua 5.4.9. The source includes Lua provenance and a digest-pinned VitaSDK container in `toolchain.lock.json`.
 
 ## Commands and observations
 

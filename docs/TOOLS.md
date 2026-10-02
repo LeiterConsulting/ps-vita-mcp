@@ -1,6 +1,6 @@
-# Prototype tool surface
+# MCP tool surface
 
-This documents the current DevLoop interface ahead of its public source import. It is not an installation guide: this repository does not yet include a runnable bridge or native app.
+The Python bridge in `bridge/server.py` exposes these ten tools through MCP stdio. Follow [setup and pairing](SETUP.md) first. Clients can discover exact argument schemas through MCP `tools/list`.
 
 | Tool | Effect |
 | --- | --- |
@@ -28,4 +28,4 @@ The bridge also exposes scripting and example resources so a client can discover
 
 If a mutation times out, inspect status before making another change. Do not assume the request failed to apply. If the app is closed, asleep or unreachable, live calls report unavailability.
 
-The exact schemas and example commands will accompany the public source and setup guide. Package staging uses the file manager's FTP endpoint independently of the running DevLoop HTTP endpoint.
+`vita_load_script` takes `name`, `source` and `expected_revision`. Mutating experiment/script tools also require `expected_revision`; `vita_stage_package` instead requires the selected VPK's `expected_sha256`. Read-only tools take no arguments. Package staging uses the file manager's FTP endpoint independently of the running DevLoop HTTP endpoint.
