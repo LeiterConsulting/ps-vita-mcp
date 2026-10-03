@@ -15,7 +15,7 @@ From the repository root, with Docker Desktop running:
 
 The build runs the actual C HTTP/storage service under sanitizers with host adapters, MCP stdio fixtures, first-install FTP fixtures and update fixtures. It validates the ARM module's identity, imports, lifecycle, unresolved symbols and source fingerprint. Outputs are `dist/resident/vita_resident.suprx` and `dist/resident/build-report.json`. Building does not contact the Vita.
 
-The public bridge exposes four tools:
+The combined public bridge exposes four Resident tools plus thirteen [Control tools](CONTROL.md). The Resident native service itself retains these four operations:
 
 | Tool | Operation |
 | --- | --- |
@@ -64,4 +64,4 @@ DevLoop and Resident have separate native services, ports and pairing configurat
 
 `resident/prove_device.py` performs live actions only when explicitly run. It can collect status continuity, publish a probe or stage DevLoop, and record a user-supplied foreground label. That label does not establish which application is on screen. A restarted service fails a continuity claim. Test physical responsiveness and wake recovery separately.
 
-Full input injection, cross-app capture and autonomous installation are still being qualified in development; they are outside this public Resident bridge.
+The combined desktop bridge also exposes runtime-loaded Control for bounded synthetic input, cross-app framebuffer readback and managed files. [Control tools](CONTROL.md) and the [functional baseline](BASELINE.md) document the recorded results and limits. Autonomous native installation remains unqualified. For the complete Resident/Starter/DevLoop path, use [GETTING-STARTED.md](GETTING-STARTED.md).

@@ -1,115 +1,93 @@
 # PS Vita MCP
 
-**Build, inspect and iterate on PlayStation Vita homebrew through MCP.**
+**Develop and inspect PlayStation Vita homebrew through MCP on real hardware.**
 
-PS Vita MCP connects an MCP client on your computer to a development app running on a homebrew-enabled Vita. Its first implementation, **Vita DevLoop**, lets you send Lua experiments over Wi-Fi, inspect inputs and runtime metrics, capture the screen, and recover from a failed edit.
+PS Vita MCP connects a desktop MCP client to a modded Vita. The functional staging point combines live Lua editing with background status, verified file transfer, screen readback and bounded input. It is the foundation for the next autonomous development loop.
 
-The aim is a useful development loop on real hardware: **edit → run → observe → recover**.
+**Start here: [modded Vita → functional MCP](docs/GETTING-STARTED.md).** The guide covers prerequisites, building, pairing, manual installation, runtime activation, MCP registration, acceptance and recovery after reboot.
 
 ![Lua playground captured on a physical Vita](docs/images/bounce-running-result.png)
 
-*Original framebuffer capture from the tested 01.02 prototype, paused after a short run. [Screenshots and their provenance](docs/SCREENSHOTS.md).*
+*Original DevLoop 01.02 framebuffer capture. [Gallery and provenance](docs/SCREENSHOTS.md).*
 
-## Project status
+## Where we are
 
-The repository includes three independently scoped components:
+The recorded baseline was demonstrated on one modded firmware-3.65 Vita with a Windows bridge on October 3, 2026. [Baseline results, exact identities and limits](docs/BASELINE.md) describe what was observed.
 
-| Component | Public source | Hardware evidence |
+| Component | Role | Source / recorded runtime |
 | --- | --- | --- |
-| Vita DevLoop | 01.03 development candidate | 01.02 live Lua/edit/capture/recovery passed; changed 01.03 still needs installation, live-loop, exit and sleep/return checks |
-| [Vita Resident](docs/RESIDENT.md) | 0.1.1 background status/upload service and four-tool bridge | Status and verified probe/package storage passed with the file manager in the foreground; gameplay coexistence and sleep/wake remain open |
-| [Control Inspector](docs/INSPECTOR.md) | 01.03 read-only app/Shell diagnostic | Both metadata checks, both proxy unloads and normal app exit passed; the kernel helper stays loaded until reboot |
+| Vita DevLoop | Foreground Lua edit/run/observe/recover; ten MCP tools | Public 01.03 candidate; hardware record uses 01.02. Changed 01.03 needs physical acceptance. |
+| [Vita Resident](docs/RESIDENT.md) | Boot-loaded status and verified DevLoop package inbox; four tools | 0.1.1; separate native build identity |
+| [Vita Control](docs/CONTROL.md) | Background screen, managed files, app commands and bounded synthetic input; thirteen tools | Matched 0.2.2 kernel/Shell pair, ABI 1 |
+| Control Starter | Explicit activation after normal boot, then exits | 01.00, title `CHRS00011` |
+| [Control Inspector](docs/INSPECTOR.md) | Optional read-only app/Shell diagnostic | 01.03; not required for the baseline |
 
-DevLoop 01.03 adds a graphics shutdown fix to the physically tested 01.02 prototype. Each component keeps its own build and runtime qualification. No prebuilt public release is available yet.
+Resident and Control share one **17-tool desktop MCP server**. DevLoop has its own ten-tool server. The computer speaks MCP over stdio; the Vita runs authenticated HTTP services. Control remains available after Starter exits, until normal reboot. DevLoop must be open for Lua operations.
 
-The prototype was tested on a homebrew-enabled Vita running firmware 3.65, with a Windows desktop bridge. Other device, firmware and host combinations need their own verification. See [validation and release criteria](docs/VALIDATION.md).
+Recorded checks include managed file publish/readback/copy/hash-guarded deletion, file manager/LiveArea/DevLoop screen readback, DevLoop launch/quit, five input channels observed by app telemetry, input expiry without a PC release, stale-target refusal and focus cancellation. Public build results remain separate from those original device identities. No prebuilt public binary release is available yet.
 
-## What DevLoop already does
+## Build and set up
 
-| Capability | What it enables |
-| --- | --- |
-| Live Lua reload | Change an experiment without rebuilding or reinstalling the native app for each edit |
-| Hardware inspection | Read buttons, sticks, front/rear touch and motion samples with API status |
-| Screen capture | Retrieve a 960×544 PNG of DevLoop's own display with frame and revision metadata |
-| Runtime inspection | Read logs, script errors, Lua allocation, callback timing samples and custom metrics |
-| Experiment recovery | Pause, restart, retain one previous Lua VM for rollback, or return to the native experiment |
-| Verified package staging | Transfer the selected DevLoop VPK through the file manager's FTP server and verify two SHA-256 read-backs before manual installation |
-
-The DevLoop bridge exposes [ten MCP tools](docs/TOOLS.md). Its live capabilities belong to the foreground DevLoop app. The separate [Resident bridge](docs/RESIDENT.md) adds background status and verified DevLoop inbox uploads. Native installation remains manual.
-
-## Build and try it
-
-The documented build uses Windows, PowerShell 7, Python 3.13 and Docker Desktop:
+Use Windows, PowerShell 7, Python 3.13, Git and Docker Desktop with Linux containers:
 
 ```powershell
 git clone https://github.com/LeiterConsulting/ps-vita-mcp.git
 cd ps-vita-mcp
 .\Setup-DevLoop.ps1
-.\Build-DevLoop.ps1
+.\Build-McpBaseline.ps1
 ```
 
-This runs host, MCP and FTP fixture tests, builds the ARM app, and writes the verified VPK and hash report to `dist/devloop/`. Follow [setup and pairing](docs/SETUP.md) to install the experimental candidate manually, configure the bridge and connect an MCP client. No prebuilt GitHub release is available yet.
+The build runs host C, actual MCP stdio and local FTP fixtures, then validates the ARM modules and VPKs. It never contacts the Vita. Outputs are under `dist/devloop/`, `dist/resident/` and `dist/control/`; reports bind exact sources and artifact hashes.
 
-After pairing and opening DevLoop:
+Follow [the complete setup guide](docs/GETTING-STARTED.md) to install and pair the components. Native installation and activation are manual. Full Control loads through Starter after a normal boot; the earlier boot-loaded Control configuration hung and is excluded from this path.
+
+After DevLoop pairing, an example edit can run without rebuilding the native app:
 
 ```powershell
 .\.venv-devloop\Scripts\python.exe bridge\run_script.py experiments\bounce.lua --resume --capture
 ```
 
-Edit the example and send it again, or use the explicit foreground `--watch` option. The [Lua interface](SCRIPTING.md) covers drawing, physical input, metrics and recovery.
+The [Lua interface](SCRIPTING.md) covers drawing, input observations, metrics and recovery. The [input proof](experiments/mcp_input_proof.lua) observes synthetic Control delivery and neutral return after lease expiry.
 
 ## How it fits together
 
 ```mermaid
 flowchart LR
-    Client[MCP client on desktop] <-->|MCP over stdio| Bridge[Desktop bridge]
-    Bridge <-->|Authenticated LAN HTTP| App[Vita DevLoop]
-    App --> Lua[Lua experiments]
-    App --> Hardware[Display and physical inputs]
-    Bridge -->|Optional verified transfer| FTP[File manager FTP]
+    Client[MCP client] <-->|stdio| DevBridge[DevLoop bridge: 10 tools]
+    Client <-->|stdio| Background[Resident and Control bridge: 17 tools]
+    DevBridge <-->|LAN HTTP :17865| DevLoop[Foreground Lua app]
+    Background <-->|LAN HTTP :17866| Resident[Resident in SceShell]
+    Background <-->|LAN HTTP :17867| Control[Control in SceShell]
+    Starter[Manual Starter activation] --> Kernel[Matched kernel helper]
+    Kernel <--> Control
+    DevBridge --> FTP[File manager FTP]
     FTP --> Install[Manual VPK installation]
 ```
 
-The MCP server runs on the computer. The Vita runs a native development host with a small HTTP interface. The app must be open for live inspection and script changes. [Architecture and boundaries](docs/ARCHITECTURE.md).
+[Architecture](docs/ARCHITECTURE.md) explains revision guards, capture and lifecycle. [Control tools](docs/CONTROL.md) document arguments, limits, the loopback preview and paired-module identity. [DevLoop tools](docs/TOOLS.md) describe its separate foreground interface.
 
-## Starter experiments
+## Current limits
 
-| Example | What to try |
+- Control captures on-demand still images: preview up to 240×136, detail up to 480×272. Warm samples were about 126–324 ms; multi-second outliers occurred. Sustained video and latency guarantees remain open.
+- Input leases last 16–1000 ms and cancel on focus change. One synthetic contact per panel is supported. Stick offsets add to physical centers; readback and calibration matter. PS/power/volume are excluded.
+- Control files are confined to fresh revisions under `ux0:data/vita-control/workspace`; transfers are at most 8 MiB. System and installed-app writes are outside this API.
+- DevLoop Lua source is at most 16 KiB, with a 1 MiB allocation budget per VM and callback instruction budgets. Drawing is limited to 256 buffered commands. Script state is in RAM; assets/audio/file APIs are future work.
+- Native installation, startup confirmation and reboot recovery require an operator. Sleep/wake, long-run reliability and additional device combinations need qualification. Pairing uses unencrypted HTTP on a trusted LAN.
+
+These are current implementation limits. A heartbeat or accepted API call alone does not establish a working autonomous session. [New-device acceptance](docs/BASELINE.md#acceptance-on-a-new-device) is the gate for remaining DevLoop work.
+
+## Documentation and support
+
+| Need | Reference |
 | --- | --- |
-| [Bounce playground](experiments/bounce.lua) | Change the scene's colours, move the ball with the left stick, or place it with front touch |
-| [Input scope](experiments/input_scope.lua) | Inspect buttons, both sticks, both touch panels and motion read status |
+| Full setup from an already modded Vita | [Getting started](docs/GETTING-STARTED.md) |
+| Staging identity and acceptance | [Functional baseline](docs/BASELINE.md), [machine-readable record](docs/functional-mcp-baseline.json) |
+| Recovery, failed startup, stale markers, endpoint errors | [Troubleshooting](docs/TROUBLESHOOTING.md) |
+| Test scope and release checks | [Validation](docs/VALIDATION.md) |
+| Follow-on development | [Roadmap](ROADMAP.md) |
+| Reproduction or contribution | [Contributing](CONTRIBUTING.md), [issue form](https://github.com/LeiterConsulting/ps-vita-mcp/issues/new/choose) |
 
-![Live Lua edit captured on the Vita](docs/images/hot-reloaded.png)
-
-*A source edit changes the title and ball colour without reinstalling the app. This capture is paused after candidate preflight.*
-
-![Controlled runtime fault with inspection still available](docs/images/controlled-fault.png)
-
-*An intentional Lua callback error pauses the experiment and exposes recovery instructions. Both captures are from 01.02. [Full gallery](docs/SCREENSHOTS.md).*
-
-Persistent projects, sprites/audio and integration into other native apps follow on the [roadmap](ROADMAP.md).
-
-## Background service and diagnostics
-
-Build Resident with `Build-Resident.ps1`, and Inspector with `Build-Inspector.ps1`, after the same checkout setup. Resident has a guarded configuration proposal and manual boot activation. Inspector is an installable diagnostic app whose temporary read-only helpers require a normal reboot between sessions. Follow their dedicated guides for recovery and qualification.
-
-System-wide input, cross-app screen interaction and a fully autonomous native development loop are being explored. A read-only Inspector pass does not qualify those broader operations.
-
-## Current prototype limits
-
-- Lua source is limited to 16 KiB, with a 1 MiB allocation budget per VM and instruction budgets for callbacks.
-- Rendering exposes up to 256 buffered primitive/text commands per draw. Script asset, audio and file APIs are not exposed yet.
-- Scripts and rollback state live in RAM; closing the app loses that device-side state.
-- Callback timings are CPU samples, not GPU timings or a frame-latency guarantee.
-- Pairing authenticates requests, but the prototype uses unencrypted HTTP on a trusted local network.
-
-These are current host limits, not claims about the Vita's maximum capabilities.
-
-## Contributing
-
-Useful contributions include reproductions on additional hardware, small original examples, setup improvements and narrowly scoped capability additions. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before proposing a change.
-
-Original project code and documentation are licensed under [MIT](LICENSE). Dependencies retain their own licenses; see [third-party notices](THIRD_PARTY_NOTICES.md). This is an independent homebrew project.
+Original project code and documentation use [MIT](LICENSE), selected for easy reuse. Dependencies keep their existing licenses; [third-party notices](THIRD_PARTY_NOTICES.md) include the adapted input-hook license. Complete linked-library notices are a prerequisite to public binary distribution. This is an independent homebrew project.
 
 ## References
 

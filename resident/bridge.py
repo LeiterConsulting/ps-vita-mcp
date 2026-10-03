@@ -1,4 +1,4 @@
-"""Independent MCP bridge for the SceShell resident-service prototype."""
+"""Combined MCP bridge for Resident and runtime-loaded Vita Control."""
 from __future__ import annotations
 from datetime import datetime, timezone
 import hashlib
@@ -43,7 +43,7 @@ class ResidentRejection(RuntimeError):
         super().__init__(f'Resident rejected request with HTTP {status}' + (': ' + self.reason if self.reason else ''))
 
 
-mcp = FastMCP('Vita Resident', instructions='This prototype contacts a user plugin running in SceShell, independently of the foreground DevLoop app. Status is device-level, not game telemetry. Staging writes only fresh inbox attempts and does not install packages. Never automatically replay an uncertain upload; use verify_upload for its reported attempt. True sleep may make the service unavailable; do not change sleep settings. Physical app-switching acceptance is separate from PC tests.', log_level='WARNING')
+mcp = FastMCP('Vita Resident', instructions='This server exposes four Resident and thirteen Control tools. Resident runs in SceShell at boot; Control loads only through Starter after normal boot and remains until reboot. Read exact identity, current display PID and lease state before action. Input leases are bounded and cancel on focus change; confirm delivery through app telemetry. Screens are on-demand framebuffer copies, not synchronized video. Files are confined to managed revisions and fresh inboxes; native installation is manual. Never automatically replay an uncertain write/action; inspect the exact revision or attempt. True sleep may make services unavailable; do not change sleep settings. Physical acceptance is separate from host fixtures.', log_level='WARNING')
 
 
 def configuration() -> dict:
@@ -179,6 +179,9 @@ def vita_resident_stage_package(package: Literal['devloop'], expected_sha256: st
     return {**upload(payload, 'package.vpk'), **identity}
 
 
+
+from control.bridge_tools import register as register_control_tools
+register_control_tools(mcp, configuration, ROOT)
 
 if __name__ == '__main__':
     mcp.run()

@@ -1,0 +1,140 @@
+{
+  "baseline": "functional-mcp-2026-10-03",
+  "recorded_date": "2026-10-03",
+  "scope": "one physical modded firmware-3.65 Vita; recorded development evidence; not live device requalification during documentation publication",
+  "host": {
+    "os": "Windows",
+    "python": "3.13",
+    "mcp": "1.26.0",
+    "pillow": "11.3.0"
+  },
+  "components": {
+    "devloop": {
+      "version": "01.02",
+      "title_id": "CHRS00003",
+      "package_sha256": "06f37e958acefb16305edc20c55d5a821c5094bcc505d9db3f218503cd92d2c6",
+      "public_source_candidate": "01.03; changed shutdown/version; hardware acceptance pending"
+    },
+    "resident": {
+      "version": "0.1.1",
+      "plugin_sha256": "cfffc1c7c0b345226802e0aebb977d95571f15443447aac001fafc984e29ebfa",
+      "build_id": "46711c2e158b0ca7217c226e706c2a44951e1993340f3abf35292d4cad33cd51",
+      "port": 17866
+    },
+    "control": {
+      "version": "0.2.2",
+      "abi": 1,
+      "build_id": "f386299b905635ba369770c36604ff54c258045b2977c4e63038cfda5e333865",
+      "port": 17867,
+      "modules": {
+        "vita_control": {
+          "file": "vita_control.suprx",
+          "sha256": "53e71d37638c7c5229ba02fb41b355df470e562a0b6b0bb96b958cd4acf4d4f4",
+          "bytes": 17951
+        },
+        "vita_control_kernel": {
+          "file": "vita_control_kernel.skprx",
+          "sha256": "451855def8bdc2d21f17e4240f96f6d64d21c2590efcf677f124db78ddb6b89a",
+          "bytes": 8805
+        },
+        "control_bootstrap_probe": {
+          "file": "control_bootstrap_probe.suprx",
+          "sha256": "e2184fae05e55b774f7e8e02925b8857c4c55df9ecc267ab15567ecbc0db3743",
+          "bytes": 5086
+        },
+        "control_starter": {
+          "file": "control_starter.self",
+          "sha256": "d08db118c6ffc75dacc8e368be08dff52f72ac89f34fd0a0d8a39fbda1ac0c86",
+          "bytes": 77198
+        }
+      }
+    },
+    "starter": {
+      "version": "01.00",
+      "title_id": "CHRS00011",
+      "package_sha256": "e9dd8eb251a5602fff306b5c84cf3a3bcd94a7fb56ba815bc6227e9ab1b7e04a",
+      "bytes": 101191,
+      "activation": "foreground CROSS after normal boot; no full-Control boot entry"
+    }
+  },
+  "recorded_results": {
+    "starter_readiness_and_exit": "PASS",
+    "registered_MCP_status_after_PC_refresh": "PASS",
+    "managed_text_copy_list_hash_delete": "PASS",
+    "transfer": {
+      "bytes": 1048576,
+      "sha256": "fbbab289f7f94b25736c58be46a994c441fd02552cc6022352e3d86d2fab7c83",
+      "upload_ms": 1947.36,
+      "read_back_checks": 2,
+      "readback_ms": [
+        1853.53,
+        704.82
+      ]
+    },
+    "input_monitor": {
+      "source_sha256": "37e01acf9b40ecd3d993282768d798ab0cda5b7a73e1a19e575004a4f79d9061",
+      "observed_mask": 31.0,
+      "held_frames": 46.0,
+      "neutral_after": 1.0,
+      "PC_release_sent": false,
+      "precision": "stick center calibrated; three-byte tolerance"
+    },
+    "stale_target_rejected": "PASS HTTP409; no active lease",
+    "focus_cancel": {
+      "submitted_lease_ms": 1000,
+      "observed_after_ms": 482,
+      "remaining_ms": 0,
+      "neutral_lease": true
+    },
+    "warm_capture_samples": [
+      {
+        "width": 240,
+        "height": 136,
+        "capture_ms": 14.261,
+        "round_trip_ms": 126.39
+      },
+      {
+        "width": 240,
+        "height": 136,
+        "capture_ms": 14.483,
+        "round_trip_ms": 132.41
+      },
+      {
+        "width": 480,
+        "height": 272,
+        "capture_ms": 30.357,
+        "round_trip_ms": 324.02
+      }
+    ]
+  },
+  "qualification_limits": [
+    "Public DevLoop 01.03 candidate needs separate physical acceptance",
+    "New firmware/model/storage/plugin combinations unqualified",
+    "No automatic VPK installation or unattended confirmation proof",
+    "No continuous video or sustained latency guarantee; multi-second capture outliers observed",
+    "Analog input additive to physical stick centers",
+    "Sleep/wake, long-run reliability and fault reconnect acceptance pending",
+    "Quake is separate experimental software, not distributed here"
+  ],
+  "original_evidence_sha256": {
+    "collection.json": "a321d20e227ad35381a68f749b8f5455b7499fa0ac350861195bfb0246e27ade",
+    "registered-restarted-status.json": "f7727b3ac786747d3a8039b28733a8031dd7d8f3977be1cdbc261c0143920ea8",
+    "registered-mcp-file-proof.json": "f23f64a63c9ca80cd661cd6ce3eaadce3f734c0edbcb6cdf5918154f79f4eb15",
+    "registered-large-transfer.json": "457e51885a308a6105b6bdb3abd904a14672d988ae5bbe0e84a49ab12277bb22",
+    "input-proof-calibrated.json": "f00b52d3cae62bad541b75651b3bfa1a5c4d835fb0a02d17be43bf400662ea86",
+    "app-and-focus-proof.json": "9c80c8133901af44fdb93829e96075000bb007ad19b6be8dbd9767adbc790c86",
+    "readback-timing.json": "0bc9e5f33f1ead362a2b4712cf4406a79ca3875c7e16020445b49281619547da"
+  },
+  "privacy": "Only selected nonsecret identities, measurements and file hashes published; original raw device configs and private pairing not included",
+  "new_device_gates": [
+    "host_build",
+    "normal_resident_boot",
+    "matched_starter_load_and_exit",
+    "background_status_and_correct_frames",
+    "file_roundtrip",
+    "DevLoop_hot_reload",
+    "input_delivery_and_expiry",
+    "stale_target_and_focus_guard",
+    "restore_and_retain_evidence"
+  ]
+}

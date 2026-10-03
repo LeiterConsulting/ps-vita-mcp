@@ -1,11 +1,11 @@
 # MCP tool surface
 
-The Python bridge in `bridge/server.py` exposes these ten tools through MCP stdio. Follow [setup and pairing](SETUP.md) first. Clients can discover exact argument schemas through MCP `tools/list`.
+The foreground DevLoop bridge in `bridge/server.py` exposes these ten tools through MCP stdio. The separate combined Resident bridge exposes [four Resident](RESIDENT.md) and [thirteen Control tools](CONTROL.md). Follow [complete baseline setup](GETTING-STARTED.md) or [DevLoop-only pairing](SETUP.md). Clients can discover exact argument schemas through MCP `tools/list`.
 
 | Tool | Effect |
 | --- | --- |
 | `vita_status` | Read app mode, pause state, native parameters, frame/revision and device sample time |
-| `vita_read_input` | Read physical button, stick, touch and motion observations with API status |
+| `vita_read_input` | Read effective platform button, stick, touch and motion observations with API status; Control emulation may contribute |
 | `vita_get_logs` | Read bounded event logs and their sequence/sample metadata |
 | `vita_screenshot` | Return a PNG of DevLoop's display with capture metadata |
 | `vita_set_parameters` | Change native gravity, drag, brake or maximum speed using an expected revision |

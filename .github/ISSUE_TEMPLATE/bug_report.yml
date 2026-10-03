@@ -1,0 +1,43 @@
+name: Setup or runtime problem
+description: Report the exact stage, component and evidence level.
+body:
+  - type: textarea
+    id: identity
+    attributes:
+      label: Component and versions
+      description: Include source commit, build ID and package hash when available. Never include pairing tokens.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Device and host
+      description: Vita model/firmware/storage, relevant plugins, host OS and MCP client.
+    validations:
+      required: true
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Failing stage
+      options:
+        - Build or host tests
+        - Transfer or installation
+        - Resident boot activation
+        - Control Starter activation
+        - MCP discovery or connection
+        - Screen, files or input
+        - Application behavior or wake
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction and observations
+      description: Include expected/actual behavior, last working stage, error and reboot history. Distinguish API receipts from screen/app and physical observations.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Sanitized logs or minimal example
+      description: Remove credentials, tokens, full device configs, private addresses and proprietary assets.

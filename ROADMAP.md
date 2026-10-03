@@ -1,6 +1,6 @@
 # Roadmap
 
-The first public project is the DevLoop MCP development loop. Broader Vita projects can reuse it as integrations mature.
+The [functional MCP staging point](docs/BASELINE.md), recorded October 3, 2026, is the prerequisite for remaining autonomous development work. Every new device/build must pass its acceptance checklist before advancing. The public sources include foreground DevLoop and runtime-loaded background Control; installation remains manual.
 
 ## 1. Publish a usable developer preview
 
@@ -44,8 +44,13 @@ Each addition should complete a useful user workflow and retain a working recove
 - [x] Prove the Inspector app-to-Shell metadata handoff, caller guard and normal proxy/app cleanup on the development Vita.
 - [ ] Repeat public-checkout package installation and lifecycle checks on additional devices.
 - [ ] Qualify Resident during gameplay, app return, sustained transfers and sleep/wake.
-- [ ] Test the broader Control service after LiveArea starts, preserving boot recovery.
-- [ ] Qualify bounded injected inputs, expiry/focus cancellation, cross-app capture and measured interaction latency.
-- [ ] Coordinate native build/stage/observe workflows after those gates pass.
+- [x] Demonstrate runtime Control 0.2.2 activation through Starter after normal boot, matched readiness and normal Starter exit.
+- [x] Observe screen readback in the file manager, LiveArea and DevLoop, plus managed file roundtrip/copy/hash-guarded deletion.
+- [x] Observe five injected input channels in DevLoop, expiry without PC release, stale-target refusal and focus cancellation on the original development device.
+- [x] Publish sources, setup, support and machine-readable baseline evidence for this staging point.
+- [ ] Repeat the functional baseline with freshly built public artifacts; retain exact identities and physical observations.
+- [ ] Qualify sustained interaction, sleep/wake and network-fault recovery.
+- [ ] Complete one autonomous Lua edit/trial/observe/compare/rollback slice on a currently qualified session.
+- [ ] Add a package registry and qualified installation/activation before unattended native VPK iteration.
 
-The original Control 0.2.0 boot activation hung and was rolled back. Inspector 01.03 establishes the read-only handoff; the broader Control service and automatic installation remain development work. [Background service](docs/RESIDENT.md), [Inspector](docs/INSPECTOR.md) and [evidence boundaries](docs/VALIDATION.md).
+The original Control 0.2.0 boot activation hung and was rolled back. Control 0.2.2 loads at runtime through Starter; it must not be added to boot configuration. Inspector 01.03 remains an optional read-only diagnostic. [Complete setup](docs/GETTING-STARTED.md), [Control](docs/CONTROL.md) and [evidence boundaries](docs/VALIDATION.md).

@@ -1,5 +1,7 @@
 # Build, pair and connect
 
+This guide covers DevLoop alone. For background status, screen readback, managed files and synthetic input as well, follow [the complete modded-Vita baseline setup](GETTING-STARTED.md).
+
 The initial host qualification uses Windows, PowerShell 7, Python 3.13 and Docker Desktop running Linux containers. Other hosts are not yet qualified. A homebrew-enabled Vita is needed to install the app; the tested prototype device runs firmware 3.65. This guide does not change firmware or install homebrew support.
 
 The source builds experimental candidate **01.03**, title ID **CHRS00003**. Its device qualification is pending. Keep a copy of a working package before updating an existing DevLoop installation.

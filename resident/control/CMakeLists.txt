@@ -1,0 +1,51 @@
+cmake_minimum_required(VERSION 3.16)
+set(CMAKE_TOOLCHAIN_FILE "$ENV{VITASDK}/share/vita.toolchain.cmake" CACHE PATH "Vita toolchain")
+project(vita_control C)
+include("$ENV{VITASDK}/share/vita.cmake" REQUIRED)
+function(control_self target source)
+  # Isolate the SDK macro's export and SELF privilege flags for each module.
+  vita_create_self(${target} ${source} ${ARGN})
+endfunction()
+add_executable(vita_control_kernel kernel.c lease.c bootstrap_metadata.c)
+target_compile_definitions(vita_control_kernel PRIVATE __VITA_KERNEL__)
+target_compile_options(vita_control_kernel PRIVATE -std=gnu11 -Wall -Wextra -Werror -O2 -g -fno-pic -fno-PIC)
+set_target_properties(vita_control_kernel PROPERTIES LINK_FLAGS "-nostdlib -Wl,-q")
+target_link_libraries(vita_control_kernel taihenForKernel_stub SceCtrlForDriver_stub SceThreadmgrForDriver_stub SceDisplayForDriver_stub SceSysmemForDriver_stub SceSysrootForDriver_stub SceSysclibForDriver_stub gcc)
+control_self(vita_control_kernel.skprx vita_control_kernel CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/kernel.yml)
+vita_create_stubs(vita_control_kernel_stubs vita_control_kernel ${CMAKE_CURRENT_SOURCE_DIR}/kernel.yml KERNEL)
+set(control_fingerprint "")
+foreach(control_source kernel.c lease.c lease.h api.h http.c platform_shell.c control_platform.h CMakeLists.txt kernel.yml shell.yml bootstrap_metadata.c bootstrap_probe.c bootstrap_probe.yml bootstrap_app.c ../platform.h ../sha256.c ../sha256.h)
+    file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/${control_source}" control_digest)
+    string(APPEND control_fingerprint "${control_digest}")
+endforeach()
+string(SHA256 control_build_id "${control_fingerprint}")
+target_compile_definitions(vita_control_kernel PRIVATE R_BUILD_ID="${control_build_id}")
+add_executable(vita_control http.c platform_shell.c lease.c ../sha256.c)
+add_dependencies(vita_control vita_control_kernel_stubs)
+target_include_directories(vita_control PRIVATE ..)
+target_compile_definitions(vita_control PRIVATE R_BUILD_ID="${control_build_id}")
+target_compile_options(vita_control PRIVATE -std=c11 -Wall -Wextra -Werror -O2 -g -fno-builtin -fno-pic -fno-PIC)
+set_target_properties(vita_control PROPERTIES LINK_FLAGS "-nostdlib -Wl,-q")
+target_link_libraries(vita_control gcc SceLibKernel_stub_weak SceNet_stub_weak SceNetCtl_stub_weak SceSysmodule_stub_weak SceKernelThreadMgr_stub_weak SceIofilemgr_stub_weak SceProcessmgr_stub_weak ScePower_stub_weak SceAppMgr_stub ${CMAKE_CURRENT_BINARY_DIR}/libvita_control_kernel_stub.a)
+control_self(vita_control.suprx vita_control UNSAFE CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/shell.yml)
+add_executable(control_bootstrap_probe bootstrap_probe.c)
+add_dependencies(control_bootstrap_probe vita_control_kernel_stubs)
+target_compile_definitions(control_bootstrap_probe PRIVATE R_BUILD_ID="${control_build_id}")
+target_compile_options(control_bootstrap_probe PRIVATE -std=c11 -Wall -Wextra -Werror -O2 -g -fno-builtin -fno-pic -fno-PIC)
+set_target_properties(control_bootstrap_probe PROPERTIES LINK_FLAGS "-nostdlib -Wl,-q")
+target_link_libraries(control_bootstrap_probe gcc SceLibKernel_stub_weak SceKernelThreadMgr_stub_weak SceIofilemgr_stub_weak ${CMAKE_CURRENT_BINARY_DIR}/libvita_control_kernel_stub.a)
+control_self(control_bootstrap_probe.suprx control_bootstrap_probe UNSAFE CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/bootstrap_probe.yml)
+add_executable(control_starter bootstrap_app.c)
+target_compile_definitions(control_starter PRIVATE R_BUILD_ID="${control_build_id}")
+target_compile_options(control_starter PRIVATE -std=c11 -Wall -Wextra -Werror -O2 -g)
+target_link_libraries(control_starter vita2d taihen_stub SceDisplay_stub SceGxm_stub SceSysmodule_stub SceCtrl_stub ScePgf_stub ScePvf_stub SceCommonDialog_stub SceAppMgr_stub SceIofilemgr_stub SceKernelThreadMgr_stub SceProcessmgr_stub freetype png jpeg z m)
+control_self(control_starter.self control_starter UNSAFE)
+vita_create_vpk(control_starter.vpk CHRS00011 control_starter.self VERSION "01.00" NAME "Control Starter"
+ FILE assets/icon0.png sce_sys/icon0.png FILE assets/bg.png sce_sys/livearea/contents/bg.png
+ FILE assets/startup.png sce_sys/livearea/contents/startup.png
+ FILE ${CMAKE_CURRENT_SOURCE_DIR}/../../assets/template.xml sce_sys/livearea/contents/template.xml
+ FILE ${CMAKE_CURRENT_BINARY_DIR}/vita_control_kernel.skprx vita_control_kernel.skprx
+ FILE ${CMAKE_CURRENT_BINARY_DIR}/vita_control.suprx vita_control.suprx
+ FILE ${CMAKE_CURRENT_BINARY_DIR}/control_bootstrap_probe.suprx control_bootstrap_probe.suprx
+ FILE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.vitacompanion LICENSE.vitacompanion
+ FILE ${CMAKE_CURRENT_SOURCE_DIR}/../../LICENSE LICENSE)

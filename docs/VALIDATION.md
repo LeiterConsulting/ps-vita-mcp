@@ -42,13 +42,21 @@ The public update adds Resident 0.1.1 and Inspector 01.03 as separate components
 
 - Resident answered background status and verified a 4 KiB probe and 1.2 MB package with the file manager in the foreground. Gameplay coexistence, sustained transfer load, app return and wake recovery remain open.
 - Inspector 01.03 passed app and SceShell ABI/build/caller/permission/error checks. Both user proxies stopped/unloaded, and the app exited normally. The metadata-only kernel helper stays loaded until normal reboot.
-- Control 0.2.0 boot activation hung and was rolled back. These metadata results do not establish cross-app input, screen capture, broader Control stability or automatic installation.
+- Control 0.2.0 boot activation hung and was rolled back. The later runtime-loaded Control 0.2.2 baseline below has its own scoped proof; Inspector metadata results alone do not establish its behavior.
 
-Public adaptations remove dependence on private game packages and local artifact/config snapshots. Resident publishes four tools with DevLoop as its package registry entry. Inspector retirement requires the operator's inspected config hash, explicit normal-reboot confirmation and exact installed-package/guard identities. The public build does not install, activate, contact or test the Vita.
+Public adaptations remove dependence on private game packages and local artifact/config snapshots. Resident's native service retains four tools with DevLoop as its package registry entry; its combined desktop server now adds thirteen Control tools. Inspector and Starter retirement require the operator's inspected config hash, explicit normal-reboot confirmation and exact installed-package/guard identities. The public build does not install, activate, contact or test the Vita.
 
 Git stores the native sources with LF line endings. Their source fingerprints and embedded build IDs therefore differ from the mixed-line-ending prototype, even where the normalized native source text matches. Public build hashes below describe the exact publication files; prototype hardware results remain bound to the prototype identities.
 
 [Public-checkout build results](background-build-validation.json) report current native hashes and host checks. Their device-acceptance scope is separate from the archived prototype package and any future public installation.
+
+## Functional MCP staging point added October 3, 2026
+
+[The baseline](BASELINE.md) and its [machine-readable record](functional-mcp-baseline.json) bind the original Starter 01.00, Control 0.2.2, Resident 0.1.1 and DevLoop 01.02 identities to saved device evidence. That record includes matched readiness and normal Starter exit, actual registered MCP status, managed text/copy/hash-delete and one 1 MiB transfer, framebuffer readback, DevLoop launch/quit, five synthetic channels observed by Lua, expiry without PC release, stale-PID refusal and focus cancellation before deadline.
+
+Warm preview/detail timings are individual samples; multi-second outliers occurred. Physical controller acceptance, sleep/wake, long sessions, unattended confirmation and native installation remain separate gates. The public DevLoop candidate stays 01.03 and still needs its own hardware acceptance.
+
+Control publication adds source, runtime-only staging, explicit marker retirement, CLI diagnostics, loopback preview, documentation and support. Legacy boot activation is disabled. Fixtures test refusals before writes and uncertain rename behavior. Public sources are normalized to LF; their build fingerprints can differ from the recorded development artifacts. [Public baseline build results](public-baseline-build-validation.json) record current host/package qualification without claiming a new device run.
 
 ## First preview acceptance
 
