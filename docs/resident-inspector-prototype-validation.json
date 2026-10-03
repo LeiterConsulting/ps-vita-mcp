@@ -1,0 +1,46 @@
+{
+  "verified_date": "2026-10-03",
+  "coverage": "one homebrew-enabled Vita, firmware 3.65; Windows bridge",
+  "resident": {
+    "version": "0.1.1",
+    "native_build_id": "46711c2e158b0ca7217c226e706c2a44951e1993340f3abf35292d4cad33cd51",
+    "native_plugin_sha256": "cfffc1c7c0b345226802e0aebb977d95571f15443447aac001fafc984e29ebfa",
+    "native_plugin_bytes": 14034,
+    "observed_scope": "status/heartbeat and verified inbox storage with file manager foreground",
+    "probe_bytes": 4096,
+    "package_bytes": 1213906,
+    "readback_checks": 2,
+    "pending": [
+      "gameplay coexistence",
+      "app return",
+      "sustained load",
+      "sleep/wake recovery"
+    ],
+    "public_bridge_scope": "four Resident tools; only DevLoop VPK registered"
+  },
+  "inspector": {
+    "version": "01.03",
+    "native_build_id": "8236ed50d5b8b284c42bb168e64cd715e522248fb272e4be0ee652276d51e1ff",
+    "prototype_package_sha256": "0e1093eb942a11ef2b01c46e0fa0cc7e68fb7879432c10451286d68dea8e8f78",
+    "prototype_package_bytes": 125630,
+    "own_app_metadata": "passed",
+    "system_shell_metadata": "passed",
+    "exact_permission_error": "0x80020008",
+    "exact_argument_error": "0x80020005",
+    "both_user_proxy_stop_unload": "passed",
+    "normal_app_exit": "passed",
+    "kernel_lifecycle": "retained until normal reboot",
+    "shell_handoff": "zero-argument entry; validated shared session and exact build/run completion",
+    "limits": [
+      "read-only metadata",
+      "no input injection or framebuffer capture qualified",
+      "rebuilt public package/device qualification remains separate"
+    ]
+  },
+  "broader_control": {
+    "state": "experimental development outside this source update",
+    "boot_incident": "Control 0.2.0 boot activation hung and was rolled back",
+    "next_qualification": "on-demand activation after LiveArea starts; then bounded controls and capture"
+  },
+  "privacy": "sanitized summary; pairing, FTP credentials, device addresses, private boot configs and proprietary game assets omitted"
+}

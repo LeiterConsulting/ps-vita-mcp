@@ -39,4 +39,8 @@ The existing uploader accepts the DevLoop identity. General project/package supp
 
 ## Reuse beyond DevLoop
 
+The separate `resident/` service runs in SceShell and serves background status and a verified upload inbox on port 17866. Its desktop bridge exposes four tools and reads its own pairing config. It does not depend on DevLoop being open. Native activation is a guarded configuration proposal followed by a manual copy/reboot. [Resident design and setup](RESIDENT.md).
+
+`resident/inspector/` is a separate diagnostic app. It loads a tiny metadata-only kernel helper once per session, checks its own caller through a temporary proxy, then optionally loads a read-only proxy inside SceShell. The Shell handoff uses a fresh validated on-disk session record and exact-build/nonce completion checks. User proxies are released after completed checks; the syscall-exporting kernel is retained until reboot. [Inspector lifecycle](INSPECTOR.md).
+
 A later native integration layer could expose app-specific observations and commands inside other homebrew projects. Each app would define its supported operations, lifecycle and state model. The existing protocol and client behavior provide a starting point; a reusable integration library has not been released or validated yet.

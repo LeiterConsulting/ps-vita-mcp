@@ -44,6 +44,8 @@ class Fixture:
                             else:
                                 fixture.directories.add(path); self.reply(f'257 "{path}" created')
                         elif command == "PASV":
+                            if self.passive is not None:
+                                self.passive.close()
                             self.passive = socket.socket()
                             self.passive.bind(("127.0.0.1", 0)); self.passive.listen(1); self.passive.settimeout(5)
                             port = self.passive.getsockname()[1]

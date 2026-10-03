@@ -36,4 +36,16 @@ These integrations require their own real-device proof. A successful game port i
 - A desktop session viewer for scripts, captures and metrics.
 - Additional host/device compatibility based on contributed test results.
 
-Each addition should complete a useful user workflow and retain a working recovery path. Kernel/system integration and automatic installation need separate proposals rather than being implied by the initial MCP bridge.
+Each addition should complete a useful user workflow and retain a working recovery path.
+
+## 5. Qualify background development services
+
+- [x] Publish Resident status/upload sources with guarded staging and manual activation.
+- [x] Prove the Inspector app-to-Shell metadata handoff, caller guard and normal proxy/app cleanup on the development Vita.
+- [ ] Repeat public-checkout package installation and lifecycle checks on additional devices.
+- [ ] Qualify Resident during gameplay, app return, sustained transfers and sleep/wake.
+- [ ] Test the broader Control service after LiveArea starts, preserving boot recovery.
+- [ ] Qualify bounded injected inputs, expiry/focus cancellation, cross-app capture and measured interaction latency.
+- [ ] Coordinate native build/stage/observe workflows after those gates pass.
+
+The original Control 0.2.0 boot activation hung and was rolled back. Inspector 01.03 establishes the read-only handoff; the broader Control service and automatic installation remain development work. [Background service](docs/RESIDENT.md), [Inspector](docs/INSPECTOR.md) and [evidence boundaries](docs/VALIDATION.md).

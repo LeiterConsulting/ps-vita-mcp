@@ -36,6 +36,20 @@ The new checkout's isolated Python environment and full `Build-DevLoop.ps1` pass
 
 These tests used host substitutes and local fixtures. They did not connect to, install on or alter the physical Vita. The locked Python dependencies emit an upstream `IncompleteFieldDefinitionWarning` during MCP startup; protocol fixtures passed, and the warning is retained in local logs.
 
+## Background components added October 3, 2026
+
+The public update adds Resident 0.1.1 and Inspector 01.03 as separate components. [Sanitized prototype results](resident-inspector-prototype-validation.json) record their exact native identities and scoped device observations. [Import manifest](resident-inspector-source-import.json) records source inputs before public-checkout adaptations.
+
+- Resident answered background status and verified a 4 KiB probe and 1.2 MB package with the file manager in the foreground. Gameplay coexistence, sustained transfer load, app return and wake recovery remain open.
+- Inspector 01.03 passed app and SceShell ABI/build/caller/permission/error checks. Both user proxies stopped/unloaded, and the app exited normally. The metadata-only kernel helper stays loaded until normal reboot.
+- Control 0.2.0 boot activation hung and was rolled back. These metadata results do not establish cross-app input, screen capture, broader Control stability or automatic installation.
+
+Public adaptations remove dependence on private game packages and local artifact/config snapshots. Resident publishes four tools with DevLoop as its package registry entry. Inspector retirement requires the operator's inspected config hash, explicit normal-reboot confirmation and exact installed-package/guard identities. The public build does not install, activate, contact or test the Vita.
+
+Git stores the native sources with LF line endings. Their source fingerprints and embedded build IDs therefore differ from the mixed-line-ending prototype, even where the normalized native source text matches. Public build hashes below describe the exact publication files; prototype hardware results remain bound to the prototype identities.
+
+[Public-checkout build results](background-build-validation.json) report current native hashes and host checks. Their device-acceptance scope is separate from the archived prototype package and any future public installation.
+
 ## First preview acceptance
 
 | Gate | Required result |
