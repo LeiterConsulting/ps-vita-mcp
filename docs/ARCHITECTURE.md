@@ -29,7 +29,7 @@ The prototype limits source, allocations, instructions and drawing commands. The
 
 Screenshots capture DevLoop's own framebuffer, with copying coordinated on the main thread and PNG encoding handled by the network worker. This is an on-demand still image, not system-wide video capture.
 
-Input observations include read status alongside values so an unavailable sensor can be distinguished from a zero reading. The current tool surface does not inject physical controls.
+Input observations include read status alongside values so an unavailable sensor can be distinguished from a zero reading. DevLoop's own bridge reads input; the separate Control bridge can submit bounded synthetic input that DevLoop observes through the effective platform APIs. Neither a synthetic trial nor its receipt substitutes for physical controller acceptance.
 
 ## Packaging and installation
 
@@ -39,7 +39,11 @@ The existing uploader accepts the DevLoop identity. General project/package supp
 
 ## Reuse beyond DevLoop
 
-The separate `resident/` service runs in SceShell and serves background status and a verified upload inbox on port 17866. Its desktop bridge exposes four tools and reads its own pairing config. It does not depend on DevLoop being open. Native activation is a guarded configuration proposal followed by a manual copy/reboot. [Resident design and setup](RESIDENT.md).
+The separate `resident/` service runs in SceShell and serves background status and a verified upload inbox on port 17866. Its four native-service tools read its own pairing config. It does not depend on DevLoop being open. Native activation is a guarded configuration proposal followed by a manual copy/reboot. [Resident design and setup](RESIDENT.md).
+
+The combined `resident/bridge.py` now also registers thirteen Control tools, for seventeen total. Control runs on port 17867 with Resident pairing. The runtime Starter loads a matched kernel helper once, checks readiness through an own-process proxy, releases that proxy, and loads the Shell service with zero arguments. The Shell-caller guard, matching ABI/fingerprint and on-storage one-load marker constrain the session. Starter exits while the pair remains loaded until reboot. Full Control is never part of the supported boot configuration.
+
+Control reads the displayed framebuffer through process-aware SDK APIs. It returns bounded preview/detail RGB images, metadata and hashes, then encodes PNG on the host. Copies can span rendered frames. Its synthetic full-state leases last 16–1000 ms and cancel on display-focus changes. Managed files use fresh revision directories and exact-hash readback/deletion; system and installed-app writes are outside this API. [Control arguments and lifecycle](CONTROL.md), [complete activation/reboot procedure](GETTING-STARTED.md).
 
 `resident/inspector/` is a separate diagnostic app. It loads a tiny metadata-only kernel helper once per session, checks its own caller through a temporary proxy, then optionally loads a read-only proxy inside SceShell. The Shell handoff uses a fresh validated on-disk session record and exact-build/nonce completion checks. User proxies are released after completed checks; the syscall-exporting kernel is retained until reboot. [Inspector lifecycle](INSPECTOR.md).
 

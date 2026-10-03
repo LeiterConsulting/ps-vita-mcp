@@ -1,0 +1,619 @@
+{
+  "baseline": "functional-mcp-2026-10-03",
+  "checked_date": "2026-10-03",
+  "base_commit": "c41eb92ea6584c5ac9ac9c800e96ada4a5b26045",
+  "execution": "isolated public checkout; Setup-DevLoop.ps1 then full Build-McpBaseline.ps1; exit 0",
+  "host": "Windows, Python 3.13, locked dependencies, Docker Linux containers",
+  "toolchain": {
+    "image": "vitasdk/vitasdk@sha256:fd82d88ff456d118eef16533ebf9a3a6ae0e292684fb8a3a35f15f0707b4692d",
+    "sourceTag": "vitasdk/vitasdk:2026.08",
+    "retrievedUtc": "2026-10-02",
+    "documentation": "https://github.com/vitasdk/docker"
+  },
+  "qualified_on_host": true,
+  "device_contacted": false,
+  "device_acceptance": "fresh public artifacts not installed or physically requalified; recorded original runtime is separate in functional-mcp-baseline.json",
+  "package_identity_note": "VPK ZIP metadata can vary per build; use your generated report and file hash. Source fingerprints/native identities bind the inputs.",
+  "public_adaptations": [
+    "LF source normalization",
+    "Combined four Resident plus thirteen Control MCP tools",
+    "Private package/config dependencies removed from host fixtures/verifiers",
+    "Guarded Starter marker inspection and retirement after explicit normal reboot confirmation",
+    "Control boot-proposal CLI disabled; runtime Starter path only",
+    "Original MIT notice added alongside adapted-hook MIT in Starter VPK",
+    "CLI diagnostics and complete setup/support documentation"
+  ],
+  "components": {
+    "devloop": {
+      "version": "01.03",
+      "package": {
+        "file": "vita_devloop.vpk",
+        "titleId": "CHRS00003",
+        "version": "01.03",
+        "bytes": 464663,
+        "unpackedBytes": 472890,
+        "sha256": "79f37889acdcdeb8642d38dfac8cf4880abfec5ac85760c980a23c85272a92d3",
+        "elfSha256": "1db7f556d5cd9cf435201cf1980fb4b6d41aed946ddecc7cc91963b6db7df00d",
+        "sfo": {
+          "APP_VER": "01.03",
+          "ATTRIBUTE": 32768,
+          "ATTRIBUTE2": 0,
+          "ATTRIBUTE_MINOR": 16,
+          "BOOT_FILE": "",
+          "CATEGORY": "gd",
+          "CONTENT_ID": "",
+          "EBOOT_APP_MEMSIZE": 0,
+          "EBOOT_ATTRIBUTE": 0,
+          "EBOOT_PHY_MEMSIZE": 0,
+          "LAREA_TYPE": 0,
+          "NP_COMMUNICATION_ID": "",
+          "PARENTAL_LEVEL": 1,
+          "PSP2_DISP_VER": "00.000",
+          "PSP2_SYSTEM_VER": 0,
+          "STITLE": "Vita DevLoop",
+          "TITLE": "Vita DevLoop",
+          "TITLE_ID": "CHRS00003",
+          "VERSION": "00.00"
+        },
+        "liveareaPngProfiles": {
+          "sce_sys/icon0.png": {
+            "size": [
+              128,
+              128
+            ],
+            "bitDepth": 8,
+            "colorType": 3,
+            "paletteEntries": 256,
+            "transparency": false
+          },
+          "sce_sys/livearea/contents/bg.png": {
+            "size": [
+              840,
+              500
+            ],
+            "bitDepth": 8,
+            "colorType": 3,
+            "paletteEntries": 256,
+            "transparency": false
+          },
+          "sce_sys/livearea/contents/startup.png": {
+            "size": [
+              280,
+              158
+            ],
+            "bitDepth": 8,
+            "colorType": 3,
+            "paletteEntries": 256,
+            "transparency": false
+          }
+        }
+      },
+      "source_hashes": {
+        "common/math_helpers.c": "75884edbf4e97325899e2bab9b5c30c9486961fbbf9d99083092f07ec27a4684",
+        "common/math_helpers.h": "4233dcfc125ee26177a6c49975ec761796177daa8f2b9aca9757e0fc34af0273",
+        "common/physics.c": "602772e39f18ca0c771bc8f0dc1baf20ef9dd235b45340b64aff3ebe935edb5e",
+        "common/physics.h": "ce5b74d012a4fb9e3914e5d0ddade7a75e9d388ba6fc60879efc0f3dff9c0899",
+        "common/platform.h": "5a219dfb496c29cadde7172ecbe9b0d212f990d024a998f87ed8fbbcf2443edd",
+        "common/platform_host.c": "e99b1fef0a3147ec07f7b4facf67dc50ed6fe9b890d8bc7488e42c5f446390ae",
+        "common/platform_vita.c": "5eb3849eba2fc5a85cad8bf10cac08981b66b1cf09cc5ef7b722d758a2bdab80",
+        "common/ui.c": "42db82331fa9043eb0033025acd25e9cd8878cb935d947035e31fdf27620e49c",
+        "common/ui.h": "13a1806e13916bbff007f41dd427f7074125f360f6a74c0a3ed1fac5d222056a",
+        "devloop/core.c": "200a657f00e20ea6a6823b1ddccf501339618e2695e960d778852d43aed0b716",
+        "devloop/core.h": "c4366e56fd6605826cd02a2b655ada0ad88aac2f819cb9ab95a3980ff4b4e740",
+        "devloop/script_runtime.c": "a547fea56f5d460c40e88ea14d266c195f1c859c84332c0997aef5987166c546",
+        "devloop/script_runtime.h": "bfd350316d40ec00e7cc5d0662dc3df305aebd4dae4850113de364c15004f167",
+        "devloop/server_vita.c": "b6ec18c34063c683e2b21c4406cdd30df37ae7ebd64dc9a19f941df68e31c616",
+        "devloop/server_vita.h": "1f4b8e868a4723ccd8d12f520cb1c30cebe8a178e707d08f67fae52ed0a497b5",
+        "devloop/sha256.c": "70ffa12bb8a409bd0ad9dd56583f6a618dab9eaf99c8d77547c959bb69ca7f84",
+        "devloop/sha256.h": "9c39ae8a878d48942f5cfc68b715321e590c3b49915ebc428712bc4e1466cb5b",
+        "bridge/call_tool.py": "300e090741b71501076b1aea5eb3232a5a91883ae7f0dd57256457ee7d50bb1e",
+        "bridge/configure.py": "d03043f6cffd6d13490c763da9ece09f05f3d0a496f8fd5d39ebc2a24ea49da1",
+        "bridge/configure_ftp.py": "a4642106c2ad574191ec9213bda18195ddb23b6c4709e49d5aaf731caa50bfcf",
+        "bridge/ftp_staging.py": "bcf5e53c3f2c8be8b52a7b3c24f13acbc5cb356d3522266c38c50f5976d2c8a8",
+        "bridge/prove_device.py": "436b32460143ccd261b14bf8c0cf7f32055b1ae3cd0913c98bcf9eccc210dde4",
+        "bridge/prove_scripts.py": "fc215968e62fc755df22258dbe5d7f030b79497b13beaedfa6879189aa50f4a1",
+        "bridge/prove_upload.py": "194ac0b177040f07e9ca52c24c14ad3a50ac3b0d57399a44b0277cc2242870d3",
+        "bridge/requirements-lock.txt": "8ba1f13adc23d37bed293e70023bbbf320bbd152fa821237d53e7b608f091b9b",
+        "bridge/requirements.txt": "01a029538ad226f0b92d84ef357b7cad0792ee3d5bff2326ec1b0e8e2d49c291",
+        "bridge/run_script.py": "4597ecc7976b7469f8ade9ac0d37d9a79024a0e9142c8c5cf0875a5a5c83bee2",
+        "bridge/server.py": "42f507dc760418cb917d92731ca56d8018905abc6f97a39828acd649cf8b865f",
+        "assets/vita_devloop/bg.png": "91665fd260e83df9e0ff68457d4dcb7d339b985105160dd40f3e9c6d1b53dd56",
+        "assets/vita_devloop/icon0.png": "0b5e608d2904945d02f84c51647fee58218f8975e4be7a48da3aa13ae48d1a42",
+        "assets/vita_devloop/startup.png": "cc37238205009e5b3b0436791b34b7bf2109bbbcf6cbf9e947f9d5151401890c",
+        "experiments/bounce.lua": "bfd6f9354e1de29d96eb653ca32a97cc7338460b2f65d011265605b998af3c9c",
+        "experiments/input_scope.lua": "960ef3ec823248c322c30aacacdeaae792c9db7a5cb79568bedf2b19fb50d14d",
+        "experiments/mcp_input_proof.lua": "37e01acf9b40ecd3d993282768d798ab0cda5b7a73e1a19e575004a4f79d9061",
+        "third_party/lua-5.4.9/doc/readme.html": "760d00c8b494ec2f170bcdd969e36b038027b0288232c60e15ffa6b0d784e9c7",
+        "third_party/lua-5.4.9/provenance.json": "63fb644372703d37a98a74ed0b6a55dc2c1dc5d612bc7335ea9d3134090a2f6e",
+        "third_party/lua-5.4.9/README": "d79084a014fca706eefe55350ee81b2ddd8560dc85245176afce3c8d1f1b963a",
+        "third_party/lua-5.4.9/src/lapi.c": "cd369dc6900a7696ca55ccbd4f50eadfa799b975f34b7afe450e1b859517a56e",
+        "third_party/lua-5.4.9/src/lapi.h": "9522209670086adfbb11379416078a7f4dafe154043e320cd435fa1811aaabfb",
+        "third_party/lua-5.4.9/src/lauxlib.c": "257c287ed4964ec8bb07fe0a1fd1b52b712e4bccd6c889db62f84abb905d6996",
+        "third_party/lua-5.4.9/src/lauxlib.h": "2d9e18e577a6062646268e7f7228264c28bd9b972c186e1af81b8357179c0ab4",
+        "third_party/lua-5.4.9/src/lbaselib.c": "5dc9a64468c1ac31e59066c7d3597eeb8ea4ac8fc19a257a74c431624300b487",
+        "third_party/lua-5.4.9/src/lcode.c": "2cf13c7f8205e9f07c2ccf1fedc3f0f0a05d238c194b176c72cc22b2cc96210e",
+        "third_party/lua-5.4.9/src/lcode.h": "c5ad73fb12fd3e9f6b6a5f37fea5b60e4c09f8a262e9ac3ca85e8e047f745cea",
+        "third_party/lua-5.4.9/src/lcorolib.c": "5408ccec737678d045d421f84a56e1ce03192a42c55440ffef07bec356aaec89",
+        "third_party/lua-5.4.9/src/lctype.c": "3e21ae6a8faab3ed470ae0de19360da6b4e21a0a0f8572f502f7e13d590186f8",
+        "third_party/lua-5.4.9/src/lctype.h": "c800311872ecba642f6d013b290eda83ba6cd8df8061e25cdca1dd4adcbed8b5",
+        "third_party/lua-5.4.9/src/ldblib.c": "349afd63c8be2cb8a522e4a04e9f444b65ed1fc7f4dabba5b4b61fd8c11d0c42",
+        "third_party/lua-5.4.9/src/ldebug.c": "06d065d1f26c29546cc74b61a50267cb70567ae538691f190bf15ca5cd29d308",
+        "third_party/lua-5.4.9/src/ldebug.h": "b0fd38f6461251ec481cf5633d622569cef939067e37cac23331d9f96b601702",
+        "third_party/lua-5.4.9/src/ldo.c": "af1522801876fe267bf2f892caa24209c395459331ac9a1fdf7ad3ed82402a6c",
+        "third_party/lua-5.4.9/src/ldo.h": "a577744f7c773bd91263540a1effefe75d3dfbfc8a9874349844f9a1ddae8d52",
+        "third_party/lua-5.4.9/src/ldump.c": "3c05402c5e282e06c2218f2469b1f38e1b84c783b9387aec7740c60b287d82c9",
+        "third_party/lua-5.4.9/src/lfunc.c": "38809428b76fafa79db9f65b7248cc0c02c9b696e7410fc4ab1699940768f1b2",
+        "third_party/lua-5.4.9/src/lfunc.h": "81dc02d55ae8000461ab90bb9689d2600ba51f2ea9ac9fb019386995c07e3e4a",
+        "third_party/lua-5.4.9/src/lgc.c": "caa4df2eccfae0899686d1aed3f2bad91184de3bd12176fdfead91147f704e0b",
+        "third_party/lua-5.4.9/src/lgc.h": "c83d3b8e31345c0aacd37442954a7f2434312ee48f98a8b9ae4fc8aad26d0c99",
+        "third_party/lua-5.4.9/src/linit.c": "3578568e27b9c1e2f4a7f9a53fdb4bc8ac095db75cc86e966bb1deec2792158e",
+        "third_party/lua-5.4.9/src/liolib.c": "bd3176d1c5d30d61fdfc2aa17d7af0819f2da51694942a24b6c185ef797f0060",
+        "third_party/lua-5.4.9/src/ljumptab.h": "6c3e9858b9dad03ccd61445ab0bff0eb6ddfa5e731e044f93350fe6c6b2ad8d5",
+        "third_party/lua-5.4.9/src/llex.c": "5cfbaabf3dc0d75835aaafc37fcd87a92f3dba451e002732747b602fda122958",
+        "third_party/lua-5.4.9/src/llex.h": "5ce0302528260ed6a40ec3ebf5e27d3bc108242d9dca57e8cdbe80fe34e13410",
+        "third_party/lua-5.4.9/src/llimits.h": "d588bdac3c8e1adc88df3dc92c950a1bfa29663d15f9221f58e2aa553b05a422",
+        "third_party/lua-5.4.9/src/lmathlib.c": "da5c7d74cffce22f0a9eb468e6e7e80b543ea6bec5c21aefb8cf285a3556722a",
+        "third_party/lua-5.4.9/src/lmem.c": "6154c2865bec97e61a92d8284be7e8ba21818f6edc95f5d72adb5dcf3e9532ca",
+        "third_party/lua-5.4.9/src/lmem.h": "8318a170a1d4bf21c3cb4deb1f8661f1dc7cf4eb688e4ec9a1e7ea16bfc3b5cf",
+        "third_party/lua-5.4.9/src/loadlib.c": "f21cafa3258669d6f8c4f09195c654a4a588ab402f5e976c731918658b747a5b",
+        "third_party/lua-5.4.9/src/lobject.c": "7a9748e38c52e45bc468cae74ccea08b98f8c53a523c1b0f9a117e5cf162c921",
+        "third_party/lua-5.4.9/src/lobject.h": "8539beae7dd9a08efc09b04d64c09663e9afc0f2ad342abc612bb000c0c9be70",
+        "third_party/lua-5.4.9/src/lopcodes.c": "bdc9d39fd8bf1a350c0249f726c5f61bef64b122b93a0fbc172b0328dc01f594",
+        "third_party/lua-5.4.9/src/lopcodes.h": "b3f511933be3039a4b92ba79601b2e5daf75b34f268bfc757adf3e24ea4f1ec9",
+        "third_party/lua-5.4.9/src/lopnames.h": "fbdbebc96b136efc6165cba1ac2b311b0c52413aaef59ae9ec750748f13c9e9a",
+        "third_party/lua-5.4.9/src/loslib.c": "474f2a3ee7ca8083e4552177da426ea159be82b4b34f3bd2151239810b57bb0e",
+        "third_party/lua-5.4.9/src/lparser.c": "e24f9e869afd690749404b3075fd82efaf3af882a13a131b612c6ff28e052a8c",
+        "third_party/lua-5.4.9/src/lparser.h": "68c34ef2d6e5a227f7cff18436a42c6739b1470ce12f059f168d9bb69fc8d49c",
+        "third_party/lua-5.4.9/src/lprefix.h": "626785d4eda75e9435f0ac21a780ae3b11f8b27dc36934e637a5c2305f906531",
+        "third_party/lua-5.4.9/src/lstate.c": "e5f3b17104f6764bad609d18ce8f3008a87731491a41cb78b79aed78777c21d8",
+        "third_party/lua-5.4.9/src/lstate.h": "8816454aa1df7c6cb1bc6366ca163b575e259e36497b75db354c572a81836cee",
+        "third_party/lua-5.4.9/src/lstring.c": "b6162f3a65735a902911ffafcafe1db0994c3b0df441581dcbb04dca6bc0b71d",
+        "third_party/lua-5.4.9/src/lstring.h": "a8cb0d737276f6a41071a0776ee1d8aa13cf02fa7c79ea096d202b14ea792e31",
+        "third_party/lua-5.4.9/src/lstrlib.c": "d386f8bbb75d5ef7b04c8ca9e747ff256525a9546bb6ff01c788b912b6995aa6",
+        "third_party/lua-5.4.9/src/ltable.c": "27a711276b1e22aaea3b9182e2d17693f598cfe9bc7fd203c05d400df6673853",
+        "third_party/lua-5.4.9/src/ltable.h": "1c8736b87aa408ef2afebfe693f46ae5424d658d798fb2a8a88b6868cf5569b5",
+        "third_party/lua-5.4.9/src/ltablib.c": "3d430a6f9cde66d0b791444c6164e7559ccf62b7cdc3a6325882408c6806e26c",
+        "third_party/lua-5.4.9/src/ltm.c": "7cbe645ed7e1161d31eb32ea467d8220b592c0acfa6107f0194487f0ddbf954b",
+        "third_party/lua-5.4.9/src/ltm.h": "5b2f6e59951edeef6e71bebe5ac4351f4b3602ee0461729308b80dcee8cea910",
+        "third_party/lua-5.4.9/src/lua.c": "ee7b72f64fa489d3e5393494f09c2517f5bdceb43f768c087a9ced74060af254",
+        "third_party/lua-5.4.9/src/lua.h": "06138352a12f0710bc214eb3a2e134889979cadc9a7a761a4e43dafa926419af",
+        "third_party/lua-5.4.9/src/lua.hpp": "fd83f7e823cfbb03ac2da937ec83f01b4a6ddaac220a4fa1ffd6c6c3842c5890",
+        "third_party/lua-5.4.9/src/luac.c": "3a424e6cb4177886c8790821cf15345f488764bc215eb29719c80002ef24cdc1",
+        "third_party/lua-5.4.9/src/luaconf.h": "af243c94bee6d2601383e8b65ed66a0d1b4ab3b7418ff903fcd0679912160e3a",
+        "third_party/lua-5.4.9/src/lualib.h": "4ea0f67d3e467f5d6a327616e22a3c2da8e03d47a3c3660916275f2842f521ea",
+        "third_party/lua-5.4.9/src/lundump.c": "7f7b078026e162161d402feba73a69cbe66a98558ec0745a445a595f42eac688",
+        "third_party/lua-5.4.9/src/lundump.h": "1137c0c9d8654ce223374d21c52a599fd1cc1ccb869801f87a27238a7bf55e8e",
+        "third_party/lua-5.4.9/src/lutf8lib.c": "441251bdf176e066e60a36735594f0cb92c067143fed32e373949bdb65a52866",
+        "third_party/lua-5.4.9/src/lvm.c": "7df5095ee2f6c88162d3536afb1fa04527b98fa3265cb579fc9aa6dcf05606de",
+        "third_party/lua-5.4.9/src/lvm.h": "aba601b887236d5e135392e0c49370df3b5a9ac5c66ab2d44156b3244f2dcef3",
+        "third_party/lua-5.4.9/src/lzio.c": "fba61ceeeb257a3fe5f63310f21e14fc26c4be647583dcf8e74cbc7fb7e43e8a",
+        "third_party/lua-5.4.9/src/lzio.h": "9673f62eac2d0fe3010f9d23148be7b8113319fdf4c4490015cd9feae2ecaad4",
+        "third_party/lua-5.4.9/src/Makefile": "d945aee4718785b5bbdbc575d76a16ef60bd65cbfed47ef53e7ced99b580371d",
+        "apps/vita_devloop.c": "2c3d6f24fb965ff901ef04c14c980003140e4cb24e6dded266e121b99503ca42",
+        "CMakeLists.txt": "7aff0e76d78e990ddc6b2a4cdb10e78a123ffdb0862c605623206efe8dd5792c",
+        "Build-DevLoop.ps1": "99fbf298d15fc498cc30721606c4a0ca55a70ba231979dd2659d25156dc5f95c",
+        "Stage-DevLoop.ps1": "4ce1270be3a0b6f06195e9126ac3d839ff425250ce6853cee4a94ab50337e6b1",
+        "Setup-DevLoop.ps1": "b17985a5ce9df9e95a2968a1902f1e635dcd61b4b5eaf879dff80fa2e432859b",
+        "README.md": "c3607817f71062561ced99eb5ad16e49dfb1707d2f7dff893f35345595fb3892",
+        "SCRIPTING.md": "079b8c9a67b2923d5f7da38807fff4476602bf3f8ba1aa6837ad131474886b44",
+        "ROADMAP.md": "2b7eba138f4c54dc775a4ce9857dcb9e5b5a058bc3077786ae817c929ffc7547",
+        "LICENSE": "a138eb48dfefebc27f8cc65d54a54afad9b64ea2e7155a43218b0a8ca060d016",
+        "THIRD_PARTY_NOTICES.md": "5d7690a5a7ef8000ac3656cf0b4a6a157a98f86f789624b2608f396b5b8f26df",
+        "docs/SETUP.md": "62f11d88cbe3da56965835efd6abaea730487e71b9bcdeb7b65301d209e46ddc",
+        "docs/VALIDATION.md": "8ad862e1b7acacb2d03d4b0d33e60671efbea9e91afc305caf3822a123768400",
+        "scripts/generate_devloop_assets.py": "714b7c88ad25c363bacf57a4c35f8cf38f4f3633dc2d0eadfc1b4e858df776cf",
+        "scripts/verify_devloop_package.py": "b712732dc46e0f6a89b298748549650717c9a2fceea12545b9b89aec5a2c7528",
+        "scripts/test_devloop.sh": "a9df405ad63cfa65461427d85b747229fc2dd1bfa4d51767928f285139a30597",
+        "scripts/build_host_lua.sh": "c2100b40d8d5b468acd40c644331a59533177dc2bd85559f9ad7b44777aa33ed",
+        "scripts/fetch_lua.py": "e7fd4beb1b801cff2512914d5e4bb4b11650137d859944b7a3a5ebd663018e84",
+        "scripts/check_publication_regression.py": "bcab7bf2641ebebbc9679c45f4fa3d0281d0628df0dda7372b31b1a8e9b439f9",
+        "tests/test_devloop.c": "78033e836226f74bd56f1f87a0d2a80b15115593c8255ba2f90d8c89c53a5f25",
+        "tests/test_script_runtime.c": "7fc47ba3907ad35d01954b5dc1d279a7bc640f9a93d7e35e1e3050a7ccebc9ce",
+        "tests/render_stub.c": "1ab7ad5c80ee780c31f28f07e27b9b133a6b80b247254bc53d3607579797bb52",
+        "tests/test_bridge.py": "0831bd064584c759f507d4adcaefb77695e4af43024083d4531119614b6210ac",
+        "tests/test_scripts_bridge.py": "af7b5d91914213556ae9547f48af1c6ea12e6acb482bde09ef4ba50efa439193",
+        "tests/test_ftp_staging.py": "80863054245328ddde060735402ba0b9b5785d7714ed4db3caa1b8c5d1905ee3",
+        "tests/ftp_fixture.py": "fd0951b8fb197c36db3b915c07029a52a1ae22aabd09e52a7066d672f545bfe8",
+        "tests/test_server_vita_host.c": "b56784413ff62ca6b2859a7bb2eb401c5f48a6bef9fd46cec64cb543c14e735b",
+        "tests/server_host_shim.h": "d7af65b83684c7953c2d8741efe59d80e2092d13445cf293438507c0a1926d9b",
+        "assets/template.xml": "a9403498431b773a9fb2b592be5d9e2ca31173b27bda23a61aa77c195b511400",
+        "toolchain.lock.json": "3f515eaf5fcac596a24d9bfa37623e64856e467a13ebca3995168f3404ea44f4",
+        "assets/devloop-licenses.txt": "525f6f60b645c406622766f233706d6c2354021d0ed58e6f91ce904a764b9b36"
+      },
+      "host_checks": {
+        "physics_groups": 8,
+        "actual_HTTP_groups": 7,
+        "Lua_runtime_groups": 10,
+        "MCP_protocol_groups": 6,
+        "MCP_script_groups": 7,
+        "LiveArea_cases": 6,
+        "FTP_groups": 13,
+        "revision_regression": "1001 acknowledgement/read pairs; disabling repair reproduces expected assertion",
+        "Lua_soak_frames": 6000
+      }
+    },
+    "resident": {
+      "version": "0.1.1",
+      "plugin": {
+        "file": "vita_resident.suprx",
+        "bytes": 14034,
+        "sha256": "9923ba6443058b9a440646352b1e8a1cdbdfb80542392fbeab6d33af9c48b539",
+        "build_id": "b52cd725b44f3ef5217dd7c4ac9c034fdf59755ca91e1d2bd46d2fddb488e6bb",
+        "elf_sha256": "02f7134d95e02db696be07bcaf298ad7dbf2534eef8d0c2c2c291812c69db979",
+        "velf_sha256": "a2e9c480e2090826ba75e2727990897f190d914b3df91c4d5e08e4a6f03e9901",
+        "module_attributes": 0,
+        "imports": [
+          "SceIofilemgr",
+          "SceLibKernel",
+          "SceNet",
+          "SceNetCtl",
+          "ScePower",
+          "SceSysmodule",
+          "SceThreadmgr"
+        ],
+        "linked_allocated_section_bytes": 296140,
+        "worker_stack_bytes": 65536
+      },
+      "source_hashes": {
+        "resident/bridge.py": "ee586b22f1aca7206cfa08b0e9975c0a1058fdcabec03123f0c7d87b63e869b5",
+        "resident/CMakeLists.txt": "026a1c1cb8e31fedc0e98d2f8123ea37365ec22a43423dba8742b96572891241",
+        "resident/exports.yml": "12b4b4310234bae2e277b43d3d2e06dbf8ab34f44d13c72a3c57c9fd11a1b724",
+        "resident/platform.h": "fcb959bc453298d3bfc42a8f54829521d6440fa1043858e2739f60c475340762",
+        "resident/platform_host.c": "3a125d019aa21928afa6a0f17a790648ebdc2bc99489aa7a4784ecc3251edbee",
+        "resident/platform_vita.c": "1175ea364f80241de5f55582034023e9c8e52f2965b56bddb08356114ff9a5b0",
+        "resident/prove_device.py": "930d5e06e7291e1de8ba5f51e8f7b879d47ca49889ac2e4e5bd1e6fd2a0f31ad",
+        "resident/README.md": "a4872315e68de5eee2d8dc8a86f6a3cf1bbaa3082c03d0fc634d3bd6af24dacc",
+        "resident/Register-Mcp.ps1": "64fbda4658617e759440a231519e4bf9e964dbcaab644ffd94343084485d501f",
+        "resident/service.c": "7db5431f8df4b3ae889ed74424671db065a91f7c8e098f69dfce451bfdb8bf2e",
+        "resident/sha256.c": "cc9a22f6f578d9e60fbe5bf7c78eeb967c984a2f3c21faa91acd843e1dcd8da4",
+        "resident/sha256.h": "472cd55386e95597ccc1702fee90ffb69f579cafa5486c27e32667b9e2785e3b",
+        "resident/stage.py": "d82fd2e12d29a957ea65480155fa7ae273e0e4b2fde314a5c00dbd0172782410",
+        "resident/stage_update.py": "b26c47567ed5c064ef29d5300feecb1219c80fa4dd0b63903aa5d111cfdf28db",
+        "resident/test_bridge.py": "7229f5881052969393db548561bacfce6b2d2ccda4fc6e7c7eff4dc2f4a412de",
+        "resident/test_host.sh": "277d6ae0d829b74191f753d305ecafc65560ea3f61b18e3b895ecf2b73853307",
+        "resident/test_service.py": "88048bfe73553d3f328158b6ebe76a0e313b5cb6ac524ee9c0120accf40c1772",
+        "resident/test_staging.py": "3bc1bcd6e9782ec087ff166a13da0cef251db0a0dfc03c0298270201d0061290",
+        "resident/test_update.py": "0afa012e1ba22c8a6fe248cfa8910427927550ec68eba60ee078da7752b10cd7",
+        "resident/verify_build.py": "6129e2ff2133d1ab3c1f70b4e36c2ac54ce806423793e1f0b8835bc533c3e765",
+        "Build-Resident.ps1": "8f7d854bd00b5484b7dd3745d3301f95ee626fb78147ac398426bc2f73e60695",
+        "toolchain.lock.json": "3f515eaf5fcac596a24d9bfa37623e64856e467a13ebca3995168f3404ea44f4",
+        "bridge/ftp_staging.py": "bcf5e53c3f2c8be8b52a7b3c24f13acbc5cb356d3522266c38c50f5976d2c8a8",
+        "tests/ftp_fixture.py": "fd0951b8fb197c36db3b915c07029a52a1ae22aabd09e52a7066d672f545bfe8"
+      },
+      "host_checks": {
+        "actual_C_HTTP_storage_cases": 10,
+        "actual_MCP_checks": 11,
+        "first_install_FTP_cases": 6,
+        "update_FTP_cases": 3
+      }
+    },
+    "control": {
+      "version": "0.2.2",
+      "abi": 1,
+      "build_id": "4866c01ddc74b03db443362d7899762e1bafa44782dc93de499132f97f3ce47a",
+      "modules": {
+        "vita_control": {
+          "file": "vita_control.suprx",
+          "bytes": 17950,
+          "sha256": "b623d8f1f4918e88b8b46550fd1d774cba58919468bd042104e403e20ffd4422",
+          "authid": "2f00000000000001",
+          "exports": [
+            {
+              "name": "main",
+              "nid": "00000000",
+              "flags": "8000",
+              "functions": 2,
+              "variables": 1
+            }
+          ],
+          "elf_sha256": "4d10bf5dc02a50914967ab8bf50c7a56711755c3081d276dcef9952b276b578f",
+          "velf_sha256": "452b65c79cc9ef94eabb2492b532bd069313111c12c87c99196f3439a58519d3",
+          "imports": [
+            "SceAppMgrUser",
+            "SceIofilemgr",
+            "SceLibKernel",
+            "SceNet",
+            "SceNetCtl",
+            "ScePower",
+            "SceSysmodule",
+            "SceThreadmgr",
+            "VitaControlKernel"
+          ],
+          "allocated_section_bytes": 698729
+        },
+        "vita_control_kernel": {
+          "file": "vita_control_kernel.skprx",
+          "bytes": 8805,
+          "sha256": "24191533d31af13ee76a575ae8a9da8e5dadef9d34bf97a528cb681042cbc940",
+          "authid": "2f00000000000002",
+          "exports": [
+            {
+              "name": "main",
+              "nid": "00000000",
+              "flags": "8000",
+              "functions": 2,
+              "variables": 1
+            },
+            {
+              "name": "VitaControlKernel",
+              "nid": "a0866f5b",
+              "flags": "4001",
+              "functions": 7,
+              "variables": 0
+            }
+          ],
+          "elf_sha256": "ecb73cd33ac6d21d773d22a4d545ee197035233dd5d42b803032ae435d532c50",
+          "velf_sha256": "4aec884d7abe80b3be831588b2d41bb5c7d9a8dfca0c29278abd4f08dedfd27a",
+          "imports": [
+            "SceCtrlForDriver",
+            "SceDisplayForDriver",
+            "SceSysclibForDriver",
+            "SceSysmemForDriver",
+            "SceSysrootForDriver",
+            "SceThreadmgrForDriver",
+            "taihenForKernel"
+          ],
+          "allocated_section_bytes": 15268
+        },
+        "control_bootstrap_probe": {
+          "file": "control_bootstrap_probe.suprx",
+          "bytes": 5086,
+          "sha256": "4a0308232c4ed62a3d723b2c7936ed619a46ea83894162ae10b3d29a9426d2b0",
+          "authid": "2f00000000000001",
+          "imports": [
+            "SceIofilemgr",
+            "SceLibKernel",
+            "SceThreadmgr",
+            "VitaControlKernel"
+          ],
+          "exports": [
+            {
+              "name": "main",
+              "nid": "00000000",
+              "flags": "8000",
+              "functions": 2,
+              "variables": 1
+            }
+          ]
+        },
+        "control_starter": {
+          "file": "control_starter.self",
+          "bytes": 77214,
+          "sha256": "3222962cce1326d9b2224bfd26a12ddf482fa3829dfcfa0339e4c5cf8513448d",
+          "authid": "2f00000000000001",
+          "imports": [
+            "SceAppMgrUser",
+            "SceCommonDialog",
+            "SceCtrl",
+            "SceDisplay",
+            "SceDisplayUser",
+            "SceGxm",
+            "SceGxmInternalForVsh",
+            "SceIofilemgr",
+            "SceLibKernel",
+            "SceNet",
+            "ScePgf",
+            "SceProcessmgr",
+            "SceRtcUser",
+            "SceSharedFb",
+            "SceSysmem",
+            "SceSysmodule",
+            "SceThreadmgr",
+            "SceThreadmgrCoredumpTime",
+            "taihenUnsafe"
+          ],
+          "exports": [
+            {
+              "name": "main",
+              "nid": "00000000",
+              "flags": "8000",
+              "functions": 1,
+              "variables": 2
+            }
+          ]
+        }
+      },
+      "starter_package": {
+        "file": "control_starter.vpk",
+        "title": "Control Starter",
+        "titleId": "CHRS00011",
+        "version": "01.00",
+        "bytes": 101893,
+        "sha256": "4003f48969d6595d16dec346f95e9ff0a5e96d3769aafdaab63ff6accbe7f771",
+        "files": [
+          {
+            "name": "sce_sys/param.sfo",
+            "bytes": 912,
+            "sha256": "7899256e8ffc5e054150d583081ae1df72e8905d5338863bf202f83f239486b4"
+          },
+          {
+            "name": "eboot.bin",
+            "bytes": 77214,
+            "sha256": "3222962cce1326d9b2224bfd26a12ddf482fa3829dfcfa0339e4c5cf8513448d"
+          },
+          {
+            "name": "sce_sys/icon0.png",
+            "bytes": 1499,
+            "sha256": "032b762188864c72e55114ddad19a543b984e17c62b6fa51a95ba16f1a891e4c"
+          },
+          {
+            "name": "sce_sys/livearea/contents/bg.png",
+            "bytes": 3351,
+            "sha256": "227430b7e517a5a2df805d25a5eccad6b6f373a675353152f3289b0e41eca486"
+          },
+          {
+            "name": "sce_sys/livearea/contents/startup.png",
+            "bytes": 2130,
+            "sha256": "f6ee46fd952c59ddca3b429d89359fe69361da6a4c7234fa99ac42f74f1d58b4"
+          },
+          {
+            "name": "sce_sys/livearea/contents/template.xml",
+            "bytes": 233,
+            "sha256": "a9403498431b773a9fb2b592be5d9e2ca31173b27bda23a61aa77c195b511400"
+          },
+          {
+            "name": "vita_control_kernel.skprx",
+            "bytes": 8805,
+            "sha256": "24191533d31af13ee76a575ae8a9da8e5dadef9d34bf97a528cb681042cbc940"
+          },
+          {
+            "name": "vita_control.suprx",
+            "bytes": 17950,
+            "sha256": "b623d8f1f4918e88b8b46550fd1d774cba58919468bd042104e403e20ffd4422"
+          },
+          {
+            "name": "control_bootstrap_probe.suprx",
+            "bytes": 5086,
+            "sha256": "4a0308232c4ed62a3d723b2c7936ed619a46ea83894162ae10b3d29a9426d2b0"
+          },
+          {
+            "name": "LICENSE.vitacompanion",
+            "bytes": 1069,
+            "sha256": "8d093e3fd0742f065493fe3762b2360cdeb84b866b25bcde391468faf6d037f5"
+          },
+          {
+            "name": "LICENSE",
+            "bytes": 1073,
+            "sha256": "a138eb48dfefebc27f8cc65d54a54afad9b64ea2e7155a43218b0a8ca060d016"
+          }
+        ],
+        "liveareaPngProfiles": {
+          "sce_sys/icon0.png": {
+            "size": [
+              128,
+              128
+            ],
+            "bitDepth": 8,
+            "colorType": 3,
+            "paletteEntries": 256,
+            "transparency": false
+          },
+          "sce_sys/livearea/contents/bg.png": {
+            "size": [
+              840,
+              500
+            ],
+            "bitDepth": 8,
+            "colorType": 3,
+            "paletteEntries": 256,
+            "transparency": false
+          },
+          "sce_sys/livearea/contents/startup.png": {
+            "size": [
+              280,
+              158
+            ],
+            "bitDepth": 8,
+            "colorType": 3,
+            "paletteEntries": 256,
+            "transparency": false
+          }
+        },
+        "packageValidation": "passed",
+        "installedRuntime": "pending"
+      },
+      "source_hashes": {
+        "resident/control/api.h": "1d2f21535bc93c10cfcd6a4fca54eff166932225b796a72a83bd4c4614f2d5c1",
+        "resident/control/bootstrap_app.c": "fe586efe3b1fc5bfec6e04a87bfe2d430be48dd2bee1fa84e346de132e8d7724",
+        "resident/control/bootstrap_metadata.c": "51055fccaa177ed40526de7fcaeb2e70725be804647290e1038f69b93c87efa5",
+        "resident/control/bootstrap_probe.c": "6ee176c9f399989a0a0e83d15dfc632dd1ff8e915bf38191f75b04e3eb7c77eb",
+        "resident/control/bootstrap_probe.yml": "2ca21aa775cc9340fad750323531b63ce3fcaf1bf71bd44126a62d597c4d2028",
+        "resident/control/bridge_tools.py": "93696e8401c325b9ad7e80b583447eb35fa65a4988ecdcbbf651b5d362778291",
+        "resident/control/call_tool.py": "dd28cb6f50fe1f9c3aaab71a717af5d7047cb60e9bc05b908e2bfcfc799175a6",
+        "resident/control/CMakeLists.txt": "6797ef8ca23e26ba1f402744a5d76efbef1b561cb2a89d89f4674641651cf4e3",
+        "resident/control/control_platform.h": "777f7bdf98ba5e0424bb589da765702711b741669c4b96f651ac4a58f95d845c",
+        "resident/control/http.c": "8f2ef36b7bad0dd9b3f72f72bc378434c4a190afd4a9ea1a888224e70893a135",
+        "resident/control/kernel.c": "a2d8f8159d392b8cc7428ea19950c3a04e44f823bd952daafa999d9f00fa37ba",
+        "resident/control/kernel.yml": "2afaa9288834e698080d0d868f06e085f564cbcf6810df198a4370f91f8c4811",
+        "resident/control/lease.c": "3e7d47d79bd6ea6343725673debad4d990fe9b7d403e7c93a988fad83dce1429",
+        "resident/control/lease.h": "1e03cdfdaabb6fe907d99519d71184a1fd9ea069b3329ee5eb404747f8c724bd",
+        "resident/control/LICENSE.vitacompanion": "8d093e3fd0742f065493fe3762b2360cdeb84b866b25bcde391468faf6d037f5",
+        "resident/control/platform_host.c": "2fd5432f004b0b75151b3b5f6a4523121d747b88392e7ff5113327306289717a",
+        "resident/control/platform_shell.c": "fc93251da485a505695c7278c3a6088e9244530451e4825a03057adf3fdd4436",
+        "resident/control/preview.py": "892ba774e8a8add6dc1ddc74e7bfaa6cd873adf38b6eab948715bedfaa99a2c2",
+        "resident/control/preview_fixture.py": "130f982e3d8847ddff459b05cf8f69f91f5788c5512674d1af8c8b04300b6264",
+        "resident/control/prove_device.py": "ef19706b92d14a1b8f1f0fca82f3afbb02ab665dda02fb0a7f0875c8e0507248",
+        "resident/control/README.md": "fa6bab0eae8b86080103fd1b2939960f169d1f0a05467c94e3c0b6a94943b081",
+        "resident/control/retire_session.py": "19a40a6271aa353f927fec9b418d3acd6afd18e47c9cba7f2ad8a9e2122b2107",
+        "resident/control/server.py": "5a5e3e56120a0e7f4ae5de4f9a92cb2b53ad572c8e4df211b1c697228202ad58",
+        "resident/control/shell.yml": "795ab5c86304bcbed0e74ae0324ab6a1111956727272d095e687f31216b94347",
+        "resident/control/stage_control.py": "c072d717211286d8aaf7966e910f2273e2eeb999af04fa97761d478eda158706",
+        "resident/control/stage_starter.py": "2284189343cc66fde567bfc08d4df1c6c086336df1ffebb71f46f4c6a8100993",
+        "resident/control/starter_artwork.py": "cfbdd712a8b8b841519603c45476033a08fde5fe10deda16ca30c681f5a0d7aa",
+        "resident/control/test_bootstrap_metadata.c": "9575a38aac57484bae681a91af73f19bcbbfe3d164930123f81c225b4eb1bf10",
+        "resident/control/test_bootstrap_platform.h": "fd39cce1fe3e88e9d4dcfe7e2ab8b540e93e87a46e7086d392d659da078d74f3",
+        "resident/control/test_bootstrap_probe.c": "61b08fe56eb5dc8c26bad64b828306d6ee22e2624afed2134bc7c80e41862fe3",
+        "resident/control/test_bridge.py": "1dcbca00d9f773f3a8152d5d78e21328cd60d9b99f081dfc3606aaa046ff8dc4",
+        "resident/control/test_host.sh": "0a6bfc9651b6c54480728832c6cb08b1192cf6409c75425063e8603544730224",
+        "resident/control/test_lease.c": "a6b51c500b16aea622f2c2bb245ad82c4194c7539cfdc9d138533ab3000cb732",
+        "resident/control/test_retire_session.py": "a11b59487206d01e0240767ce40c23e3df06f89128377a90d8e4f0d904ef38b3",
+        "resident/control/test_service.py": "fef9e437b1b9e0332b7166c4a35034f6c7629134749192d32a7a76b52f7509f1",
+        "resident/control/test_staging.py": "1c0bc513c9886f05b99ae230a9db1ff532cf1c2a51bf96039769306eb78567ce",
+        "resident/control/test_starter_staging.py": "c41e06de9c6dec6388740a4a5a1dfe3cb9f9c8873be1260b2a5596fc10715fd7",
+        "resident/control/verify_build.py": "e2fec0580fd24a269453f961420e4dae8e5482e41ae5b5cb384dbcb97f83be75",
+        "resident/platform.h": "fcb959bc453298d3bfc42a8f54829521d6440fa1043858e2739f60c475340762",
+        "resident/sha256.c": "cc9a22f6f578d9e60fbe5bf7c78eeb967c984a2f3c21faa91acd843e1dcd8da4",
+        "resident/sha256.h": "472cd55386e95597ccc1702fee90ffb69f579cafa5486c27e32667b9e2785e3b",
+        "resident/bridge.py": "ee586b22f1aca7206cfa08b0e9975c0a1058fdcabec03123f0c7d87b63e869b5",
+        "resident/inspector/verify_build.py": "8100a444ba6d902d877cac9f38bea8a140172fe2c8d929efafd81dc2c1db1b2e",
+        "Build-Control.ps1": "e5f2a4d3803db20edbc3cedf4f70e550b2bf0fe1c00f1134e27003d369941ef2",
+        "toolchain.lock.json": "3f515eaf5fcac596a24d9bfa37623e64856e467a13ebca3995168f3404ea44f4",
+        "scripts/vita_artifacts.py": "3716a7840241b91a18409412fd647f67839b06a5a9c94c573c47f7396fb427f3",
+        "scripts/livearea_png.py": "3d21f1f8801f27934f073e02ab566941de53fd605dafe8787a9a771d6909a5dd",
+        "bridge/ftp_staging.py": "bcf5e53c3f2c8be8b52a7b3c24f13acbc5cb356d3522266c38c50f5976d2c8a8",
+        "resident/verify_build.py": "6129e2ff2133d1ab3c1f70b4e36c2ac54ce806423793e1f0b8835bc533c3e765",
+        "assets/template.xml": "a9403498431b773a9fb2b592be5d9e2ca31173b27bda23a61aa77c195b511400",
+        "tests/ftp_fixture.py": "fd0951b8fb197c36db3b915c07029a52a1ae22aabd09e52a7066d672f545bfe8"
+      },
+      "host_checks": {
+        "actual_metadata": "passed under ASan/UBSan with SDK adapter",
+        "actual_bootstrap_proxy_cases": 13,
+        "actual_lease_policy": "expiry, focus, boundary and full replacement passed",
+        "actual_HTTP_storage_cases": 7,
+        "actual_Control_MCP_checks": 17,
+        "Resident_MCP_regression_checks": 11,
+        "historical_staging_FTP_cases": 6,
+        "runtime_Starter_staging_FTP_cases": 11,
+        "session_retirement_FTP_cases": 9,
+        "ARM_validation": "four modules, matched fingerprint, imports/exports, unresolved-symbol checks, kernel/user SELF privilege isolation, eleven-entry VPK including exact licenses"
+      }
+    }
+  },
+  "test_log_sha256": {
+    "devloop": {
+      "bridge-tests.log": "330a077e59137b7583a8157bef1a3fd184f080b99a0fb19696a482d778636760",
+      "ftp-staging-tests.log": "959a7e4e6a650bf1a23bfb05be041ddeeea7e9d630901cb9e948e620b294c19e",
+      "host-tests.log": "45fbd88c156b3b6a5c63e8ff20d65d2154e0cb26a8dcf1b8b36d0f7189384980",
+      "livearea-tests.log": "d582e2b8eabdfaf21d497751273791841556f7a67d9687d41b7759f04027bc8c",
+      "publication-before-fix.log": "35136e9087ce07d8aedef88d7c297f5a3b33ea105bb456f33e3c6c86f0a24876",
+      "publication-regression-check.log": "181afb0de96c2913a73eb7fce7da67a61e47534c213790830c96d5c3a904b2ce",
+      "script-bridge-tests.log": "178539cd998ddd3106fd7ec2c071fc396676102ee289771b0f3ff1bb1592d91a",
+      "vita-build.log": "670431ce0b3f3681b1ff834a25ad5dcc439c5a3c8cfee85b3bae581b206b57a8"
+    },
+    "resident": {
+      "c-service-tests.log": "4be4e0c3574b9e710676e6cea7e7080f60b51d785689d0e9681bf990adba6983",
+      "ftp-tests.log": "5d56cd3f56ecff6c945faac0e53034d86db9c5cbd3015d70e560cf2ddaba791a",
+      "mcp-tests.log": "eb5a0282860359b374a9aa518830a04b85a009986f3b2354a363cf2722114e7f",
+      "native-build.log": "a1dc24168e2346ac6dd83c42f87f2cb132d2a86cdfca42c7bfed2d957f3d97cf",
+      "update-tests.log": "9b9845e0451e7c16a4eb33f13ccea39dfd3be58d2a3d2b184e22438ff91931c9"
+    },
+    "control": {
+      "host-tests.log": "e6b0bf74125ca7e18fc46364aaeebd9b3c872c33985cf9e3f0a7d02e1a1f1e87",
+      "mcp-tests.log": "23e72615593ebbb10f632ad7aaf4d8dea83e7a6fea9a1f2e5883d6aa8749d729",
+      "native-build.log": "d8825c267169c77003305dec9a030aaa7f1e82ee22c6a7e84aa6487e8d82fbcc",
+      "resident-mcp-tests.log": "eb5a0282860359b374a9aa518830a04b85a009986f3b2354a363cf2722114e7f",
+      "session-retirement-tests.log": "45a116a85913f15ee78ab0c715d1d7a94074d2c271e2b500e96b724e8a33c8a3",
+      "staging-tests.log": "2a887262bb3e32ab9e89e9a8f57e10a79376576786b4b23afa4920ff8f1ffffb",
+      "starter-staging-tests.log": "37085337efbb35801568bb402119d1f247c267110a5f72cc085a9a9926412c7f"
+    }
+  },
+  "support_checks": {
+    "actual_combined_stdio_discovery_tools": 17,
+    "upstream_hook_license": "exact normalized upstream MIT notice verified at pinned commit",
+    "private_pairing_tokens": "both local original tokens scanned against publication files; no matches",
+    "new_content_private_paths": "no development-machine paths or original private IPv4",
+    "relative_document_links": "checked at publication"
+  },
+  "known_host_warning": "MCP SDK initialization emits upstream Pydantic IncompleteFieldDefinitionWarning; stdio discovery and protocol fixtures pass",
+  "binary_release": "none; linked-library notice audit and fresh device qualification remain prerequisites"
+}

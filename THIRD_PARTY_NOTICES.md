@@ -1,6 +1,6 @@
 # Third-party notices
 
-Original DevLoop, Resident, Inspector code and documentation use the [project MIT license](LICENSE). That license does not replace dependency licenses.
+Original DevLoop, Resident, Control, Inspector code and documentation use the [project MIT license](LICENSE). That license does not replace dependency licenses.
 
 ## Vendored Lua
 
@@ -12,7 +12,11 @@ Original DevLoop, Resident, Inspector code and documentation use the [project MI
 
 The native build uses the image pinned in [toolchain.lock.json](toolchain.lock.json), from [VitaSDK's Docker project](https://github.com/vitasdk/docker). Native dependencies include [libvita2d](https://github.com/xerpi/libvita2d), [FreeType](https://freetype.org/), [libpng](https://www.libpng.org/pub/png/libpng.html), JPEG and zlib from that SDK. They retain their upstream notices and licenses.
 
-Resident and Inspector use VitaSDK's user/kernel import stubs. Inspector also links the SDK's [taiHEN](https://github.com/yifanlu/taiHEN) user library for explicit module loading. No upstream companion/FTP daemon source or proprietary game data is imported in this update.
+Resident, Control and Inspector use VitaSDK's user/kernel import stubs. Control and Inspector also link the SDK's [taiHEN](https://github.com/yifanlu/taiHEN) user library for explicit module loading.
+
+## Adapted input hooks
+
+Control input hooks and emulation derive from the MIT-licensed [vitacompanion kernel](https://github.com/devnoname120/vitacompanion/tree/d46772344d926e6765943703adf1a1518c20e10e/kernel), pinned to commit `d46772344d926e6765943703adf1a1518c20e10e`. Its full license is retained in [LICENSE.vitacompanion](resident/control/LICENSE.vitacompanion). Control does not import that project's FTP/command daemon or keep-awake behavior. No USB video driver or proprietary game data is included.
 
 The desktop environment installs the [MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk), [Pillow](https://github.com/python-pillow/Pillow) and their dependencies from the versions in `bridge/requirements-lock.txt`. Those packages are installed locally, rather than vendored into this repository.
 

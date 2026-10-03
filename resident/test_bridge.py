@@ -80,7 +80,7 @@ async def main():
     try:
         with tempfile.TemporaryDirectory() as temp:
             fixture_root = Path(temp)
-            for name in ('resident/bridge.py', 'bridge/ftp_staging.py'):
+            for name in ('resident/bridge.py', 'bridge/ftp_staging.py', 'resident/control/bridge_tools.py'):
                 destination = fixture_root / name
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(ROOT / name, destination)
@@ -108,8 +108,9 @@ async def main():
                 async with ClientSession(read, write) as session:
                     await session.initialize()
                     tools = await session.list_tools()
-                    assert {'vita_resident_status', 'vita_resident_verify_upload', 'vita_resident_probe_upload', 'vita_resident_stage_package'} == {tool.name for tool in tools.tools}
-                    checks.append('four-tools-listed')
+                    assert len(tools.tools) == 17
+                    assert {'vita_resident_status', 'vita_resident_verify_upload', 'vita_resident_probe_upload', 'vita_resident_stage_package'}.issubset({tool.name for tool in tools.tools})
+                    checks.append('four-resident-and-thirteen-control-tools-listed')
                     status = await session.call_tool('vita_resident_status', {})
                     assert not status.isError and value(status)['app'] == 'Vita Resident'
                     checks.append('status-through-MCP')
