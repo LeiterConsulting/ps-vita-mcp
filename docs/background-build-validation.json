@@ -1,0 +1,55 @@
+{
+  "verified_utc": "2026-10-03T21:18:56.063577+00:00",
+  "environment": "fresh isolated checkout on Windows; locked Python dependencies and digest-pinned VitaSDK container",
+  "device_operations": "none; all public-checkout checks used local fixtures or SDK/host adapters",
+  "commands_passed": [
+    "Build-DevLoop.ps1",
+    "Build-Resident.ps1",
+    "Build-Inspector.ps1"
+  ],
+  "resident": {
+    "version": "0.1.1",
+    "native_build_id": "b52cd725b44f3ef5217dd7c4ac9c034fdf59755ca91e1d2bd46d2fddb488e6bb",
+    "plugin_sha256": "9923ba6443058b9a440646352b1e8a1cdbdfb80542392fbeab6d33af9c48b539",
+    "plugin_bytes": 14034,
+    "native_plugin_matches_tested_prototype": false,
+    "host_checks": {
+      "actual_C_HTTP_storage_cases": 10,
+      "actual_MCP_stdio_checks": 11,
+      "FTP_first_install_cases": 6,
+      "FTP_update_cases": 3
+    },
+    "native_validation": "ARM ELF, import/lifecycle identity, unresolved symbols and source fingerprint passed",
+    "normalized_native_source_matches_tested_prototype": true
+  },
+  "inspector": {
+    "version": "01.03",
+    "native_build_id": "da5b3dfac11512fa00c0875c0272c37786d7f9828cada30581fc3711634027f6",
+    "package_sha256": "012ca8d4d8fbb124881e2dbe1549fa35e8ee46ad368fdab086d75a27ea6fc04a",
+    "package_bytes": 125634,
+    "native_module_matches_tested_prototype": {
+      "control_inspector": false,
+      "vi_kernel": false,
+      "vi_proxy": false
+    },
+    "host_checks": {
+      "actual_metadata_C_sanitizers": "passed with SDK calls simulated",
+      "actual_proxy_C_cases": 23,
+      "FTP_session_retirement_cases": 9
+    },
+    "native_validation": "ELF/SELF, exact imports/exports/authority, source fingerprint and VPK validation passed",
+    "normalized_native_source_matches_tested_prototype": true
+  },
+  "devloop_regression": {
+    "version": "01.03",
+    "package_sha256": "74e244070e0aa03513897ad70277f84ba4f989cc2862e40857b2b69913138194",
+    "host_test_groups": 62,
+    "forced_command_status_pairs": 1001,
+    "Lua_soak_frames": 6000,
+    "publication_negative_control": "passed",
+    "native_package_validation": "passed",
+    "device_acceptance": "01.03 candidate still pending physical installation/lifecycle checks"
+  },
+  "remaining": "Public packaging/activation on additional devices and gameplay/wake qualification remain separate. No prebuilt binary release is made by this source update.",
+  "source_normalization": "Builds use the LF bytes stored by Git. Normalized native source text matches the prototype, but fingerprints/build IDs and module hashes differ from mixed-line-ending prototype builds."
+}

@@ -1,6 +1,6 @@
 # Third-party notices
 
-Original DevLoop code and documentation use the [project MIT license](LICENSE). That license does not replace dependency licenses.
+Original DevLoop, Resident, Inspector code and documentation use the [project MIT license](LICENSE). That license does not replace dependency licenses.
 
 ## Vendored Lua
 
@@ -11,6 +11,8 @@ Original DevLoop code and documentation use the [project MIT license](LICENSE). 
 ## Build and runtime dependencies
 
 The native build uses the image pinned in [toolchain.lock.json](toolchain.lock.json), from [VitaSDK's Docker project](https://github.com/vitasdk/docker). Native dependencies include [libvita2d](https://github.com/xerpi/libvita2d), [FreeType](https://freetype.org/), [libpng](https://www.libpng.org/pub/png/libpng.html), JPEG and zlib from that SDK. They retain their upstream notices and licenses.
+
+Resident and Inspector use VitaSDK's user/kernel import stubs. Inspector also links the SDK's [taiHEN](https://github.com/yifanlu/taiHEN) user library for explicit module loading. No upstream companion/FTP daemon source or proprietary game data is imported in this update.
 
 The desktop environment installs the [MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk), [Pillow](https://github.com/python-pillow/Pillow) and their dependencies from the versions in `bridge/requirements-lock.txt`. Those packages are installed locally, rather than vendored into this repository.
 

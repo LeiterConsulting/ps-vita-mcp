@@ -1,0 +1,43 @@
+cmake_minimum_required(VERSION 3.16)
+set(CMAKE_TOOLCHAIN_FILE "$ENV{VITASDK}/share/vita.toolchain.cmake" CACHE PATH "Vita toolchain")
+project(vita_control_inspector C)
+include("$ENV{VITASDK}/share/vita.cmake" REQUIRED)
+# The SDK macro appends export and SELF flags to caller-scope variables.
+# A function scope keeps kernel exports and safe attributes out of later modules.
+function(inspector_self target source)
+  vita_create_self(${target} ${source} ${ARGN})
+endfunction()
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../..")
+set(fingerprint "")
+foreach(source api.h kernel.c kernel.yml proxy.c proxy.yml app.c CMakeLists.txt)
+  file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/${source}" digest)
+  string(APPEND fingerprint "${digest}")
+endforeach()
+string(SHA256 inspector_build_id "${fingerprint}")
+add_executable(vi_kernel kernel.c)
+target_compile_definitions(vi_kernel PRIVATE __VITA_KERNEL__ VI_BUILD_ID="${inspector_build_id}")
+target_compile_options(vi_kernel PRIVATE -Wall -Wextra -Werror -O2 -g -fno-pic -fno-PIC)
+set_target_properties(vi_kernel PROPERTIES LINK_FLAGS "-nostdlib -Wl,-q")
+target_link_libraries(vi_kernel SceSysrootForDriver_stub SceSysmemForDriver_stub SceThreadmgrForDriver_stub SceSysclibForDriver_stub gcc)
+inspector_self(vi_kernel.skprx vi_kernel CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/kernel.yml)
+vita_create_stubs(vi_kernel_stubs vi_kernel ${CMAKE_CURRENT_SOURCE_DIR}/kernel.yml KERNEL)
+add_executable(vi_proxy proxy.c)
+add_dependencies(vi_proxy vi_kernel_stubs)
+target_compile_definitions(vi_proxy PRIVATE VI_BUILD_ID="${inspector_build_id}")
+target_compile_options(vi_proxy PRIVATE -Wall -Wextra -Werror -O2 -g -fno-builtin -fno-pic -fno-PIC)
+set_target_properties(vi_proxy PROPERTIES LINK_FLAGS "-nostdlib -Wl,-q")
+target_link_libraries(vi_proxy gcc SceLibKernel_stub_weak SceKernelThreadMgr_stub_weak SceProcessmgr_stub_weak SceIofilemgr_stub_weak ${CMAKE_CURRENT_BINARY_DIR}/libvi_kernel_stub.a)
+inspector_self(vi_proxy.suprx vi_proxy UNSAFE CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/proxy.yml)
+add_executable(control_inspector app.c)
+target_compile_definitions(control_inspector PRIVATE VI_BUILD_ID="${inspector_build_id}")
+target_compile_options(control_inspector PRIVATE -Wall -Wextra -Werror -O2 -g)
+target_link_libraries(control_inspector vita2d taihen_stub SceDisplay_stub SceGxm_stub SceSysmodule_stub SceCtrl_stub ScePgf_stub ScePvf_stub SceCommonDialog_stub SceAppMgr_stub SceIofilemgr_stub SceKernelThreadMgr_stub SceProcessmgr_stub freetype png jpeg z m)
+inspector_self(control_inspector.self control_inspector UNSAFE)
+vita_create_vpk(control_inspector.vpk CHRS00010 control_inspector.self VERSION "01.03" NAME "Control Inspector"
+ FILE assets/icon0.png sce_sys/icon0.png FILE assets/bg.png sce_sys/livearea/contents/bg.png
+ FILE assets/startup.png sce_sys/livearea/contents/startup.png
+ FILE ${ROOT}/assets/template.xml sce_sys/livearea/contents/template.xml
+ FILE ${CMAKE_CURRENT_BINARY_DIR}/vi_kernel.skprx vi_kernel.skprx
+ FILE ${CMAKE_CURRENT_BINARY_DIR}/vi_proxy.suprx vi_proxy.suprx)

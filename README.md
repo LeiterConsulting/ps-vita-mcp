@@ -12,7 +12,15 @@ The aim is a useful development loop on real hardware: **edit → run → observ
 
 ## Project status
 
-The native host, Python MCP bridge, starter experiments, build scripts and tests are now included. The public source builds **DevLoop 01.03**, a development candidate that adds a graphics shutdown fix to the physically tested 01.02 prototype. **01.03 still needs device installation, live-loop, exit and sleep/return checks before an installable release.**
+The repository includes three independently scoped components:
+
+| Component | Public source | Hardware evidence |
+| --- | --- | --- |
+| Vita DevLoop | 01.03 development candidate | 01.02 live Lua/edit/capture/recovery passed; changed 01.03 still needs installation, live-loop, exit and sleep/return checks |
+| [Vita Resident](docs/RESIDENT.md) | 0.1.1 background status/upload service and four-tool bridge | Status and verified probe/package storage passed with the file manager in the foreground; gameplay coexistence and sleep/wake remain open |
+| [Control Inspector](docs/INSPECTOR.md) | 01.03 read-only app/Shell diagnostic | Both metadata checks, both proxy unloads and normal app exit passed; the kernel helper stays loaded until reboot |
+
+DevLoop 01.03 adds a graphics shutdown fix to the physically tested 01.02 prototype. Each component keeps its own build and runtime qualification. No prebuilt public release is available yet.
 
 The prototype was tested on a homebrew-enabled Vita running firmware 3.65, with a Windows desktop bridge. Other device, firmware and host combinations need their own verification. See [validation and release criteria](docs/VALIDATION.md).
 
@@ -27,7 +35,7 @@ The prototype was tested on a homebrew-enabled Vita running firmware 3.65, with 
 | Experiment recovery | Pause, restart, retain one previous Lua VM for rollback, or return to the native experiment |
 | Verified package staging | Transfer the selected DevLoop VPK through the file manager's FTP server and verify two SHA-256 read-backs before manual installation |
 
-The bridge exposes [ten MCP tools](docs/TOOLS.md). Live capabilities belong to the foreground DevLoop app; native updates use the file manager's FTP server and manual installation.
+The DevLoop bridge exposes [ten MCP tools](docs/TOOLS.md). Its live capabilities belong to the foreground DevLoop app. The separate [Resident bridge](docs/RESIDENT.md) adds background status and verified DevLoop inbox uploads. Native installation remains manual.
 
 ## Build and try it
 
@@ -80,6 +88,12 @@ The MCP server runs on the computer. The Vita runs a native development host wit
 *An intentional Lua callback error pauses the experiment and exposes recovery instructions. Both captures are from 01.02. [Full gallery](docs/SCREENSHOTS.md).*
 
 Persistent projects, sprites/audio and integration into other native apps follow on the [roadmap](ROADMAP.md).
+
+## Background service and diagnostics
+
+Build Resident with `Build-Resident.ps1`, and Inspector with `Build-Inspector.ps1`, after the same checkout setup. Resident has a guarded configuration proposal and manual boot activation. Inspector is an installable diagnostic app whose temporary read-only helpers require a normal reboot between sessions. Follow their dedicated guides for recovery and qualification.
+
+System-wide input, cross-app screen interaction and a fully autonomous native development loop are being explored. A read-only Inspector pass does not qualify those broader operations.
 
 ## Current prototype limits
 

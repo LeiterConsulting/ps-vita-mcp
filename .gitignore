@@ -13,6 +13,8 @@ previews/
 *.velf
 *.self
 *.elf
+*.suprx
+*.skprx
 
 # Host runtime and editor state
 .venv/
