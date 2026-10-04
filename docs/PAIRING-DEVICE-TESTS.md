@@ -1,0 +1,23 @@
+# Pairing candidate device gates
+
+Host and ARM checks passed for the exact identities in [the validation record](pairing-candidate-validation.json). No candidate device operation was performed. The old installed device and desktop MCP remain the rollback path; its hardware results do not certify the new modules. [The protocol and operator flow](PAIRING.md) explain the candidate behavior.
+
+Before testing, the operator must be physically present, retain the old packages/configuration and private credential, stop active desktop input/work sessions, verify neutral leases, and complete a normal reboot. Install and activate the candidate manually once. Do not boot-load Control, hot unload helpers, start a second pair in one boot, or discard an uncertain session guard. Use the candidate desktop bridge with the old private configuration and exact new build pins. The Companion allowlist requires separately reviewed new identities.
+
+| Gate | Action and evidence required | Current result |
+| --- | --- | --- |
+| Installation and startup | Exact Resident 0.1.2 hash; Starter 01.05 VPK; matched Control 0.3.4 kernel/Shell. Confirm normal boot, matching status/fingerprints, neutral input/work leases, intact configuration and retained rollback. | NOT RUN |
+| Native authority | Verify SDK random, UTC conversion, file/device sync and loopback exchange work without boot delay or service stalls. Repeat status and a guarded file readback with the Windows token. | NOT RUN |
+| Physical approval | Open SQUARE pairing, request from the reviewed phone, read its label, release controls for at least 500 ms and press CROSS. Confirm a six-digit code including leading zeroes. CIRCLE declines a separate request. A held CROSS must not approve. | NOT RUN |
+| Remote exclusion | While the code is displayed, all admin/phone capture routes must return denial and no pixels. Starter PID input must be refused. Check LiveArea/Home overlays, suspension and cached thumbnails with the code still active. Do not send a desktop gesture while the human handles the approval controls. | NOT RUN |
+| Confirmation and expiry | Confirm one request, verify individual receipt/IDs and exact 7,776,000-second window; saved reconnect renews through both services. Status works immediately. Captures wait until the original challenge deadline, then work outside Starter. Exact 90-day boundaries and rollback are host-proven only until a separate native clock/storage fixture is reviewed; do not alter the user's clock casually. | NOT RUN |
+| Lost Wi-Fi reply | Human-controlled Wi-Fi loss during confirmation, then return within the original deadline. The same nonce/code must recover the same credential, not create another. After expiry, use a fresh nonce and new approval. Preserve uncertain outcomes and avoid automatic mutation replay. | NOT RUN |
+| Forget and persistence | TRIANGLE, choose phone, CROSS, release briefly, CROSS again. Both services must reject its token after Forget and after normal reboot. A newly approved same-client credential replaces the old one. Registry failures retain evidence and cannot enable phones. | NOT RUN |
+| Session behavior | Phone inspection creates no input/work lease. Keep desktop write trials separate. Reopening Starter for pairing respects the one-load guard and exits normally. Resident restart registration is host-proven; do not hot reload native modules to mimic it. | NOT RUN |
+| Physical regressions | Front and rear touch held separately for eight seconds visibly restore/hold brightness. Repeat buttons, both sticks and motion; distinguish native physical activity from synthetic samples. Run input, focus, Lua restoration and managed-file checks with the exact new fingerprints. | NOT RUN |
+| Lifecycle and soak | Complete the soak with a final cleanup receipt. Independently test sleep/wake and an externally controlled Wi-Fi loss/return, with no physical-activity confound. The previous interrupted soak remains incomplete. | NOT RUN |
+| Release | Clean-machine host setup, manual recovery exercise, binary dependency notices and a reviewed Companion allowlist. Merge/release only after recorded device gates. | NOT RUN |
+
+For a failed native load or freeze, stop that trial, collect the actual error/startup log and return to the retained configuration/packages through the established manual recovery path. Preserve before/after hashes and the failure record. Do not call a hard reset or a guessed outcome a passed lifecycle test.
+
+Successful physical results should record UTC, firmware/model, exact package and module identities, service/app PID, observer method, result and cleanup/rollback evidence. Keep tokens, codes, raw registry slots and private device configuration out of public reports and GitHub.

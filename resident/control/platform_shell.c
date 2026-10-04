@@ -19,6 +19,7 @@ static unsigned char net_memory[256*1024] __attribute__((aligned(16)));
 static unsigned log_bytes;
 /* Compiler-generated aggregate clearing must not depend on SceShell having libc. */
 void *memset(void *destination,int value,size_t size) { return sceClibMemset(destination,value,size); }
+void *memcpy(void *destination,const void *source,size_t size) { return sceClibMemcpy(destination,source,size); }
 
 uint64_t r_now(void) { return sceKernelGetSystemTimeWide()/1000; }
 void r_delay(unsigned ms) { sceKernelDelayThread(ms*1000); }
@@ -132,7 +133,7 @@ int module_start(SceSize args,const void *arg) {
     if(thread<0) { r_log("thread create failed",thread); return SCE_KERNEL_START_FAILED; }
     int result=sceKernelStartThread(thread,0,0);
     if(result<0) { r_log("thread start failed",result); sceKernelDeleteThread(thread); thread=-1; return SCE_KERNEL_START_FAILED; }
-    r_log("module start control 0.3.3",0); return SCE_KERNEL_START_SUCCESS;
+    r_log("module start control 0.3.4",0); return SCE_KERNEL_START_SUCCESS;
 }
 int module_stop(SceSize args,const void *arg) {
     (void)args; (void)arg; __atomic_store_n(&running,0,__ATOMIC_RELEASE);

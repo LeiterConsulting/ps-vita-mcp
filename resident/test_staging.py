@@ -24,7 +24,7 @@ class StageTests(unittest.TestCase):
         # Synthetic plugin/build manifest: this fixture tests transport/config behavior only.
         payload = b'SCE\0' + bytes(range(256)) * 32
         (self.root / 'dist/resident/vita_resident.suprx').write_bytes(payload)
-        report = {'version': '0.1.1', 'plugin': {'bytes': len(payload), 'sha256': hashlib.sha256(payload).hexdigest(), 'module_attributes': 0}, 'source_hashes': {}, 'accepted_artifacts_preserved': {}}
+        report = {'version': '0.1.2', 'plugin': {'bytes': len(payload), 'sha256': hashlib.sha256(payload).hexdigest(), 'module_attributes': 0}, 'source_hashes': {}, 'accepted_artifacts_preserved': {}}
         (self.root / 'dist/resident/build-report.json').write_text(json.dumps(report), encoding='utf-8')
         self.ftp = Fixture()
         self.ftp.directories.update(['/ur0:', '/ur0:/tai'])

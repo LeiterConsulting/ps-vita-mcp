@@ -1,4 +1,5 @@
 #include "api.h"
+#include "pairing_ui.h"
 #include <psp2/ctrl.h>
 #include <psp2/kernel/modulemgr.h>
 #include <psp2/kernel/processmgr.h>
@@ -78,16 +79,18 @@ int main(void) {
         if(sceIoMkdir(directory,0700|SCE_S_IRSYS|SCE_S_IWSYS)>=0) { storage_ok=1;break; }
     }
     snprintf(log_path,sizeof(log_path),"%s/starter.log",directory);
-    journal("Control Starter 01.04 ready; no modules submitted",storage_ok?0:-1);
+    journal("Control Starter 01.05 ready; no modules submitted",storage_ok?0:-1);
     int fd=sceIoOpen(RC_BOOT_GUARD,SCE_O_RDONLY,0);
     if(fd>=0) { sceIoClose(fd);guard_present=1; }else if(fd!=(int)0x80010002u) guard_present=1;
+    pu_init();
     unsigned previous=0;
     while(1) {
         SceCtrlData input={0};int sampled=sceCtrlPeekBufferPositive(0,&input,1);
         unsigned buttons=sampled>0?input.buttons:0,pressed=buttons&~previous;previous=buttons;
         int active=__atomic_load_n(&busy,__ATOMIC_ACQUIRE);
         if(!active && (buttons&(SCE_CTRL_START|SCE_CTRL_SELECT))==(SCE_CTRL_START|SCE_CTRL_SELECT)) break;
-        if(!active && (pressed&SCE_CTRL_CROSS) && storage_ok && !guard_present && !attempted) {
+        if(!active) pu_input(buttons,pressed,sampled>0);
+        if(!active && !pu_active() && (pressed&SCE_CTRL_CROSS) && storage_ok && !guard_present && !attempted) {
             attempted=1;__atomic_store_n(&busy,1,__ATOMIC_RELEASE);
             thread=sceKernelCreateThread("control-starter",start,0x40,32*1024,0,0,0);
             int result=thread>=0?sceKernelStartThread(thread,0,0):thread;
@@ -96,7 +99,8 @@ int main(void) {
         }
         active=__atomic_load_n(&busy,__ATOMIC_ACQUIRE);
         vita2d_start_drawing();vita2d_clear_screen();
-        vita2d_pgf_draw_text(font,30,45,COLOR(64,220,191),1.2f,"CONTROL STARTER 01.04");
+        if(pu_active()) pu_draw(font);else {
+        vita2d_pgf_draw_text(font,30,45,COLOR(64,220,191),1.2f,"CONTROL STARTER 01.05");
         vita2d_pgf_draw_text(font,30,91,COLOR(210,221,239),1.0f,"Start the control service after LiveArea has booted.");
         vita2d_pgf_draw_text(font,30,127,COLOR(210,221,239),1.0f,"Boot configuration stays unchanged. Reboot ends this session.");
         const char *message;
@@ -108,10 +112,12 @@ int main(void) {
         else message="Press CROSS once to start the runtime control session.";
         vita2d_pgf_draw_text(font,30,218,COLOR(255,197,98),1.0f,message);
         vita2d_pgf_draw_text(font,30,295,COLOR(151,170,195),1.0f,"A loaded module is not yet a verified network service.");
-        vita2d_pgf_draw_text(font,30,331,COLOR(151,170,195),1.0f,"PC tests will check identity, files, screen readback and short inputs.");
+        vita2d_pgf_draw_text(font,30,331,COLOR(151,170,195),1.0f,"SQUARE: pair a phone. TRIANGLE: paired phones / forget.");
         vita2d_pgf_draw_text(font,30,505,COLOR(210,221,239),1.0f,"START + SELECT: exit after loading finishes.");
+        }
         vita2d_end_drawing();vita2d_swap_buffers();
     }
     if(thread>=0) { sceKernelWaitThreadEnd(thread,0,0);sceKernelDeleteThread(thread); }
-    journal("normal exit",0);vita2d_wait_rendering_done();vita2d_free_pgf(font);vita2d_fini();sceKernelExitProcess(0);return 0;
+    vita2d_start_drawing();vita2d_clear_screen();vita2d_end_drawing();vita2d_swap_buffers();vita2d_wait_rendering_done();
+    pu_shutdown();journal("normal exit",0);vita2d_free_pgf(font);vita2d_fini();sceKernelExitProcess(0);return 0;
 }

@@ -10,7 +10,7 @@ def qualify(expected_control_build,expected_target_build,device=None,root=WORKDI
         j=Journal(root,'input-target');checks=[];started=False;focus_submitted=False;keeper=WorkKeeper(d.control,j.folder)
         try:
             control=d.control_status();check_identity(control,expected_control_build)
-            if control.get('version') not in ('0.3.0','0.3.1','0.3.2','0.3.3') or control.get('abi')!=2:raise RuntimeError('Focus cause proof requires Control 0.3.x ABI 2')
+            if control.get('version') not in ('0.3.0','0.3.1','0.3.2','0.3.3','0.3.4') or control.get('abi')!=2:raise RuntimeError('Focus cause proof requires Control 0.3.x ABI 2')
             before=d.target();png,screen=d.screen();(j.folder/'before.png').write_bytes(png)
             if before['build_id']!=expected_target_build or screen['target_pid']!=before['pid'] or before['buttons']:raise RuntimeError('Target identity, focus or neutral baseline differs')
             keeper.start(control)

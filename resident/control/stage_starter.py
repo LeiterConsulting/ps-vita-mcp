@@ -12,16 +12,16 @@ def stage_starter(root,expected_package,expected_config):
     if not all(re.fullmatch('[0-9a-f]{64}',value) for value in [expected_package,expected_config]):raise ValueError('Exact package/config hashes required')
     report=json.loads((root/'dist/control/build-report.json').read_text())
     package=report['starter_package'];payload=(root/'dist/control/control_starter.vpk').read_bytes()
-    if report['version']!='0.3.3' or package['titleId']!='CHRS00011' or package['version']!='01.04' or package['sha256']!=expected_package or sha(payload)!=expected_package or len(payload)!=package['bytes'] or not 0<len(payload)<=2*1024*1024:
+    if report['version']!='0.3.4' or package['titleId']!='CHRS00011' or package['version']!='01.05' or package['sha256']!=expected_package or sha(payload)!=expected_package or len(payload)!=package['bytes'] or not 0<len(payload)<=2*1024*1024:
         raise ValueError('Starter package differs from exact build evidence')
     for relative,digest in {**report['source_hashes'],**report['accepted_artifacts_preserved']}.items():
         if sha((root/relative).read_bytes())!=digest:raise ValueError('Recorded source/accepted artifact changed; rebuild before staging')
     private=json.loads((root/'.devloop-private/resident.json').read_text());settings=endpoint(root/'.devloop-private/ftp.json')
     if private.get('host')!=settings['host'] or not re.fullmatch('[0-9a-f]{32}',private.get('token','')):raise ValueError('Pairing/FTP device identity differs')
-    attempt='01.04-'+expected_package[:12]+'-'+uuid.uuid4().hex
+    attempt='01.05-'+expected_package[:12]+'-'+uuid.uuid4().hex
     folder=root/'evidence/control'/('starter-stage-'+attempt);folder.mkdir(parents=True,exist_ok=False)
     remote='ux0:data/vita-control/inbox/'+attempt
-    receipt={'prepared_utc':datetime.now(timezone.utc).isoformat(),'state':'preflight','version':'01.04','service_version':report['version'],'build_id':report['build_id'],'sha256':expected_package,'bytes':len(payload),'vita_path':remote+'/control_starter.vpk','read_back_checks':0,'installation':'manual pending','activation':'not performed; normal reboot and manual foreground CROSS required','active_config_unchanged':False,'pairing_unchanged':False,'session_guard':'must be absent before first runtime start','evidence':str(folder)}
+    receipt={'prepared_utc':datetime.now(timezone.utc).isoformat(),'state':'preflight','version':'01.05','service_version':report['version'],'build_id':report['build_id'],'sha256':expected_package,'bytes':len(payload),'vita_path':remote+'/control_starter.vpk','read_back_checks':0,'installation':'manual pending','activation':'not performed; normal reboot and manual foreground CROSS required','active_config_unchanged':False,'pairing_unchanged':False,'session_guard':'must be absent before first runtime start','evidence':str(folder)}
     def save():(folder/'deployment.json').write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf-8')
     ftp=connect(settings)
     try:

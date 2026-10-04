@@ -4,12 +4,15 @@
 /* Authenticated, allocation-free HTTP service. Same code is exercised on the host. */
 #include "platform.h"
 #include "sha256.h"
+#include "pairing_client.h"
 
 static unsigned char buffer[R_CHUNK];
 static char headers[4097];
 static char reply[8192];
 static uint64_t started,heartbeat,requests,uploads;
 static uint64_t idle_deadline,total_deadline;
+static char administrator[33],phone_token[33];
+static void error(int socket,int status,const char *reason);
 
 typedef struct {
     char method[8],path[256],authorization[48],digest[65];
@@ -76,6 +79,10 @@ static int send_all(int socket,const void *data,size_t size) {
     return 1;
 }
 static int response_header(int socket,int status,const char *type,uint32_t length) {
+    if(status>=200&&status<300&&phone_token[0]) {
+        int result=pc_authorized(pc_platform_io(),17866,administrator,phone_token,1);
+        if(result!=200){R_MEMSET(phone_token,0,sizeof(phone_token));error(socket,result,"Individual credential renewal unavailable");return 0;}
+    }
     char text[256]; int n=R_SNPRINTF(text,sizeof(text),"HTTP/1.1 %d Result\r\nContent-Type: %s\r\nContent-Length: %u\r\nConnection: close\r\nCache-Control: no-store\r\n\r\n",status,type,(unsigned)length);
     return n>0&&(size_t)n<sizeof(text)&&send_all(socket,text,(unsigned)n);
 }
@@ -179,6 +186,7 @@ static void control_status(int socket) {
     respond(socket,200,reply);
 }
 static void capture(int socket,unsigned scale,int compress) {
+    if(!pc_capture_allowed(pc_platform_io(),17866,administrator)) {error(socket,503,"Pairing privacy window active or authority unavailable");return;}
     RFrame frame={0}; int result=rc_capture(pixels,&frame,scale);
     if(result<0) { error(socket,503,"Framebuffer unavailable or changed process"); return; }
     if(frame.magic!=RC_FRAME_MAGIC||frame.abi!=RC_ABI||frame.width>480||frame.height>272||!frame.width||!frame.height||frame.bytes!=frame.width*frame.height*3||frame.bytes>sizeof(pixels)) { error(socket,500,"Invalid frame metadata"); return; }
@@ -267,6 +275,7 @@ static void command(int socket,const Request *request,const void *initial,size_t
     error(socket,404,"Unknown control operation");
 }
 static void client(int socket,const char token[33]) {
+    R_MEMSET(phone_token,0,sizeof(phone_token));
     size_t used=0,header_size=0; idle_deadline=r_now()+5000; total_deadline=r_now()+120000;
     while(used<sizeof(headers)-1&&!timed()) {
         int n=r_recv(socket,headers+used,sizeof(headers)-1-used);
@@ -281,7 +290,13 @@ static void client(int socket,const char token[33]) {
     char saved=headers[header_size]; headers[header_size]=0;
     Request request; int result=parse(headers,&request); headers[header_size]=saved;
     if(result) { error(socket,result,"Invalid request framing"); return; }
-    if(!request.has_auth||R_STRLEN(request.authorization)!=39||R_STRNCMP(request.authorization,"Bearer ",7)||!equal_token(request.authorization+7,token)) { error(socket,401,"Pairing authorization required"); return; }
+    if(!request.has_auth||R_STRLEN(request.authorization)!=39||R_STRNCMP(request.authorization,"Bearer ",7)) { error(socket,401,"Pairing authorization required"); return; }
+    if(!equal_token(request.authorization+7,token)) {
+        int auth=pc_authorized(pc_platform_io(),17866,token,request.authorization+7,0);
+        if(auth!=200){error(socket,auth,"Individual credential rejected or authority unavailable");return;}
+        if(R_STRCMP(request.method,"GET")||(R_STRCMP(request.path,"/status")&&R_STRCMP(request.path,"/power/status")&&R_STRCMP(request.path,"/screen/preview")&&R_STRCMP(request.path,"/screen/detail")&&R_STRCMP(request.path,"/screen/preview/rle")&&R_STRCMP(request.path,"/screen/detail/rle"))) {error(socket,403,"Phone pairing permits inspection only");return;}
+        R_MEMCPY(phone_token,request.authorization+7,32);phone_token[32]=0;
+    }
     requests++;
     if(!R_STRCMP(request.method,"GET")) {
         if(request.length||used!=header_size) { error(socket,400,"GET body is not supported"); return; }
@@ -302,8 +317,15 @@ static void client(int socket,const char token[33]) {
 void r_service(const char token[33]) {
     started=r_now(); heartbeat=requests=uploads=0;
     if(!hex(token,32)||r_network_init()<0||!r_directory_exists("ux0:data/vita-control/workspace")) { r_log("control startup failed",-1); return; }
+    R_MEMCPY(administrator,token,33);
+    char registration[128],registered[PR_JSON_MAX];
+    R_SNPRINTF(registration,sizeof(registration),"{\"protocol\":1,\"control_build_id\":\"%s\"}",R_BUILD_ID);
+    int registered_code=pc_call(pc_platform_io(),17866,administrator,"/pairing/native/register",registration,registered);
+    r_log("phone authority registration (Windows auth independent)",registered_code);R_MEMSET(registered,0,sizeof(registered));
+    uint64_t next_registration=r_now()+5000;
     int listener=-1;
     while(r_running()) {
+        if(r_now()>=next_registration){int code=pc_call(pc_platform_io(),17866,administrator,"/pairing/native/register",registration,registered);if(code!=registered_code)r_log("phone authority registration changed",code);registered_code=code;R_MEMSET(registered,0,sizeof(registered));next_registration=r_now()+5000;}
         if(!r_network_ready()) { rc_release(); if(listener>=0) r_close_socket(listener); listener=-1; r_delay(100); continue; }
         if(listener<0) { listener=r_listen(); r_log("control listener",listener); if(listener<0) { r_delay(1000); continue; } }
         int socket=r_accept(listener);

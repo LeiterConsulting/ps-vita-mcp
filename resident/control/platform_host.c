@@ -49,11 +49,14 @@ int rc_host_base_main(int argc,char **argv) { if(argc!=4) return 2; snprintf(roo
 
 #include "control_platform.h"
 #include "lease.h"
+#include "pairing_privacy.h"
 #include <dirent.h>
 static RLease lease;
 static int32_t foreground=77;
 static uint32_t frame_sequence;
-static void refresh(void) { if(fault("focus")) foreground=88; uint64_t now=r_now(); uint32_t reason=rlease_reason(&lease,now,foreground); if(reason) rlease_clear(&lease,now,reason); }
+static int protected_process,unknown_process;
+static int privacy_allowed(void) {char title[32]={0};snprintf(title,sizeof(title),"%s",protected_process?"CHRS00011":"CHRS00012");return rc_pairing_process_allowed(unknown_process?-1:0,title);}
+static void refresh(void) { if(fault("starter")) protected_process=1;if(fault("title-fail")) unknown_process=1;if(fault("normal-title")) protected_process=unknown_process=0;if(fault("focus")) foreground=88; uint64_t now=r_now(); uint32_t reason=rlease_reason(&lease,now,foreground); if(reason) rlease_clear(&lease,now,reason); }
 int rc_remove(const char *path) { return unlink(mapped(path)); }
 int rc_list(const char *path,unsigned offset,RCEntry entries[32],int *more) {
     DIR *dir=opendir(mapped(path)); if(!dir) return -1; struct dirent *item; int count=0; unsigned skipped=0; *more=0;
@@ -68,11 +71,11 @@ int rc_list(const char *path,unsigned offset,RCEntry entries[32],int *more) {
     }
     closedir(dir); return count;
 }
-int rc_input(const RInput *input) { refresh(); if(!rlease_valid(input)||input->target_pid!=foreground) return -2; rlease_apply(&lease,input,r_now()); return 0; }
+int rc_input(const RInput *input) { refresh(); if(!privacy_allowed()||!rlease_valid(input)||input->target_pid!=foreground) return -2; rlease_apply(&lease,input,r_now()); return 0; }
 int rc_readback(RReadback *value) { refresh(); *value=(RReadback){0}; value->magic=RC_READ_MAGIC; value->abi=RC_ABI; value->sample_ms=r_now(); value->lease=lease; value->buttons=lease.input.buttons; value->sample_result=1; value->lx=value->ly=value->rx=value->ry=128; return 0; }
 int rc_release(void) { rlease_clear(&lease,r_now(),RC_RELEASE_MANUAL); return 0; }
 int rc_capture(unsigned char *pixels,RFrame *frame,unsigned scale) {
-    refresh(); if(fault("capture")) return -3;
+    refresh(); if(!privacy_allowed()||fault("capture")) return -3;
     *frame=(RFrame){0}; frame->magic=RC_FRAME_MAGIC; frame->abi=RC_ABI; frame->sequence=++frame_sequence;
     frame->width=960/scale; frame->height=544/scale; frame->bytes=frame->width*frame->height*3; frame->pid=foreground;
     frame->source_width=960; frame->source_height=544; frame->flags=1; frame->started_us=r_now()*1000; frame->ended_us=frame->started_us+100;

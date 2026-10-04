@@ -59,12 +59,12 @@ def main():
         raise ValueError('Plugin SELF must contain the ARM ELF header')
     if (native / 'undefined-symbols.txt').read_text(encoding='utf-8').strip():
         raise ValueError('Unexpected unresolved ELF symbols')
-    core = ['service.c', 'sha256.c', 'sha256.h', 'platform.h', 'platform_vita.c', 'CMakeLists.txt', 'exports.yml']
+    core = ['service.c', 'sha256.c', 'sha256.h', 'platform.h', 'platform_vita.c', 'pairing.c', 'pairing_json.c', 'pairing_io.c', 'pairing.h', 'CMakeLists.txt', 'exports.yml']
     build_id = hashlib.sha256(''.join(digest(ROOT / 'resident' / name) for name in core).encode('ascii')).hexdigest()
     if build_id.encode('ascii') not in elf_data:
         raise ValueError('Native build identifier differs from the source fingerprint')
     imports = sorted(name.removeprefix('.text.fstubs.') for name in velf_sections if name.startswith('.text.fstubs.'))
-    if set(imports) != {'SceLibKernel', 'SceNet', 'SceNetCtl', 'SceSysmodule', 'SceThreadmgr', 'SceIofilemgr', 'ScePower'}:
+    if set(imports) != {'SceLibKernel', 'SceNet', 'SceNetCtl', 'SceSysmodule', 'SceThreadmgr', 'SceIofilemgr', 'ScePower', 'SceRtcUser', 'SceLibRng'}:
         raise ValueError('Unexpected imports')
     preserved = {}
     for relative, expected in ACCEPTED.items():
@@ -88,13 +88,13 @@ def main():
         sources[relative] = digest(ROOT / relative)
     allocated = sum(section[5] for section in velf_sections.values() if section[2] & 2)
     report = {
-        'built_utc': datetime.now(timezone.utc).isoformat(), 'version': '0.1.1',
+        'built_utc': datetime.now(timezone.utc).isoformat(), 'version': '0.1.2',
         'toolchain': json.loads((ROOT / 'toolchain.lock.json').read_text(encoding='utf-8')),
         'plugin': {'file': 'vita_resident.suprx', 'bytes': len(self_data), 'sha256': hashlib.sha256(self_data).hexdigest(), 'build_id': build_id, 'elf_sha256': hashlib.sha256(elf_data).hexdigest(), 'velf_sha256': hashlib.sha256(velf_data).hexdigest(), 'module_attributes': 0, 'imports': imports, 'linked_allocated_section_bytes': allocated, 'worker_stack_bytes': 65536},
         'source_hashes': sources, 'test_log_hashes': logs, 'accepted_artifacts_preserved': preserved,
         'evidence_directory': str(evidence),
         'host_validation': 'Real C service with POSIX adapters, ASan/UBSan; real stdio MCP against simulated HTTP; guarded FTP staging against simulated FTP.',
-        'device_acceptance': 'pending: plugin load, LiveArea heartbeat/upload, foreground Quake responsiveness/upload, app return and wake recovery',
+        'device_acceptance': 'pending: 0.1.2 plugin load, SDK RNG/RTC/sync adapters, physical pairing/rejection, exact 90-day and revoke recovery, screen privacy, LiveArea/foreground behavior and sleep/Wi-Fi recovery',
     }
     dist = ROOT / 'dist/resident'
     dist.mkdir(parents=True, exist_ok=True)

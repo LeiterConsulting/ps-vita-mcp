@@ -55,5 +55,13 @@ int r_read(int fd,void *data,size_t size);
 int r_close_file(int fd);
 int r_file_size(const char *path,uint64_t *size);
 int r_rename(const char *from,const char *to);
+uint64_t r_pair_mono(void);
+int r_pair_utc(uint64_t *seconds);
+int r_pair_random(void *out,size_t bytes);
+int r_pair_exists(const char *path);
+int r_pair_remove(const char *path);
+int r_pair_sync_file(int fd);
+int r_pair_sync_device(void);
+int r_peer_loopback(int socket);
 void r_service(const char token[33]);
 #endif

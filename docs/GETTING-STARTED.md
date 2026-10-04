@@ -121,7 +121,7 @@ Restart/refresh this client's existing MCP connection after updating the bridge.
 .\.venv-devloop\Scripts\python.exe resident\control\call_tool.py vita_control_status
 ```
 
-Expect Control 0.3.3, ABI 2, the local Control build ID, `lease_remaining_ms: 0`, and `keep_awake: false`.
+For this pairing branch, expect Control 0.3.4, ABI 2, the local Control build ID, `lease_remaining_ms: 0`, and `keep_awake: false`.
 
 ## 6. Qualify this device before autonomous work
 
@@ -162,3 +162,7 @@ $controlBuild = Get-Content .\dist\control\build-report.json -Raw | ConvertFrom-
 This retains the marker under a fresh name after checking the exact installed Starter and unchanged config. It never unloads modules or changes boot config. **FTP availability is not reboot proof.** A failure/uncertain rename needs inspection before another action. Then open Starter, CROSS once, wait, exit, and read Control status again. Never remove an active marker to force a duplicate load.
 
 For endpoint changes, update the `host` in the appropriate private JSON files while preserving their token and port; configure FTP separately. Requests reread the saved endpoint. For recovery, diagnostics and support reports, use [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+
+## Companion pairing candidate
+
+The optional native pairing path builds Resident 0.1.2 and Starter 01.05 / Control 0.3.4. It requires manual installation and its own hardware gates. Follow [PAIRING.md](PAIRING.md); keep the desktop token private and keep the phone session separate from desktop input/work trials. The historical device acceptance above applies to the older installed builds.

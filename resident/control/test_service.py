@@ -2,6 +2,7 @@
 import hashlib
 import http.client
 import json
+import os
 from pathlib import Path
 import socket
 import struct
@@ -17,15 +18,26 @@ NAME='script.lua'
 class ControlTests(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory(); self.root=Path(self.temp.name); (self.root/'workspace').mkdir()
+        self.resident_root=self.root/'resident';(self.resident_root/'inbox').mkdir(parents=True)
+        with socket.socket() as s:s.bind(('127.0.0.1',0));self.resident_port=s.getsockname()[1]
+        self.resident_log=(self.root/'resident.log').open('wb')
+        self.resident_process=subprocess.Popen(['build/resident/host-server',str(self.resident_root),str(self.resident_port),TOKEN],stdout=self.resident_log,stderr=self.resident_log)
+        for _ in range(100):
+            try:
+                with socket.create_connection(('127.0.0.1',self.resident_port),timeout=.1):break
+            except OSError:time.sleep(.02)
+        else:raise RuntimeError('Resident fixture failed to start')
         with socket.socket() as s: s.bind(('127.0.0.1',0)); self.port=s.getsockname()[1]
         self.log=(self.root/'server.log').open('wb')
-        self.process=subprocess.Popen(['build/resident/control/host-server',str(self.root),str(self.port),TOKEN],stdout=self.log,stderr=self.log)
+        self.process=subprocess.Popen(['build/resident/control/host-server',str(self.root),str(self.port),TOKEN],stdout=self.log,stderr=self.log,env={**os.environ,'PR_RESIDENT_PORT':str(self.resident_port)})
         for _ in range(100):
             try: self.request('GET','/status'); break
             except OSError: time.sleep(.02)
         else: raise RuntimeError('Control host fixture failed to start')
     def tearDown(self):
         self.process.terminate(); self.process.wait(timeout=10); self.log.close()
+        self.resident_process.terminate();self.assertEqual(self.resident_process.wait(timeout=10),0);self.resident_log.close()
+        resident_text=(self.root/'resident.log').read_text(encoding='utf-8');self.assertNotIn('AddressSanitizer',resident_text);self.assertNotIn('runtime error:',resident_text)
         text=(self.root/'server.log').read_text()
         self.assertNotIn('ERROR: AddressSanitizer',text); self.assertNotIn('runtime error:',text); self.temp.cleanup()
     def request(self,method,path,body=None,digest=None,token=TOKEN):

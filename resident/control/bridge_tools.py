@@ -65,7 +65,7 @@ class ControlClient:
         return {**result,'bridge':timing}
     def status(self):
         value=self.json('GET','/status')
-        if value.get('app')!='Vita Control' or (value.get('version'),value.get('abi')) not in (('0.2.1',1),('0.2.2',1),('0.3.0',2),('0.3.1',2),('0.3.2',2),('0.3.3',2)) or not re.fullmatch('[0-9a-f]{64}',value.get('build_id','')):
+        if value.get('app')!='Vita Control' or (value.get('version'),value.get('abi')) not in (('0.2.1',1),('0.2.2',1),('0.3.0',2),('0.3.1',2),('0.3.2',2),('0.3.3',2),('0.3.4',2)) or not re.fullmatch('[0-9a-f]{64}',value.get('build_id','')):
             raise RuntimeError('Unexpected control endpoint identity')
         self.abi=value['abi']; self.codecs=value.get('capture_codecs',[]);self.power_protocol=value.get('power_protocol')
         return value

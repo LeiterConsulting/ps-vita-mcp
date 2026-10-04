@@ -14,16 +14,16 @@ from inspector.verify_build import authority,exports
 sys.path.insert(0,str(ROOT/'scripts'))
 from vita_artifacts import inspect
 import zipfile
-CORE=['kernel.c','touch_activity.h','button_map.h','lease.c','lease.h','api.h','http.c','rle.c','rle.h','power_policy.c','power_policy.h','power_shell.c','platform_shell.c','control_platform.h','CMakeLists.txt','kernel.yml','shell.yml','bootstrap_metadata.c','bootstrap_probe.c','bootstrap_probe.yml','bootstrap_app.c','../platform.h','../sha256.c','../sha256.h']
+CORE=['kernel.c','pairing_privacy.h','pairing_approval.h','touch_activity.h','button_map.h','lease.c','lease.h','api.h','http.c','rle.c','rle.h','power_policy.c','power_policy.h','power_shell.c','platform_shell.c','control_platform.h','CMakeLists.txt','kernel.yml','shell.yml','bootstrap_metadata.c','bootstrap_probe.c','bootstrap_probe.yml','bootstrap_app.c','pairing_ui.c','pairing_ui.h','../pairing.c','../pairing.h','../pairing_json.c','../pairing_client.c','../pairing_client.h','../pairing_net_vita.c','../platform.h','../sha256.c','../sha256.h']
 
 def main(evidence):
     source=ROOT/'resident/control';native=ROOT/'build/resident/control';dist=ROOT/'dist/control'
     if evidence.parent.resolve()!=(ROOT/'evidence/control').resolve(): raise ValueError('Invalid build evidence directory')
     build_id=hashlib.sha256(''.join(digest(source/name) for name in CORE).encode()).hexdigest()
-    report={'built_utc':datetime.now(timezone.utc).isoformat(),'version':'0.3.3','build_id':build_id,'modules':{},'source_hashes':{},'tests':{},'accepted_artifacts_preserved':{},'physical_acceptance':'pending: installed touch restoration and regression gates; host proof does not establish device behavior','evidence_directory':str(evidence)}
+    report={'built_utc':datetime.now(timezone.utc).isoformat(),'version':'0.3.4','build_id':build_id,'modules':{},'source_hashes':{},'tests':{},'accepted_artifacts_preserved':{},'physical_acceptance':'pending: matched 0.3.4 kernel/Shell and Starter 01.05 activation, physical pairing/Forget and screen/input exclusion, physical touch restoration, sleep/Wi-Fi and full regressions; host proof does not establish device behavior','evidence_directory':str(evidence)}
     for name,attributes,version,expected_imports in [
         ('vita_control',0,b'\x02\x00',{'SceIofilemgr','SceLibKernel','SceNet','SceNetCtl','ScePower','SceSysmodule','SceThreadmgr','SceProcessmgr','SceAppMgrUser','SceMotion','SceTouch','VitaControlKernel'}),
-        ('vita_control_kernel',0,b'\x01\x00',{'SceCtrlForDriver','SceThreadmgrForDriver','SceDisplayForDriver','SceSysmemForDriver','SceSysrootForDriver','SceSysclibForDriver','ScePowerForDriver','taihenModuleUtils','taihenForKernel'})]:
+        ('vita_control_kernel',0,b'\x01\x00',{'SceCtrlForDriver','SceThreadmgrForDriver','SceDisplayForDriver','SceSysmemForDriver','SceSysrootForDriver','SceSysrootForKernel','SceSysclibForDriver','ScePowerForDriver','taihenModuleUtils','taihenForKernel'})]:
         extension='.skprx' if name.endswith('_kernel') else '.suprx'
         binary=(native/name).read_bytes();elf(binary,2)
         velf=(native/(name+'.velf')).read_bytes();sections=elf(velf,0xfe04);section=sections['.sceModuleInfo.rodata'];module=velf[section[4]:section[4]+section[5]]
@@ -45,7 +45,7 @@ def main(evidence):
         report['modules'][name]={'file':payload.name,'bytes':payload.stat().st_size,'sha256':digest(payload),'authid':f'{authid:016x}','exports':exported,'elf_sha256':digest(native/name),'velf_sha256':digest(native/(name+'.velf')),'imports':imports,'allocated_section_bytes':sum(s[5] for s in sections.values() if s[2]&2)}
         for suffix in ['', '.velf',extension,'-undefined.txt','-layout.txt']:
             shutil.copy2(native/(name+suffix),evidence/(name+suffix))
-    app_imports={'taihenUnsafe','SceDisplayUser','SceDisplay','SceGxm','SceGxmInternalForVsh','SceSysmodule','SceCtrl','ScePgf','SceCommonDialog','SceSharedFb','SceAppMgrUser','SceIofilemgr','SceThreadmgr','SceRtcUser','SceSysmem','SceThreadmgrCoredumpTime','SceProcessmgr','SceLibKernel','SceNet'}
+    app_imports={'taihenUnsafe','SceDisplayUser','SceDisplay','SceGxm','SceGxmInternalForVsh','SceSysmodule','SceCtrl','ScePgf','SceCommonDialog','SceSharedFb','SceAppMgrUser','SceIofilemgr','SceThreadmgr','SceRtcUser','SceSysmem','SceThreadmgrCoredumpTime','SceProcessmgr','SceLibKernel','SceLibRng','SceNet'}
     for name,extension,expected_imports in [
         ('control_bootstrap_probe','.suprx',{'SceIofilemgr','SceLibKernel','SceThreadmgr','VitaControlKernel'}),
         ('control_starter','.self',app_imports)]:
@@ -68,7 +68,7 @@ def main(evidence):
         if build_id.encode() not in binary or authority(payload.read_bytes())!=0x2f00000000000001: raise ValueError('Starter fingerprint or unsafe SELF attributes differ')
         report['modules'][name]={'file':payload.name,'bytes':payload.stat().st_size,'sha256':digest(payload),'authid':'2f00000000000001','imports':imports,'exports':exported}
         for suffix in ['',extension,'.velf','-undefined.txt','-layout.txt']:shutil.copy2(native/(name+suffix),evidence/(name+suffix))
-    package=inspect(native/'control_starter.vpk','Control Starter','CHRS00011','01.04')
+    package=inspect(native/'control_starter.vpk','Control Starter','CHRS00011','01.05')
     expected={'eboot.bin','sce_sys/param.sfo','sce_sys/icon0.png','sce_sys/livearea/contents/bg.png','sce_sys/livearea/contents/startup.png','sce_sys/livearea/contents/template.xml','vita_control_kernel.skprx','vita_control.suprx','control_bootstrap_probe.suprx','LICENSE.vitacompanion','LICENSE'}
     with zipfile.ZipFile(native/'control_starter.vpk') as archive:
         if set(archive.namelist())!=expected:raise ValueError('Unexpected starter package files')
@@ -81,10 +81,10 @@ def main(evidence):
         actual=digest(ROOT/relative)
         if actual!=ACCEPTED[relative]: raise ValueError('Previously accepted app changed')
         report['accepted_artifacts_preserved'][relative]=actual
-    paths=list(source.glob('*'))+[ROOT/'resident/platform.h',ROOT/'resident/sha256.c',ROOT/'resident/sha256.h',ROOT/'resident/bridge.py',ROOT/'resident/inspector/verify_build.py',ROOT/'Build-Control.ps1',ROOT/'toolchain.lock.json']
+    paths=list(source.glob('*'))+[source/name for name in CORE if name.startswith('../')]+[ROOT/'resident/platform.h',ROOT/'resident/sha256.c',ROOT/'resident/sha256.h',ROOT/'resident/bridge.py',ROOT/'resident/inspector/verify_build.py',ROOT/'Build-Control.ps1',ROOT/'toolchain.lock.json']
     for path in paths:
         if path.is_file():
-            relative=path.relative_to(ROOT);report['source_hashes'][relative.as_posix()]=digest(path)
+            relative=path.resolve().relative_to(ROOT);report['source_hashes'][relative.as_posix()]=digest(path)
             archived=evidence/'source'/relative;archived.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(path,archived)
     for name in ['host-tests.log','mcp-tests.log','resident-mcp-tests.log','staging-tests.log','native-build.log']:
         if not (evidence/name).stat().st_size: raise ValueError('Missing validation log')

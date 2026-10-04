@@ -22,7 +22,7 @@ class Fixture(BaseHTTPRequestHandler):
         global frames,sequence
         calls.append(('GET',self.path));frames+=1;state['frame']=frames
         if self.headers.get('Authorization')!='Bearer '+TOKEN:return self.reply(401,{})
-        if self.path=='/status' and self.server.role=='control':return self.reply(200,{'app':'Vita Control','version':'0.3.3','abi':2,'build_id':'b'*64 if fault=='wrong_build' else BUILD,'capture_codecs':['rgb'],'uptime_ms':frames*10,'lease_remaining_ms':0,'power_protocol':1})
+        if self.path=='/status' and self.server.role=='control':return self.reply(200,{'app':'Vita Control','version':'0.3.4','abi':2,'build_id':'b'*64 if fault=='wrong_build' else BUILD,'capture_codecs':['rgb'],'uptime_ms':frames*10,'lease_remaining_ms':0,'power_protocol':1})
         if self.path=='/power/status':return self.reply(200,power_value())
         if self.path=='/workspace/stat/'+FILE_ID:return self.reply(200,{'vita_path':'ux0:data/vita-control/workspace/'+FILE_ID,'bytes':len(FILE),'sha256':'0'*64 if fault=='file_native_hash' else FILE_HASH})
         if self.path=='/workspace/read/'+FILE_ID:return self.reply(200,FILE[:-1] if fault=='file_readback' else FILE,'application/octet-stream')

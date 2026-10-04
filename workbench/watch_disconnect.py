@@ -114,7 +114,7 @@ def watch(kind, duration=1800):
                     time.sleep(1)
                     continue
                 check_identity(control, build)
-                if control.get('app') != 'Vita Control' or control.get('abi') != 2 or control.get('version') not in ('0.3.1', '0.3.2', '0.3.3') or control['uptime_ms'] < last_uptime:
+                if control.get('app') != 'Vita Control' or control.get('abi') != 2 or control.get('version') not in ('0.3.1', '0.3.2', '0.3.3', '0.3.4') or control['uptime_ms'] < last_uptime:
                     raise RuntimeError('Control identity changed or restarted')
                 last_uptime = control['uptime_ms']
                 now = time.monotonic()

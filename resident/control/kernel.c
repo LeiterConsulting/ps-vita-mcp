@@ -3,6 +3,7 @@
 #include "lease.h"
 #include "button_map.h"
 #include "touch_activity.h"
+#include "pairing_privacy.h"
 #include <psp2kern/power.h>
 int module_get_export_func(SceUID pid,const char *module,uint32_t library,uint32_t function,uintptr_t *address);
 #include <psp2kern/display.h>
@@ -47,6 +48,10 @@ static unsigned char capture_row[8192], output_row[1440];
 static analog_state analog_states[2];
 static touch_state touch_states[2][4];
 static RTState physical_touch;
+static int pairing_process_allowed(SceUID pid) {
+    char title[32]={0};int result=ksceKernelGetProcessTitleId(pid,title,sizeof(title));
+    return rc_pairing_process_allowed(result,title);
+}
 
 static SceUID touch_hook_ids[4] = {-1, -1, -1, -1};
 static tai_hook_ref_t touch_peek_ref;
@@ -379,7 +384,7 @@ int vitaControlInput(const RInput *user_input,unsigned size) {
         SceDisplayFrameBufInfo fb={0}; fb.size=sizeof(fb);
         int got=ksceDisplayGetProcFrameBufInternal(-1,ksceDisplayGetPrimaryHead(),0,&fb);
         if(got<0||!fb.paddr) got=ksceDisplayGetProcFrameBufInternal(-1,ksceDisplayGetPrimaryHead(),1,&fb);
-        if(got>=0&&fb.pid==input.target_pid) {
+        if(got>=0&&fb.pid==input.target_pid&&pairing_process_allowed(fb.pid)) {
             state_lock(); clear_state(RC_RELEASE_REPLACED);
             rlease_apply(&lease,&input,(uint64_t)ksceKernelGetSystemTimeWide()/1000);
             button_state=input.buttons;
@@ -460,7 +465,7 @@ int vitaControlCapture(void *user_pixels,unsigned capacity,RFrame *user_frame,un
     RFrame frame={0}; frame.magic=RC_FRAME_MAGIC; frame.abi=RC_ABI;
     frame.started_us=ksceKernelGetSystemTimeWide();
     if(result>=0) {
-        if(!fb.framebuf.base||fb.pid<=0||fb.framebuf.pixelformat!=SCE_DISPLAY_PIXELFORMAT_A8B8G8R8||
+        if(!pairing_process_allowed(fb.pid)||!fb.framebuf.base||fb.pid<=0||fb.framebuf.pixelformat!=SCE_DISPLAY_PIXELFORMAT_A8B8G8R8||
            fb.framebuf.width<4||fb.framebuf.width>960||fb.framebuf.height<4||fb.framebuf.height>544||
            fb.framebuf.pitch<fb.framebuf.width||fb.framebuf.pitch>2048) result=-3;
         else {

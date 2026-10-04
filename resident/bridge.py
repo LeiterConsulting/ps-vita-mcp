@@ -43,7 +43,7 @@ class ResidentRejection(RuntimeError):
         super().__init__(f'Resident rejected request with HTTP {status}' + (': ' + self.reason if self.reason else ''))
 
 
-mcp = FastMCP('Vita Resident', instructions='This server exposes four Resident and thirteen Control tools. Resident runs in SceShell at boot; Control loads only through Starter after normal boot and remains until reboot. Read exact identity, current display PID and lease state before action. Input leases are bounded and cancel on focus change; confirm delivery through app telemetry. Screens are on-demand framebuffer copies, not synchronized video. Files are confined to managed revisions and fresh inboxes; native installation is manual. Never automatically replay an uncertain write/action; inspect the exact revision or attempt. True sleep may make services unavailable; do not change sleep settings. Physical acceptance is separate from host fixtures.', log_level='WARNING')
+mcp = FastMCP('Vita Resident', instructions='This server exposes four Resident, thirteen Control and ten Workbench tools. Optional Companion credentials permit inspection only; the desktop administrator token stays private. An active pairing challenge blocks captures until its original deadline. Resident runs in SceShell at boot; Control loads only through Starter after normal boot and remains until reboot. Read exact identity, current display PID and lease state before action. Input leases are bounded and cancel on focus change; confirm delivery through app telemetry. Screens are on-demand framebuffer copies, not synchronized video. Files are confined to managed revisions and fresh inboxes; native installation is manual. Never automatically replay an uncertain write/action; inspect the exact revision or attempt. True sleep may make services unavailable; do not change sleep settings. Physical acceptance is separate from host fixtures.', log_level='WARNING')
 
 
 def configuration() -> dict:
@@ -94,7 +94,7 @@ def vita_resident_status() -> dict:
     """Read resident heartbeat, process instance, battery, clocks and network state."""
     data, content_type, timing = request('GET', '/status')
     value = json.loads(data)
-    if content_type != 'application/json' or value.get('app') != 'Vita Resident' or value.get('protocol') != 1 or value.get('version') != '0.1.1':
+    if content_type != 'application/json' or value.get('app') != 'Vita Resident' or value.get('protocol') != 1 or value.get('version') not in ('0.1.1','0.1.2'):
         raise RuntimeError('Unexpected resident service identity')
     if not isinstance(value.get('build_id'), str) or not re.fullmatch('[0-9a-f]{64}', value['build_id']):
         raise RuntimeError('Invalid resident build identifier')

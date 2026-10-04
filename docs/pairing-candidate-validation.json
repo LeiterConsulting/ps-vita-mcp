@@ -1,0 +1,245 @@
+{
+  "recorded_utc": "2026-10-04T23:17:19.832793+00:00",
+  "state": "host_and_native_build_passed; NOT installed or physically qualified",
+  "scope": "Actual C with ASan/UBSan and POSIX/SDK substitutes; actual stdio MCP against simulated devices; ARM/SELF/import/export/package verification. No live Vita action or phone pairing in this candidate run.",
+  "versions": {
+    "resident": "0.1.2",
+    "control": "0.3.4",
+    "starter": "01.05",
+    "abi": 2
+  },
+  "resident": {
+    "file": "vita_resident.suprx",
+    "bytes": 27777,
+    "sha256": "8d80243a69f088553942ab214c3d3e4b1c05b2bc06e7753ee9085ac1447ccdbf",
+    "build_id": "cc816e8db301e5a250ee5d19d060c1f896244c7af1f0a7333a46380f1fd4f0ef",
+    "elf_sha256": "e6b8ee529d19f5d4ce11c517cc65bcb50c6cd3f8ba61263458b87345623bd9ac",
+    "velf_sha256": "73ec8011023e5515fc921723ef75ddcf733a47be484e53b43ed1c4c12fb21062",
+    "module_attributes": 0,
+    "imports": [
+      "SceIofilemgr",
+      "SceLibKernel",
+      "SceLibRng",
+      "SceNet",
+      "SceNetCtl",
+      "ScePower",
+      "SceRtcUser",
+      "SceSysmodule",
+      "SceThreadmgr"
+    ],
+    "linked_allocated_section_bytes": 319964,
+    "worker_stack_bytes": 65536
+  },
+  "control_build_id": "2dd7c10babe89636885479d76b494472de14b63a534ff56638d0b5f03ad705bf",
+  "control_modules": {
+    "vita_control": {
+      "file": "vita_control.suprx",
+      "bytes": 27765,
+      "sha256": "67ebb75d98c4d97c7a1f78a5ef2c4fa1b1e3ef3511db2ec53bca6684e74f52ff",
+      "authid": "2f00000000000001",
+      "exports": [
+        {
+          "name": "main",
+          "nid": "00000000",
+          "flags": "8000",
+          "functions": 2,
+          "variables": 1
+        }
+      ],
+      "elf_sha256": "6595a7b04c35ff902135ab600f403cf922bb6ef1d51762ee00bb4087523ee335",
+      "velf_sha256": "043c4dbf5ce1a21c0ab4011e5faed54c0c8a35663eef84e4cda16e0302ec93ca",
+      "imports": [
+        "SceAppMgrUser",
+        "SceIofilemgr",
+        "SceLibKernel",
+        "SceMotion",
+        "SceNet",
+        "SceNetCtl",
+        "ScePower",
+        "SceProcessmgr",
+        "SceSysmodule",
+        "SceThreadmgr",
+        "SceTouch",
+        "VitaControlKernel"
+      ],
+      "allocated_section_bytes": 1103416
+    },
+    "vita_control_kernel": {
+      "file": "vita_control_kernel.skprx",
+      "bytes": 10512,
+      "sha256": "b9dfdad8e11097877166d44ddefd26c1aa84ff5e63172517adc75e82861e8e27",
+      "authid": "2f00000000000002",
+      "exports": [
+        {
+          "name": "main",
+          "nid": "00000000",
+          "flags": "8000",
+          "functions": 2,
+          "variables": 1
+        },
+        {
+          "name": "VitaControlKernel",
+          "nid": "a0866f5b",
+          "flags": "4001",
+          "functions": 9,
+          "variables": 0
+        }
+      ],
+      "elf_sha256": "2961763646a6e0afa5bd71c64dc5766b66b372444e1b877ec9e18c709233f698",
+      "velf_sha256": "f339f7601e59d0e5d183407e4fbd63b306970647f550f345f27a24aca77614f5",
+      "imports": [
+        "SceCtrlForDriver",
+        "SceDisplayForDriver",
+        "ScePowerForDriver",
+        "SceSysclibForDriver",
+        "SceSysmemForDriver",
+        "SceSysrootForDriver",
+        "SceSysrootForKernel",
+        "SceThreadmgrForDriver",
+        "taihenForKernel",
+        "taihenModuleUtils"
+      ],
+      "allocated_section_bytes": 17684
+    },
+    "control_bootstrap_probe": {
+      "file": "control_bootstrap_probe.suprx",
+      "bytes": 5086,
+      "sha256": "2bc305ec3d12dfcfada6fea0e56d46ce0e526d55783b5a7c57c42dea56d22ac0",
+      "authid": "2f00000000000001",
+      "imports": [
+        "SceIofilemgr",
+        "SceLibKernel",
+        "SceThreadmgr",
+        "VitaControlKernel"
+      ],
+      "exports": [
+        {
+          "name": "main",
+          "nid": "00000000",
+          "flags": "8000",
+          "functions": 2,
+          "variables": 1
+        }
+      ]
+    },
+    "control_starter": {
+      "file": "control_starter.self",
+      "bytes": 98016,
+      "sha256": "71bb0191c35e254ff7c03ef24c3b04787b9b9a406d183adf61531844c16d4076",
+      "authid": "2f00000000000001",
+      "imports": [
+        "SceAppMgrUser",
+        "SceCommonDialog",
+        "SceCtrl",
+        "SceDisplay",
+        "SceDisplayUser",
+        "SceGxm",
+        "SceGxmInternalForVsh",
+        "SceIofilemgr",
+        "SceLibKernel",
+        "SceLibRng",
+        "SceNet",
+        "ScePgf",
+        "SceProcessmgr",
+        "SceRtcUser",
+        "SceSharedFb",
+        "SceSysmem",
+        "SceSysmodule",
+        "SceThreadmgr",
+        "SceThreadmgrCoredumpTime",
+        "taihenUnsafe"
+      ],
+      "exports": [
+        {
+          "name": "main",
+          "nid": "00000000",
+          "flags": "8000",
+          "functions": 1,
+          "variables": 2
+        }
+      ]
+    }
+  },
+  "starter_package": {
+    "file": "control_starter.vpk",
+    "title_id": "CHRS00011",
+    "version": "01.05",
+    "bytes": 133859,
+    "sha256": "497e564633e7ee541fd55e8ccc4e99af5aab42521dfa723b99b55070417f98db"
+  },
+  "new_checks": {
+    "actual_core_groups": 23,
+    "bounded_client_privacy_approval_groups": 6,
+    "actual_two_service_http_tests": 11
+  },
+  "portable_ci": {
+    "scope": "Host code and actual stdio MCP against simulated local adapters; no device acceptance",
+    "checks": [
+      {
+        "name": "devloop-c",
+        "exit_code": 0
+      },
+      {
+        "name": "resident-c",
+        "exit_code": 0
+      },
+      {
+        "name": "control-c",
+        "exit_code": 0
+      },
+      {
+        "name": "target-c",
+        "exit_code": 0
+      },
+      {
+        "name": "test_bridge-tests",
+        "exit_code": 0
+      },
+      {
+        "name": "test_scripts_bridge-tests",
+        "exit_code": 0
+      },
+      {
+        "name": "test_bridge-resident",
+        "exit_code": 0
+      },
+      {
+        "name": "test_bridge-control",
+        "exit_code": 0
+      },
+      {
+        "name": "test_staging-control",
+        "exit_code": 0
+      },
+      {
+        "name": "test_mcp-workbench",
+        "exit_code": 0
+      },
+      {
+        "name": "workbench-decisions",
+        "exit_code": 0
+      }
+    ]
+  },
+  "build_record_sha256": {
+    "resident": "1bb2a344c4f43235c7874d22143e8faa2ea7198396155ef50a481f041e757061",
+    "control": "6c2b6d642e2a109ee9f11da28504b17d5c8820b9b7ec6e9a71176d60e916f3c2"
+  },
+  "source_inputs_current": true,
+  "device_changes": "None: no transfer, install, native activation, boot configuration or registered PC MCP change.",
+  "phone_authority": "Inspection only. Screen reads blocked while the original approved/completed 120-second challenge or privacy-authority failure applies.",
+  "physical_acceptance": "pending; phone allowlist must not be promoted as device-qualified",
+  "failure_history": "Earlier failed compile/import/framing checks are preserved in private logs, alongside their repaired passing runs. A Windows PowerShell 5 invocation treated native stderr as an exception; the final aggregate ran in PowerShell 7.",
+  "remaining_gates": [
+    "Manual replacement/rollback proof and one-time matching module activation",
+    "SDK RNG, RTC, title lookup, sync and native loopback transport on firmware 3.65",
+    "Physical approval/rejection/Forget and phone-specific saved reconnect",
+    "Leading-zero, lost Wi-Fi confirmation and expiry/revoke/reboot recovery on device",
+    "Global screen denial during code window, Starter denial and LiveArea overlays/thumbnails",
+    "No unexpected input/work lease; desktop and phone session ownership",
+    "Physical front and rear touch restoration plus button/stick/motion regression",
+    "Completed soak, independent sleep/wake and Wi-Fi-loss trials",
+    "Clean-machine onboarding and complete binary dependency notices"
+  ],
+  "previous_release_qualification": "QUALIFICATION.md; installed 0.3.3 evidence is not acceptance of this candidate"
+}

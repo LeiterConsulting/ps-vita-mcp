@@ -62,7 +62,7 @@ def plugin_bytes(root):
     report = json.loads((root / 'dist/resident/build-report.json').read_text(encoding='utf-8'))
     payload = (root / 'dist/resident/vita_resident.suprx').read_bytes()
     info = report['plugin']
-    if not 0 < len(payload) <= 256 * 1024 or len(payload) != info['bytes'] or sha(payload) != info['sha256'] or payload[:4] != b'SCE\0' or report['version'] != '0.1.1' or info['module_attributes'] != 0:
+    if not 0 < len(payload) <= 256 * 1024 or len(payload) != info['bytes'] or sha(payload) != info['sha256'] or payload[:4] != b'SCE\0' or report['version'] != '0.1.2' or info['module_attributes'] != 0:
         raise ValueError('Plugin bytes and build evidence do not match')
     for relative, expected in report['source_hashes'].items():
         if sha((root / relative).read_bytes()) != expected:

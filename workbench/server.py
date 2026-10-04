@@ -22,7 +22,7 @@ def doctor(expected_control_build=None,device=None):
             foreground=d.status();script=d.script();result['devloop']=foreground;result['script']=script
             result['ready_for_lua_trial']=foreground.get('version') in ('01.02','01.03') and foreground.get('paused') and not script.get('faulted') and not value.get('lease_remaining_ms') and script['revision']==foreground['revision']
         except Exception:result['devloop']='unavailable; leave the foreground DevLoop app open'
-        try:result['target']=d.target();result['ready_for_target_trial']=value.get('version') in ('0.3.0','0.3.1','0.3.2','0.3.3') and not value.get('lease_remaining_ms')
+        try:result['target']=d.target();result['ready_for_target_trial']=value.get('version') in ('0.3.0','0.3.1','0.3.2','0.3.3','0.3.4') and not value.get('lease_remaining_ms')
         except Exception:result['target']='unavailable; install/open the Input Target for device input qualification'
         return result
 def soak(seconds,expected_control_build,device=None,root=WORKDIR):

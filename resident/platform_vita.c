@@ -1,5 +1,7 @@
 #include "platform.h"
 #include <psp2/kernel/modulemgr.h>
+#include <psp2/kernel/rng.h>
+#include <psp2/rtc.h>
 #include <psp2/kernel/processmgr.h>
 #include <psp2/kernel/threadmgr.h>
 #include <psp2/io/fcntl.h>
@@ -17,7 +19,16 @@ static unsigned char net_memory[256*1024] __attribute__((aligned(16)));
 static unsigned log_bytes;
 /* Compiler-generated aggregate clearing must not depend on SceShell having libc. */
 void *memset(void *destination,int value,size_t size) { return sceClibMemset(destination,value,size); }
+void *memcpy(void *destination,const void *source,size_t size) { return sceClibMemcpy(destination,source,size); }
 
+uint64_t r_pair_mono(void) { return sceKernelGetSystemTimeWide()/1000; }
+int r_pair_utc(uint64_t *out) { SceDateTime date={0};SceUInt64 value=0;if(sceRtcGetCurrentClock(&date,0)<0||sceRtcGetTime64_t(&date,&value)<0)return -1;*out=value;return 0; }
+int r_pair_random(void *out,size_t bytes) { return bytes<=64?sceKernelGetRandomNumber(out,(SceSize)bytes):-1; }
+int r_pair_exists(const char *path) {SceIoStat stat={0};int r=sceIoGetstat(path,&stat);return r>=0?1:r==(int)0x80010002u?0:-1;}
+int r_pair_remove(const char *path) {return sceIoRemove(path);}
+int r_pair_sync_file(int fd) {return sceIoSyncByFd(fd,0);}
+int r_pair_sync_device(void) {return sceIoSync("ux0:",0);}
+int r_peer_loopback(int socket) {SceNetSockaddrIn a={0};unsigned size=sizeof(a);return sceNetGetpeername(socket,(SceNetSockaddr *)&a,&size)>=0&&a.sin_family==SCE_NET_AF_INET&&sceNetNtohl(a.sin_addr.s_addr)==0x7f000001u;}
 uint64_t r_now(void) { return sceKernelGetProcessTimeWide()/1000; }
 void r_delay(unsigned ms) { sceKernelDelayThread(ms*1000); }
 int r_running(void) { return __atomic_load_n(&running,__ATOMIC_ACQUIRE); }
@@ -87,7 +98,7 @@ int module_start(SceSize args,const void *arg) {
     if(thread<0) { r_log("thread create failed",thread); return SCE_KERNEL_START_FAILED; }
     int result=sceKernelStartThread(thread,0,0);
     if(result<0) { r_log("thread start failed",result); sceKernelDeleteThread(thread); thread=-1; return SCE_KERNEL_START_FAILED; }
-    r_log("module start 0.1.1",0); return SCE_KERNEL_START_SUCCESS;
+    r_log("module start 0.1.2",0); return SCE_KERNEL_START_SUCCESS;
 }
 int module_stop(SceSize args,const void *arg) {
     (void)args; (void)arg; __atomic_store_n(&running,0,__ATOMIC_RELEASE);

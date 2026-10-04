@@ -24,10 +24,10 @@ class Device(BaseHTTPRequestHandler):
     def do_GET(self):
         calls.append(('GET',self.path))
         if self.headers.get('Authorization')!='Bearer '+TOKEN: return self.reply(401,{'error':'unauthorized'})
-        if self.path=='/status': return self.reply(200,{'app':'Vita Control','abi':2 if status_version in ('0.3.0','0.3.1','0.3.2','0.3.3') and not bad_abi else 1,'version':status_version,'build_id':'1'*64,'capture_codecs':['rle'] if status_version in ('0.3.0','0.3.1','0.3.2','0.3.3') else ['rgb'],'lease_remaining_ms':0})
+        if self.path=='/status': return self.reply(200,{'app':'Vita Control','abi':2 if status_version in ('0.3.0','0.3.1','0.3.2','0.3.3','0.3.4') and not bad_abi else 1,'version':status_version,'build_id':'1'*64,'capture_codecs':['rle'] if status_version in ('0.3.0','0.3.1','0.3.2','0.3.3','0.3.4') else ['rgb'],'lease_remaining_ms':0})
         if self.path.startswith('/screen/'):
             w,h=240,136; data=bytes([20,60,100])*(w*h)
-            head=struct.pack('<6Ii5I2Q',0x31465256,2 if status_version in ('0.3.0','0.3.1','0.3.2','0.3.3') else 1,1,999 if bad_frame else w,h,len(data),77,12,960,544,1,0,1000,21000)
+            head=struct.pack('<6Ii5I2Q',0x31465256,2 if status_version in ('0.3.0','0.3.1','0.3.2','0.3.3','0.3.4') else 1,1,999 if bad_frame else w,h,len(data),77,12,960,544,1,0,1000,21000)
             if self.path.endswith('/rle'):
                 remaining=w*h;encoded=bytearray()
                 while remaining:
@@ -109,7 +109,7 @@ async def main():
                     status_version='0.3.1';assert not (await session.call_tool('vita_control_status',{})).isError
                     r=await session.call_tool('vita_control_screen',{});assert not r.isError and value(r)['codec']=='rle';checks.append('shoulder-fix-release-ABI-and-codec-negotiation')
                     status_version='0.3.2';assert not (await session.call_tool('vita_control_status',{})).isError;checks.append('prior-touch-release-still-recognized')
-                    status_version='0.3.3';assert not (await session.call_tool('vita_control_status',{})).isError
+                    status_version='0.3.4';assert not (await session.call_tool('vita_control_status',{})).isError
                     r=await session.call_tool('vita_control_screen',{});assert not r.isError and value(r)['codec']=='rle';checks.append('touch-fix-release-ABI-and-codec-negotiation')
         print(json.dumps({'fixture':'Actual stdio MCP; simulated control HTTP hardware','passed':len(checks),'checks':checks},indent=2))
     finally: server.shutdown();server.server_close()
