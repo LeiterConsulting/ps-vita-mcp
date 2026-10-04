@@ -1,5 +1,6 @@
 """Run portable host contracts only; never connects to or qualifies a Vita."""
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -11,7 +12,10 @@ def main():
     output = ROOT / 'evidence/ci'
     output.mkdir(parents=True, exist_ok=True)
     image = json.loads((ROOT / 'toolchain.lock.json').read_text())['image']
-    checks = [(name, ['docker', 'run', '--rm', '--network', 'none', '--mount',
+    # Linux bind mounts retain numeric ownership; root containers would leave
+    # evidence directories unwritable to the following host-side MCP fixtures.
+    user = ['--user', f'{os.getuid()}:{os.getgid()}'] if os.name == 'posix' else []
+    checks = [(name, ['docker', 'run', '--rm', '--network', 'none', *user, '--mount',
                       f'type=bind,source={ROOT},target=/workspace', image, 'sh', script])
               for name, script in [('devloop-c', 'scripts/test_devloop.sh'),
                                    ('resident-c', 'resident/test_host.sh'),
