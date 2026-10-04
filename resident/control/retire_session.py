@@ -55,7 +55,7 @@ def retire(expected_guard, expected_package, expected_config, reboot_confirmed=F
     if not all(re.fullmatch('[0-9a-f]{64}', value) for value in (expected_guard, expected_package, expected_config)):
         raise ValueError('Exact guard, package and config SHA-256 values are required')
     build = json.loads((ROOT / 'dist/control/build-report.json').read_text(encoding='utf-8'))
-    if build['version'] != '0.2.2' or build['starter_package']['sha256'] != expected_package:
+    if build['version'] != '0.3.3' or build['starter_package']['sha256'] != expected_package:
         raise ValueError('Package identity differs from the Control Starter build report')
     attempt = uuid.uuid4().hex
     folder = ROOT / 'evidence/control' / ('starter-session-retirement-' + attempt)

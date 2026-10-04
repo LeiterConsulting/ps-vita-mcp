@@ -80,10 +80,14 @@ async def main():
     try:
         with tempfile.TemporaryDirectory() as temp:
             fixture_root = Path(temp)
-            for name in ('resident/bridge.py', 'bridge/ftp_staging.py', 'resident/control/bridge_tools.py'):
+            for name in ('resident/bridge.py', 'bridge/ftp_staging.py', 'resident/control/bridge_tools.py', 'resident/control/rgb_codec.py'):
                 destination = fixture_root / name
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(ROOT / name, destination)
+            for source in (ROOT / 'workbench').glob('*.py'):
+                destination = fixture_root / 'workbench' / source.name
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source, destination)
             # A synthetic local VPK exercises package validation and transport;
             # it is neither an installable app nor a private game-port artifact.
             values = [('TITLE_ID', 'CHRS00003'), ('CATEGORY', 'gd'), ('APP_VER', '01.03'), ('PSP2_SYSTEM_VER', 0)]
@@ -108,9 +112,9 @@ async def main():
                 async with ClientSession(read, write) as session:
                     await session.initialize()
                     tools = await session.list_tools()
-                    assert len(tools.tools) == 17
+                    assert len(tools.tools) == 27
                     assert {'vita_resident_status', 'vita_resident_verify_upload', 'vita_resident_probe_upload', 'vita_resident_stage_package'}.issubset({tool.name for tool in tools.tools})
-                    checks.append('four-resident-and-thirteen-control-tools-listed')
+                    checks.append('four-resident-thirteen-control-ten-workbench-tools-listed')
                     status = await session.call_tool('vita_resident_status', {})
                     assert not status.isError and value(status)['app'] == 'Vita Resident'
                     checks.append('status-through-MCP')

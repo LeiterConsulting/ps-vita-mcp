@@ -182,6 +182,8 @@ def vita_resident_stage_package(package: Literal['devloop'], expected_sha256: st
 
 from control.bridge_tools import register as register_control_tools
 register_control_tools(mcp, configuration, ROOT)
+from workbench.server import register as register_workbench_tools
+register_workbench_tools(mcp)
 
 if __name__ == '__main__':
     mcp.run()

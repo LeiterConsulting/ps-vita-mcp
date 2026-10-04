@@ -9,6 +9,7 @@ import math
 import os
 import re
 import time
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Literal
@@ -18,6 +19,8 @@ from mcp.types import CallToolResult, TextContent, ToolAnnotations
 from ftp_staging import stage_package
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT))
+from workbench.session import serialized
 CONFIG = Path(os.environ.get("VITA_DEVLOOP_CONFIG", str(ROOT / ".devloop-private/config.json")))
 FTP_CONFIG = Path(os.environ.get("VITA_DEVLOOP_FTP_CONFIG", str(ROOT / ".devloop-private/ftp.json")))
 READ = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False)
@@ -37,6 +40,7 @@ def configuration() -> dict:
     except (OSError, ValueError, KeyError, TypeError) as error:
         raise RuntimeError("Bridge is not configured. Run bridge/configure.py with the IPv4 address shown on Vita DevLoop.") from error
 
+@serialized
 def request(path: str, fields: dict | None = None, *, source: bytes | None = None, script_headers: dict | None = None) -> tuple[bytes, dict, dict]:
     config = configuration()
     body = None if fields is None else "&".join(f"{key}={value}" for key, value in fields.items())

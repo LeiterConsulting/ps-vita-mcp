@@ -1,5 +1,6 @@
 #include "control_platform.h"
 #include "lease.h"
+#include "rle.h"
 /* Authenticated, allocation-free HTTP service. Same code is exercised on the host. */
 #include "platform.h"
 #include "sha256.h"
@@ -68,7 +69,7 @@ static int send_all(int socket,const void *data,size_t size) {
     const unsigned char *p=data;
     while(size) {
         if(timed()) return 0;
-        int n=r_send(socket,p,size);
+        int n=r_send(socket,p,size>R_CHUNK?R_CHUNK:size);
         if(n>0) { p+=n; size-=(unsigned)n; idle_deadline=r_now()+5000; }
         else if(n==-2) r_delay(5); else return 0;
     }
@@ -157,6 +158,7 @@ static void download(int socket,const Request *request) {
 }
 
 static unsigned char pixels[RC_MAX_FRAME];
+static unsigned char encoded[RC_MAX_FRAME+(RC_MAX_FRAME/3+127)/128];
 static int read_body(int socket,const Request *request,void *out,size_t expected,const void *initial,size_t used) {
     if(!request->has_length||request->length!=expected||used>expected) return 0;
     R_MEMCPY(out,initial,used);
@@ -169,18 +171,35 @@ static int read_body(int socket,const Request *request,void *out,size_t expected
 }
 static void control_status(int socket) {
     RReadback state={0}; RDevice device; r_device(&device);
+    RPState work={0};rp_read(&work);uint64_t now=r_now(),work_remaining=work.expires_ms>now?work.expires_ms-now:0;
     int result=rc_readback(&state);
     if(result<0||state.magic!=RC_READ_MAGIC||state.abi!=RC_ABI) { error(socket,503,"Control helper unavailable"); return; }
     uint64_t remaining=state.lease.active&&state.lease.expires_ms>state.sample_ms?state.lease.expires_ms-state.sample_ms:0;
-    R_SNPRINTF(reply,sizeof(reply),"{\"app\":\"Vita Control\",\"version\":\"0.2.2\",\"abi\":1,\"build_id\":\"%s\",\"port\":17867,\"uptime_ms\":%llu,\"battery_percent\":%d,\"sample_ms\":%llu,\"lease_remaining_ms\":%llu,\"lease_target_pid\":%d,\"lease_buttons\":%u,\"lease_flags\":%u,\"release_count\":%u,\"input_sample_result\":%d,\"effective_buttons\":%u,\"effective_sticks\":[%u,%u,%u,%u],\"input_source\":\"effective driver sample; may include emulation\",\"keep_awake\":false}",R_BUILD_ID,(unsigned long long)(r_now()-started),device.battery,(unsigned long long)state.sample_ms,(unsigned long long)remaining,state.lease.input.target_pid,state.lease.input.buttons,state.lease.input.flags,state.lease.releases,state.sample_result,state.buttons,state.lx,state.ly,state.rx,state.ry);
+    R_SNPRINTF(reply,sizeof(reply),"{\"app\":\"Vita Control\",\"version\":\"" RC_VERSION "\",\"abi\":2,\"build_id\":\"%s\",\"port\":17867,\"uptime_ms\":%llu,\"battery_percent\":%d,\"sample_ms\":%llu,\"lease_remaining_ms\":%llu,\"lease_target_pid\":%d,\"lease_buttons\":%u,\"lease_flags\":%u,\"release_count\":%u,\"last_release_reason\":%u,\"last_release_ms\":%llu,\"capture_codecs\":[\"rgb\",\"rle\"],\"input_sample_result\":%d,\"effective_buttons\":%u,\"effective_sticks\":[%u,%u,%u,%u],\"input_source\":\"effective driver sample; may include emulation\",\"power_protocol\":1,\"work_remaining_ms\":%llu,\"keep_awake\":%s}",R_BUILD_ID,(unsigned long long)(r_now()-started),device.battery,(unsigned long long)state.sample_ms,(unsigned long long)remaining,state.lease.input.target_pid,state.lease.input.buttons,state.lease.input.flags,state.lease.releases,state.lease.release_reason,(unsigned long long)state.lease.released_ms,state.sample_result,state.buttons,state.lx,state.ly,state.rx,state.ry,(unsigned long long)work_remaining,work_remaining?"true":"false");
     respond(socket,200,reply);
 }
-static void capture(int socket,unsigned scale) {
+static void capture(int socket,unsigned scale,int compress) {
     RFrame frame={0}; int result=rc_capture(pixels,&frame,scale);
     if(result<0) { error(socket,503,"Framebuffer unavailable or changed process"); return; }
     if(frame.magic!=RC_FRAME_MAGIC||frame.abi!=RC_ABI||frame.width>480||frame.height>272||!frame.width||!frame.height||frame.bytes!=frame.width*frame.height*3||frame.bytes>sizeof(pixels)) { error(socket,500,"Invalid frame metadata"); return; }
     _Static_assert(sizeof(RFrame)==64,"Frame wire header must be 64 bytes");
-    if(response_header(socket,200,"application/x-vita-rgb",sizeof(frame)+frame.bytes)&&send_all(socket,&frame,sizeof(frame))) send_all(socket,pixels,frame.bytes);
+    if(compress) {
+        uint64_t begin=r_now(); size_t n=rc_rle_encode(pixels,frame.bytes,encoded,sizeof(encoded));
+        if(!n) { error(socket,500,"Frame encoding failed"); return; }
+        RRleHeader codec={RC_RLE_MAGIC,(uint32_t)n,(uint32_t)((r_now()-begin)*1000)};
+        if(response_header(socket,200,"application/x-vita-rgb-rle",sizeof(frame)+sizeof(codec)+n)&&send_all(socket,&frame,sizeof(frame))&&send_all(socket,&codec,sizeof(codec))) send_all(socket,encoded,n);
+    } else if(response_header(socket,200,"application/x-vita-rgb",sizeof(frame)+frame.bytes)&&send_all(socket,&frame,sizeof(frame))) send_all(socket,pixels,frame.bytes);
+}
+static void work_status(int socket) {
+    RPState state={0};if(rp_read(&state)<0) { error(socket,503,"Work power service unavailable");return; }
+    uint64_t now=r_now(),remaining=state.expires_ms>now?state.expires_ms-now:0;
+    char diagnostics[2][512];
+    for(unsigned panel=0;panel<2;panel++) {
+        const RTouchPanel *d=&state.touch_diagnostics[panel];
+        R_SNPRINTF(diagnostics[panel],sizeof(diagnostics[panel]),"{\"reader_pid\":%d,\"last_reader_pid\":%d,\"native_contacts\":%u,\"reads\":%u,\"advances\":%u,\"hook_reads\":%u,\"source_ticks\":%llu,\"received_ms\":%llu,\"changed_ms\":%llu}",d->reader_pid,d->last_reader_pid,d->native_contacts,d->reads,d->advances,d->hook_reads,(unsigned long long)d->source_ticks,(unsigned long long)d->received_ms,(unsigned long long)d->changed_ms);
+    }
+    R_SNPRINTF(reply,sizeof(reply),"{\"app\":\"Vita Work Power\",\"abi\":2,\"lease_remaining_ms\":%llu,\"idle_ms\":%u,\"idle_elapsed_ms\":%llu,\"dim_percent\":%u,\"dimmed\":%s,\"brightness\":%d,\"restore_brightness\":%d,\"brightness_result\":%d,\"power_tick_result\":%d,\"motion_result\":%d,\"motion_fresh\":%s,\"last_activity_flags\":%u,\"touch_read_result\":%d,\"physical_touch_panels\":%u,\"touch_source_pid\":%d,\"touch_sample_ms\":%llu,\"touch_diagnostics\":[%s,%s],\"input_activity\":\"buttons, additive stick estimate, physical touch sampled by foreground app and motion; synthetic input is filtered\"}",(unsigned long long)remaining,state.idle_ms,(unsigned long long)(now-state.last_activity_ms),state.dim_percent,state.dimmed?"true":"false",state.current,state.original,state.brightness_result,state.tick_result,state.motion_result,state.motion_valid?"true":"false",state.activity_flags,state.touch_result,state.touch_panels,state.touch_pid,(unsigned long long)state.touch_sample_ms,diagnostics[0],diagnostics[1]);
+    respond(socket,200,reply);
 }
 static int list_path(const char *request,char path[192],unsigned *offset) {
     const char *s=request+16; /* /workspace/list/ */
@@ -216,8 +235,14 @@ static void file_info(int socket,const Request *request,int remove) {
     }
     R_SNPRINTF(reply,sizeof(reply),"{\"vita_path\":\"%s\",\"bytes\":%llu,\"sha256\":\"%s\",\"removed\":%s}",path,(unsigned long long)size,digest,remove?"true":"false"); respond(socket,200,reply);
 }
-static int permitted_app(const char *title) { return !R_STRCMP(title,"CHRS00003")||!R_STRCMP(title,"CHRS00009"); }
+static int permitted_app(const char *title) { return !R_STRCMP(title,"CHRS00003")||!R_STRCMP(title,"CHRS00009")||!R_STRCMP(title,"CHRS00012"); }
 static void command(int socket,const Request *request,const void *initial,size_t used) {
+    if(!R_STRCMP(request->path,"/power/lease")) {
+        RPConfig config={0};
+        if(!read_body(socket,request,&config,sizeof(config),initial,used)||!rp_valid(&config)) { error(socket,400,"Invalid work lease");return; }
+        if(rp_set(&config)<0) { error(socket,503,"Work power service unavailable");return; }
+        work_status(socket);return;
+    }
     if(!R_STRCMP(request->path,"/input")) {
         RInput input={0};
         if(!read_body(socket,request,&input,sizeof(input),initial,used)||!rlease_valid(&input)) { error(socket,400,"Invalid bounded input state"); return; }
@@ -261,8 +286,11 @@ static void client(int socket,const char token[33]) {
     if(!R_STRCMP(request.method,"GET")) {
         if(request.length||used!=header_size) { error(socket,400,"GET body is not supported"); return; }
         if(!R_STRCMP(request.path,"/status")) control_status(socket);
-        else if(!R_STRCMP(request.path,"/screen/preview")) capture(socket,4);
-        else if(!R_STRCMP(request.path,"/screen/detail")) capture(socket,2);
+        else if(!R_STRCMP(request.path,"/power/status")) work_status(socket);
+        else if(!R_STRCMP(request.path,"/screen/preview")) capture(socket,4,0);
+        else if(!R_STRCMP(request.path,"/screen/detail")) capture(socket,2,0);
+        else if(!R_STRCMP(request.path,"/screen/preview/rle")) capture(socket,4,1);
+        else if(!R_STRCMP(request.path,"/screen/detail/rle")) capture(socket,2,1);
         else if(!R_STRNCMP(request.path,"/workspace/list/",16)) listing(socket,&request);
         else if(!R_STRNCMP(request.path,"/workspace/stat/",16)) file_info(socket,&request,0);
         else download(socket,&request);

@@ -1,0 +1,47 @@
+{
+  "name": "workbench_input",
+  "source": "main.lua",
+  "source_sha256": "e5367c6c4684113848b2d7875f28eff73428f407be22faf8e2ddab807f1e661d",
+  "duration_s": 5,
+  "warmup_s": 0.75,
+  "steps": [
+    {
+      "at_s": 0.5,
+      "buttons": [
+        "right",
+        "cross"
+      ],
+      "ttl_ms": 800,
+      "left_stick": [
+        64,
+        192
+      ],
+      "right_stick": [
+        192,
+        64
+      ],
+      "front_touch": [
+        700,
+        400
+      ],
+      "rear_touch": [
+        1300,
+        700
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "metric": "observed_mask",
+      "equals": 31
+    },
+    {
+      "metric": "held_frames",
+      "min": 2
+    },
+    {
+      "metric": "neutral_after",
+      "equals": 1
+    }
+  ]
+}

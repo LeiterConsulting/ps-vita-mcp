@@ -20,7 +20,7 @@ static unsigned log_bytes;
 /* Compiler-generated aggregate clearing must not depend on SceShell having libc. */
 void *memset(void *destination,int value,size_t size) { return sceClibMemset(destination,value,size); }
 
-uint64_t r_now(void) { return sceKernelGetProcessTimeWide()/1000; }
+uint64_t r_now(void) { return sceKernelGetSystemTimeWide()/1000; }
 void r_delay(unsigned ms) { sceKernelDelayThread(ms*1000); }
 int r_running(void) { return __atomic_load_n(&running,__ATOMIC_ACQUIRE); }
 void r_log(const char *message,int result) {
@@ -108,7 +108,9 @@ static int worker(unsigned args,void *arg) {
     if(result<0) { r_log("kernel identity unavailable; service inactive",result); return 0; }
     if(R_STRCMP(kernel_build,R_BUILD_ID)) { r_log("kernel identity differs; service inactive",-1); return 0; }
     r_log("kernel identity matched",0);
+    if(rp_start()<0) { r_log("work power worker failed",-1);return 0; }
     if(r_running()) r_service(pairing);
+    rp_stop();
     return 0;
 }
 int _start(SceSize args,const void *arg) __attribute__((weak,alias("module_start")));
@@ -117,7 +119,7 @@ int module_start(SceSize args,const void *arg) {
     int fd=sceIoOpen("ux0:data/vita-control/startup.log",SCE_O_WRONLY|SCE_O_CREAT|SCE_O_TRUNC,(0600 | SCE_S_IWSYS | SCE_S_IRSYS));
     log_bytes=0;
     if(fd>=0) {
-        static const char identity[]="control_version=0.2.2\nbuild_id=" R_BUILD_ID "\n";
+        static const char identity[]="control_version=" RC_VERSION "\nbuild_id=" R_BUILD_ID "\n";
         int written=sceIoWrite(fd,identity,sizeof(identity)-1);sceIoClose(fd);if(written>0) log_bytes=(unsigned)written;
     }
     fd=r_open_read("ux0:data/vita-resident/bridge.cfg"); if(fd<0) { r_log("pairing file missing",fd); return SCE_KERNEL_START_FAILED; }
@@ -130,7 +132,7 @@ int module_start(SceSize args,const void *arg) {
     if(thread<0) { r_log("thread create failed",thread); return SCE_KERNEL_START_FAILED; }
     int result=sceKernelStartThread(thread,0,0);
     if(result<0) { r_log("thread start failed",result); sceKernelDeleteThread(thread); thread=-1; return SCE_KERNEL_START_FAILED; }
-    r_log("module start control 0.2.2",0); return SCE_KERNEL_START_SUCCESS;
+    r_log("module start control 0.3.3",0); return SCE_KERNEL_START_SUCCESS;
 }
 int module_stop(SceSize args,const void *arg) {
     (void)args; (void)arg; __atomic_store_n(&running,0,__ATOMIC_RELEASE);

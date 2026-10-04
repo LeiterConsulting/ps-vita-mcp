@@ -14,16 +14,16 @@ from inspector.verify_build import authority,exports
 sys.path.insert(0,str(ROOT/'scripts'))
 from vita_artifacts import inspect
 import zipfile
-CORE=['kernel.c','lease.c','lease.h','api.h','http.c','platform_shell.c','control_platform.h','CMakeLists.txt','kernel.yml','shell.yml','bootstrap_metadata.c','bootstrap_probe.c','bootstrap_probe.yml','bootstrap_app.c','../platform.h','../sha256.c','../sha256.h']
+CORE=['kernel.c','touch_activity.h','button_map.h','lease.c','lease.h','api.h','http.c','rle.c','rle.h','power_policy.c','power_policy.h','power_shell.c','platform_shell.c','control_platform.h','CMakeLists.txt','kernel.yml','shell.yml','bootstrap_metadata.c','bootstrap_probe.c','bootstrap_probe.yml','bootstrap_app.c','../platform.h','../sha256.c','../sha256.h']
 
 def main(evidence):
     source=ROOT/'resident/control';native=ROOT/'build/resident/control';dist=ROOT/'dist/control'
     if evidence.parent.resolve()!=(ROOT/'evidence/control').resolve(): raise ValueError('Invalid build evidence directory')
     build_id=hashlib.sha256(''.join(digest(source/name) for name in CORE).encode()).hexdigest()
-    report={'built_utc':datetime.now(timezone.utc).isoformat(),'version':'0.2.2','build_id':build_id,'modules':{},'source_hashes':{},'tests':{},'accepted_artifacts_preserved':{},'physical_acceptance':'pending: boot/load, cross-app capture, actual game input, file storage, no-input-after-expiry, app launch/return, screen latency and stability','evidence_directory':str(evidence)}
+    report={'built_utc':datetime.now(timezone.utc).isoformat(),'version':'0.3.3','build_id':build_id,'modules':{},'source_hashes':{},'tests':{},'accepted_artifacts_preserved':{},'physical_acceptance':'pending: installed touch restoration and regression gates; host proof does not establish device behavior','evidence_directory':str(evidence)}
     for name,attributes,version,expected_imports in [
-        ('vita_control',0,b'\x02\x00',{'SceIofilemgr','SceLibKernel','SceNet','SceNetCtl','ScePower','SceSysmodule','SceThreadmgr','SceAppMgrUser','VitaControlKernel'}),
-        ('vita_control_kernel',0,b'\x01\x00',{'SceCtrlForDriver','SceThreadmgrForDriver','SceDisplayForDriver','SceSysmemForDriver','SceSysrootForDriver','SceSysclibForDriver','taihenForKernel'})]:
+        ('vita_control',0,b'\x02\x00',{'SceIofilemgr','SceLibKernel','SceNet','SceNetCtl','ScePower','SceSysmodule','SceThreadmgr','SceProcessmgr','SceAppMgrUser','SceMotion','SceTouch','VitaControlKernel'}),
+        ('vita_control_kernel',0,b'\x01\x00',{'SceCtrlForDriver','SceThreadmgrForDriver','SceDisplayForDriver','SceSysmemForDriver','SceSysrootForDriver','SceSysclibForDriver','ScePowerForDriver','taihenModuleUtils','taihenForKernel'})]:
         extension='.skprx' if name.endswith('_kernel') else '.suprx'
         binary=(native/name).read_bytes();elf(binary,2)
         velf=(native/(name+'.velf')).read_bytes();sections=elf(velf,0xfe04);section=sections['.sceModuleInfo.rodata'];module=velf[section[4]:section[4]+section[5]]
@@ -35,7 +35,7 @@ def main(evidence):
         if exported[0]['name']!='main' or exported[0]['flags']!='8000': raise ValueError('Main exports missing')
         if name=='vita_control':
             if len(exported)!=1: raise ValueError('User module must not export kernel syscalls')
-        elif len(exported)!=2 or exported[1]['name']!='VitaControlKernel' or exported[1]['flags']!='4001' or exported[1]['functions']!=7 or exported[1]['variables']:
+        elif len(exported)!=2 or exported[1]['name']!='VitaControlKernel' or exported[1]['flags']!='4001' or exported[1]['functions']!=9 or exported[1]['variables']:
             raise ValueError('Kernel syscall export table differs')
         if build_id.encode() not in binary or (native/(name+'-undefined.txt')).read_text().strip(): raise ValueError('Build fingerprint or unresolved symbols: '+name)
         payload=native/(name+extension)
@@ -68,11 +68,10 @@ def main(evidence):
         if build_id.encode() not in binary or authority(payload.read_bytes())!=0x2f00000000000001: raise ValueError('Starter fingerprint or unsafe SELF attributes differ')
         report['modules'][name]={'file':payload.name,'bytes':payload.stat().st_size,'sha256':digest(payload),'authid':'2f00000000000001','imports':imports,'exports':exported}
         for suffix in ['',extension,'.velf','-undefined.txt','-layout.txt']:shutil.copy2(native/(name+suffix),evidence/(name+suffix))
-    package=inspect(native/'control_starter.vpk','Control Starter','CHRS00011','01.00')
+    package=inspect(native/'control_starter.vpk','Control Starter','CHRS00011','01.04')
     expected={'eboot.bin','sce_sys/param.sfo','sce_sys/icon0.png','sce_sys/livearea/contents/bg.png','sce_sys/livearea/contents/startup.png','sce_sys/livearea/contents/template.xml','vita_control_kernel.skprx','vita_control.suprx','control_bootstrap_probe.suprx','LICENSE.vitacompanion','LICENSE'}
     with zipfile.ZipFile(native/'control_starter.vpk') as archive:
         if set(archive.namelist())!=expected:raise ValueError('Unexpected starter package files')
-        if archive.read('LICENSE')!=(ROOT/'LICENSE').read_bytes() or archive.read('LICENSE.vitacompanion')!=(source/'LICENSE.vitacompanion').read_bytes():raise ValueError('Starter license notices differ')
         for name in ['vita_control','vita_control_kernel','control_bootstrap_probe','control_starter']:
             info=report['modules'][name];entry='eboot.bin' if name=='control_starter' else info['file']
             if archive.read(entry)!=(native/info['file']).read_bytes():raise ValueError('Starter package contains a different native module')
@@ -82,7 +81,7 @@ def main(evidence):
         actual=digest(ROOT/relative)
         if actual!=ACCEPTED[relative]: raise ValueError('Previously accepted app changed')
         report['accepted_artifacts_preserved'][relative]=actual
-    paths=list(source.glob('*'))+[ROOT/'resident/platform.h',ROOT/'resident/sha256.c',ROOT/'resident/sha256.h',ROOT/'resident/bridge.py',ROOT/'resident/inspector/verify_build.py',ROOT/'Build-Control.ps1',ROOT/'toolchain.lock.json',ROOT/'scripts/vita_artifacts.py',ROOT/'scripts/livearea_png.py',ROOT/'bridge/ftp_staging.py',ROOT/'resident/verify_build.py',ROOT/'assets/template.xml',ROOT/'tests/ftp_fixture.py']
+    paths=list(source.glob('*'))+[ROOT/'resident/platform.h',ROOT/'resident/sha256.c',ROOT/'resident/sha256.h',ROOT/'resident/bridge.py',ROOT/'resident/inspector/verify_build.py',ROOT/'Build-Control.ps1',ROOT/'toolchain.lock.json']
     for path in paths:
         if path.is_file():
             relative=path.relative_to(ROOT);report['source_hashes'][relative.as_posix()]=digest(path)

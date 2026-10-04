@@ -78,7 +78,7 @@ int main(void) {
         if(sceIoMkdir(directory,0700|SCE_S_IRSYS|SCE_S_IWSYS)>=0) { storage_ok=1;break; }
     }
     snprintf(log_path,sizeof(log_path),"%s/starter.log",directory);
-    journal("Control Starter 01.00 ready; no modules submitted",storage_ok?0:-1);
+    journal("Control Starter 01.04 ready; no modules submitted",storage_ok?0:-1);
     int fd=sceIoOpen(RC_BOOT_GUARD,SCE_O_RDONLY,0);
     if(fd>=0) { sceIoClose(fd);guard_present=1; }else if(fd!=(int)0x80010002u) guard_present=1;
     unsigned previous=0;
@@ -96,7 +96,7 @@ int main(void) {
         }
         active=__atomic_load_n(&busy,__ATOMIC_ACQUIRE);
         vita2d_start_drawing();vita2d_clear_screen();
-        vita2d_pgf_draw_text(font,30,45,COLOR(64,220,191),1.2f,"CONTROL STARTER 01.00");
+        vita2d_pgf_draw_text(font,30,45,COLOR(64,220,191),1.2f,"CONTROL STARTER 01.04");
         vita2d_pgf_draw_text(font,30,91,COLOR(210,221,239),1.0f,"Start the control service after LiveArea has booted.");
         vita2d_pgf_draw_text(font,30,127,COLOR(210,221,239),1.0f,"Boot configuration stays unchanged. Reboot ends this session.");
         const char *message;

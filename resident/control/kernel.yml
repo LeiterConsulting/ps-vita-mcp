@@ -17,3 +17,5 @@ vita_control_kernel:
         - vitaControlReadback
         - vitaControlCapture
         - vitaControlBootstrapInfo
+        - vitaControlBrightness
+        - vitaControlTouchActivity

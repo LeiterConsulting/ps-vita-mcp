@@ -13,7 +13,7 @@ from mcp import ClientSession,StdioServerParameters
 from mcp.client.stdio import stdio_client
 ROOT=Path(__file__).resolve().parents[2]
 TOKEN='c'*32
-files={}; calls=[]; bad_frame=False; drop_reply=False; bad_read=False
+files={}; calls=[]; bad_frame=False; drop_reply=False; bad_read=False;bad_codec=False;bad_abi=False
 status_version='0.2.2'
 
 class Device(BaseHTTPRequestHandler):
@@ -24,10 +24,16 @@ class Device(BaseHTTPRequestHandler):
     def do_GET(self):
         calls.append(('GET',self.path))
         if self.headers.get('Authorization')!='Bearer '+TOKEN: return self.reply(401,{'error':'unauthorized'})
-        if self.path=='/status': return self.reply(200,{'app':'Vita Control','abi':1,'version':status_version,'build_id':'1'*64,'lease_remaining_ms':0})
+        if self.path=='/status': return self.reply(200,{'app':'Vita Control','abi':2 if status_version in ('0.3.0','0.3.1','0.3.2','0.3.3') and not bad_abi else 1,'version':status_version,'build_id':'1'*64,'capture_codecs':['rle'] if status_version in ('0.3.0','0.3.1','0.3.2','0.3.3') else ['rgb'],'lease_remaining_ms':0})
         if self.path.startswith('/screen/'):
             w,h=240,136; data=bytes([20,60,100])*(w*h)
-            head=struct.pack('<6Ii5I2Q',0x31465256,1,1,999 if bad_frame else w,h,len(data),77,12,960,544,1,0,1000,21000)
+            head=struct.pack('<6Ii5I2Q',0x31465256,2 if status_version in ('0.3.0','0.3.1','0.3.2','0.3.3') else 1,1,999 if bad_frame else w,h,len(data),77,12,960,544,1,0,1000,21000)
+            if self.path.endswith('/rle'):
+                remaining=w*h;encoded=bytearray()
+                while remaining:
+                    count=min(129,remaining);encoded.extend(bytes([128+count-2,20,60,100]) if count>1 else bytes([0,20,60,100]));remaining-=count
+                if bad_codec:encoded=bytearray([255,1])
+                return self.reply(200,head+struct.pack('<3I',0x31454c52,len(encoded),100)+encoded,'application/x-vita-rgb-rle')
             return self.reply(200,head+data,'application/x-vita-rgb')
         if self.path.startswith('/workspace/read/'):
             key=self.path.removeprefix('/workspace/read/')
@@ -59,12 +65,12 @@ class Device(BaseHTTPRequestHandler):
 def value(result): return result.structuredContent or json.loads(result.content[0].text)
 
 async def main():
-    global bad_frame,drop_reply,bad_read,status_version
+    global bad_frame,drop_reply,bad_read,status_version,bad_codec,bad_abi
     server=ThreadingHTTPServer(('127.0.0.1',0),Device);threading.Thread(target=server.serve_forever,daemon=True).start();checks=[]
     try:
         with tempfile.TemporaryDirectory() as temp:
             config=Path(temp)/'pairing.json';config.write_text(json.dumps({'host':'127.0.0.1','port':17866,'token':TOKEN}))
-            env={**os.environ,'VITA_RESIDENT_CONFIG':str(config),'VITA_CONTROL_PORT':str(server.server_port)}
+            env={**os.environ,'VITA_RESIDENT_CONFIG':str(config),'VITA_CONTROL_PORT':str(server.server_port),'VITA_WORKBENCH_LOCK':str(Path(temp)/'device.lock')}
             async with stdio_client(StdioServerParameters(command=sys.executable,args=[str(ROOT/'resident/control/server.py')],env=env)) as (read,write):
                 async with ClientSession(read,write) as session:
                     await session.initialize();catalog=await session.list_tools();assert len(catalog.tools)==13; checks.append('thirteen-control-tools-listed')
@@ -95,6 +101,16 @@ async def main():
                     assert result.isError and len(calls)==before;checks.append('whole-sequence-validated-before-first-input')
                     result=await session.call_tool('vita_control_sequence',{'target_pid':77,'steps':[{'buttons':['cross'],'ttl_ms':16}]})
                     assert not result.isError and value(result)['result']=='completed input requests and screen observations' and value(result)['final_release']['lease_remaining_ms']==0;checks.append('bounded-sequence-records-images-and-final-release')
+                    status_version='0.3.0';assert not (await session.call_tool('vita_control_status',{})).isError
+                    r=await session.call_tool('vita_control_screen',{});assert not r.isError and value(r)['codec']=='rle' and value(r)['transfer_bytes']<2000 and value(r)['rgb_sha256']==hashlib.sha256(bytes([20,60,100])*240*136).hexdigest();checks.append('new-ABI-lossless-compressed-screen-through-MCP')
+                    bad_codec=True;assert (await session.call_tool('vita_control_screen',{})).isError;bad_codec=False;checks.append('malformed-compressed-frame-refused-through-MCP')
+                    bad_abi=True;assert (await session.call_tool('vita_control_status',{})).isError;bad_abi=False;checks.append('mismatched-version-ABI-refused')
+                    assert not (await session.call_tool('vita_control_input',{'target_pid':77,'buttons':['cross']})).isError;checks.append('negotiated-ABI-input-through-MCP')
+                    status_version='0.3.1';assert not (await session.call_tool('vita_control_status',{})).isError
+                    r=await session.call_tool('vita_control_screen',{});assert not r.isError and value(r)['codec']=='rle';checks.append('shoulder-fix-release-ABI-and-codec-negotiation')
+                    status_version='0.3.2';assert not (await session.call_tool('vita_control_status',{})).isError;checks.append('prior-touch-release-still-recognized')
+                    status_version='0.3.3';assert not (await session.call_tool('vita_control_status',{})).isError
+                    r=await session.call_tool('vita_control_screen',{});assert not r.isError and value(r)['codec']=='rle';checks.append('touch-fix-release-ABI-and-codec-negotiation')
         print(json.dumps({'fixture':'Actual stdio MCP; simulated control HTTP hardware','passed':len(checks),'checks':checks},indent=2))
     finally: server.shutdown();server.server_close()
 if __name__=='__main__': asyncio.run(main())
