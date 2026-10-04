@@ -241,5 +241,21 @@
     "Completed soak, independent sleep/wake and Wi-Fi-loss trials",
     "Clean-machine onboarding and complete binary dependency notices"
   ],
-  "previous_release_qualification": "QUALIFICATION.md; installed 0.3.3 evidence is not acceptance of this candidate"
+  "previous_release_qualification": "QUALIFICATION.md; installed 0.3.3 evidence is not acceptance of this candidate",
+  "github_ci": {
+    "result": "PASS",
+    "scope": "Host-only Linux CI; no native device acceptance",
+    "commit": "bacd7cea696f015b91e2b0962b092e7b588b1a03",
+    "run_id": 37243479382,
+    "url": "https://github.com/LeiterConsulting/ps-vita-mcp/actions/runs/37243479382"
+  },
+  "publication": {
+    "draft_pr": "https://github.com/LeiterConsulting/ps-vita-mcp/pull/4",
+    "base_qualification_pr": "https://github.com/LeiterConsulting/ps-vita-mcp/pull/3",
+    "source_hashes_against_committed_blobs": 121,
+    "source_mismatches": 0,
+    "private_tracked_paths": 0,
+    "device_token_matches": 0,
+    "missing_document_links": 0
+  }
 }
