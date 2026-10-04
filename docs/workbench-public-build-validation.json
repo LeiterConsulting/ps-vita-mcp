@@ -406,7 +406,14 @@
         "exit_code": 0
       }
     ],
-    "github_result": "check workflow on published commit; local run is separate"
+    "github_result": {
+      "result": "passed",
+      "commit": "0db89fd38e990fcffca5ca76692d7e64ed9633b6",
+      "run_url": "https://github.com/LeiterConsulting/ps-vita-mcp/actions/runs/37238767935",
+      "finished_utc": "2026-10-04T22:08:28Z",
+      "scope": "Linux hosted host/MCP fixtures; no Vita contact or native package/device acceptance",
+      "repair": "Containers use the Linux workspace UID/GID so later host fixtures can write evidence"
+    }
   },
   "decision_tests": {
     "passed": 31,
