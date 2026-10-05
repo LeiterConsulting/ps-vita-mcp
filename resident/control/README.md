@@ -1,6 +1,6 @@
-# Vita Control 0.3.4 and Starter 01.05 pairing candidate
+# Vita Control 0.3.4 and Starter 01.06 pairing candidate
 
-This candidate adds physical phone approval, paired-phone listing and Forget without bypassing the one-load guard. Kernel process-title exclusion blocks Starter input and capture; Resident privacy receipts block all captures during an active code. Phone credentials permit inspection only. [Protocol, operator flow and remaining device gates](../../docs/PAIRING.md). The development device is still 0.3.3 / Starter 01.04.
+This candidate adds physical phone approval, paired-phone listing and Forget without bypassing the one-load guard. Kernel process-title exclusion implements Starter input/capture denial; Resident privacy receipts implement capture denial during an active code. Phone credentials permit inspection only. Control 0.3.4 / Starter 01.06 are installed on the test Vita; matching startup, physical code display and graceful timeout passed. Successful confirmation, phone permissions and wider physical/privacy acceptance remain open. [Protocol, operator flow and remaining device gates](../../docs/PAIRING.md).
 
 Control provides a matched kernel helper and SceShell service on port 17867. Starter CHRS00011 loads them once after a normal boot and exits. Resident 0.1.2 provides the individual-phone authority and remains the independent status/package service on port 17866. Native installation is manual. Never hot unload, run Starter twice in one boot, or boot-load Control through config.txt. Retain the prior session guard only after personally confirming a normal reboot; the public `retire_session.py` checks the inspected config, exact installed package and guard hashes.
 

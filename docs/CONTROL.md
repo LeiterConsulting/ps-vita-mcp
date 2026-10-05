@@ -1,6 +1,6 @@
 # Control service and MCP tools
 
-Control 0.3.3 consists of a matched kernel helper and an authenticated user service in SceShell, activated by Control Starter 01.04. It runs independently of DevLoop after Starter exits. [Setup](GETTING-STARTED.md), [runtime qualification](BASELINE.md), [recovery](TROUBLESHOOTING.md).
+Control 0.3.4 consists of a matched kernel helper and an authenticated user service in SceShell, activated by Control Starter 01.06. It runs independently of DevLoop after Starter exits. The installed candidate passed matching startup, physical code display and graceful timeout; full pairing and physical/lifecycle acceptance remain open. [Setup](GETTING-STARTED.md), [current pairing gates](PAIRING-DEVICE-TESTS.md), [historical runtime qualification](BASELINE.md), [recovery](TROUBLESHOOTING.md).
 
 ## Service boundaries
 

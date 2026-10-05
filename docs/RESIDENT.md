@@ -1,8 +1,8 @@
 # Background status and verified uploads
 
-Vita Resident 0.1.1 is a separate SceShell user plugin. It exposes device status and a bounded upload inbox while a foreground app runs. The desktop MCP server is `resident/bridge.py`; the native service uses port **17866**.
+Vita Resident 0.1.2 is a separate SceShell user plugin. It exposes device status, a bounded upload inbox and the native individual-pairing authority while a foreground app runs. The desktop MCP server is `resident/bridge.py`; the native service uses port **17866**. The candidate is installed with startup and pairing-window exchange verified; successful individual confirmation remains pending. [Pairing contract and device gates](PAIRING.md).
 
-The development prototype passed status and storage checks on one homebrew-enabled Vita running firmware 3.65, including a 4 KiB probe and a 1.2 MB package with the file manager in the foreground. Gameplay coexistence, sustained transfer load and sleep/wake recovery still need separate checks. [Recorded scope and identities](resident-inspector-prototype-validation.json).
+The earlier 0.1.1 development prototype passed status and storage checks on one homebrew-enabled Vita running firmware 3.65, including a 4 KiB probe and a 1.2 MB package with the file manager in the foreground. Those results do not qualify the new pairing authority. Gameplay coexistence, sustained transfer load and sleep/wake recovery still need separate checks. [Historical scope and identities](resident-inspector-prototype-validation.json).
 
 ## Build
 
@@ -15,7 +15,7 @@ From the repository root, with Docker Desktop running:
 
 The build runs the actual C HTTP/storage service under sanitizers with host adapters, MCP stdio fixtures, first-install FTP fixtures and update fixtures. It validates the ARM module's identity, imports, lifecycle, unresolved symbols and source fingerprint. Outputs are `dist/resident/vita_resident.suprx` and `dist/resident/build-report.json`. Building does not contact the Vita.
 
-The combined public bridge exposes four Resident tools plus thirteen [Control tools](CONTROL.md). The Resident native service itself retains these four operations:
+The combined public bridge exposes four Resident tools, thirteen [Control tools](CONTROL.md) and ten [Workbench tools](../workbench/README.md), for 27 total. The Resident MCP subset retains these four operations:
 
 | Tool | Operation |
 | --- | --- |
