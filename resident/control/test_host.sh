@@ -23,3 +23,6 @@ python3 resident/control/test_rgb_codec.py
 cc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -g -Iresident resident/pairing_client.c resident/pairing_json.c resident/test_pairing_client.c -o build/resident/control/pairing-client-tests
 build/resident/control/pairing-client-tests
 python3 resident/test_pairing_http.py
+
+cc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -g -Iresident resident/control/test_pairing_ui.c resident/pairing.c resident/pairing_json.c resident/sha256.c -o build/resident/control/pairing-ui-tests
+build/resident/control/pairing-ui-tests

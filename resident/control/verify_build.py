@@ -14,13 +14,13 @@ from inspector.verify_build import authority,exports
 sys.path.insert(0,str(ROOT/'scripts'))
 from vita_artifacts import inspect
 import zipfile
-CORE=['kernel.c','pairing_privacy.h','pairing_approval.h','touch_activity.h','button_map.h','lease.c','lease.h','api.h','http.c','rle.c','rle.h','power_policy.c','power_policy.h','power_shell.c','platform_shell.c','control_platform.h','CMakeLists.txt','kernel.yml','shell.yml','bootstrap_metadata.c','bootstrap_probe.c','bootstrap_probe.yml','bootstrap_app.c','pairing_ui.c','pairing_ui.h','../pairing.c','../pairing.h','../pairing_json.c','../pairing_client.c','../pairing_client.h','../pairing_net_vita.c','../platform.h','../sha256.c','../sha256.h']
+CORE=['kernel.c','pairing_privacy.h','pairing_approval.h','pairing_code.h','touch_activity.h','button_map.h','lease.c','lease.h','api.h','http.c','rle.c','rle.h','power_policy.c','power_policy.h','power_shell.c','platform_shell.c','control_platform.h','CMakeLists.txt','kernel.yml','shell.yml','bootstrap_metadata.c','bootstrap_probe.c','bootstrap_probe.yml','bootstrap_app.c','pairing_ui.c','pairing_ui.h','../pairing.c','../pairing.h','../pairing_json.c','../pairing_client.c','../pairing_client.h','../pairing_net_vita.c','../platform.h','../sha256.c','../sha256.h']
 
 def main(evidence):
     source=ROOT/'resident/control';native=ROOT/'build/resident/control';dist=ROOT/'dist/control'
     if evidence.parent.resolve()!=(ROOT/'evidence/control').resolve(): raise ValueError('Invalid build evidence directory')
     build_id=hashlib.sha256(''.join(digest(source/name) for name in CORE).encode()).hexdigest()
-    report={'built_utc':datetime.now(timezone.utc).isoformat(),'version':'0.3.4','build_id':build_id,'modules':{},'source_hashes':{},'tests':{},'accepted_artifacts_preserved':{},'physical_acceptance':'pending: matched 0.3.4 kernel/Shell and Starter 01.05 activation, physical pairing/Forget and screen/input exclusion, physical touch restoration, sleep/Wi-Fi and full regressions; host proof does not establish device behavior','evidence_directory':str(evidence)}
+    report={'built_utc':datetime.now(timezone.utc).isoformat(),'version':'0.3.4','build_id':build_id,'modules':{},'source_hashes':{},'tests':{},'accepted_artifacts_preserved':{},'physical_acceptance':'pending: matched 0.3.4 kernel/Shell and Starter 01.06 activation, physical pairing/Forget and screen/input exclusion, physical touch restoration, sleep/Wi-Fi and full regressions; host proof does not establish device behavior','evidence_directory':str(evidence)}
     for name,attributes,version,expected_imports in [
         ('vita_control',0,b'\x02\x00',{'SceIofilemgr','SceLibKernel','SceNet','SceNetCtl','ScePower','SceSysmodule','SceThreadmgr','SceProcessmgr','SceAppMgrUser','SceMotion','SceTouch','VitaControlKernel'}),
         ('vita_control_kernel',0,b'\x01\x00',{'SceCtrlForDriver','SceThreadmgrForDriver','SceDisplayForDriver','SceSysmemForDriver','SceSysrootForDriver','SceSysrootForKernel','SceSysclibForDriver','ScePowerForDriver','taihenModuleUtils','taihenForKernel'})]:
@@ -68,7 +68,7 @@ def main(evidence):
         if build_id.encode() not in binary or authority(payload.read_bytes())!=0x2f00000000000001: raise ValueError('Starter fingerprint or unsafe SELF attributes differ')
         report['modules'][name]={'file':payload.name,'bytes':payload.stat().st_size,'sha256':digest(payload),'authid':'2f00000000000001','imports':imports,'exports':exported}
         for suffix in ['',extension,'.velf','-undefined.txt','-layout.txt']:shutil.copy2(native/(name+suffix),evidence/(name+suffix))
-    package=inspect(native/'control_starter.vpk','Control Starter','CHRS00011','01.05')
+    package=inspect(native/'control_starter.vpk','Control Starter','CHRS00011','01.06')
     expected={'eboot.bin','sce_sys/param.sfo','sce_sys/icon0.png','sce_sys/livearea/contents/bg.png','sce_sys/livearea/contents/startup.png','sce_sys/livearea/contents/template.xml','vita_control_kernel.skprx','vita_control.suprx','control_bootstrap_probe.suprx','LICENSE.vitacompanion','LICENSE'}
     with zipfile.ZipFile(native/'control_starter.vpk') as archive:
         if set(archive.namelist())!=expected:raise ValueError('Unexpected starter package files')

@@ -14,7 +14,7 @@ target_link_libraries(vita_control_kernel taihenForKernel_stub taihenModuleUtils
 control_self(vita_control_kernel.skprx vita_control_kernel CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/kernel.yml)
 vita_create_stubs(vita_control_kernel_stubs vita_control_kernel ${CMAKE_CURRENT_SOURCE_DIR}/kernel.yml KERNEL)
 set(control_fingerprint "")
-foreach(control_source kernel.c pairing_privacy.h pairing_approval.h touch_activity.h button_map.h lease.c lease.h api.h http.c rle.c rle.h power_policy.c power_policy.h power_shell.c platform_shell.c control_platform.h CMakeLists.txt kernel.yml shell.yml bootstrap_metadata.c bootstrap_probe.c bootstrap_probe.yml bootstrap_app.c pairing_ui.c pairing_ui.h ../pairing.c ../pairing.h ../pairing_json.c ../pairing_client.c ../pairing_client.h ../pairing_net_vita.c ../platform.h ../sha256.c ../sha256.h)
+foreach(control_source kernel.c pairing_privacy.h pairing_approval.h pairing_code.h touch_activity.h button_map.h lease.c lease.h api.h http.c rle.c rle.h power_policy.c power_policy.h power_shell.c platform_shell.c control_platform.h CMakeLists.txt kernel.yml shell.yml bootstrap_metadata.c bootstrap_probe.c bootstrap_probe.yml bootstrap_app.c pairing_ui.c pairing_ui.h ../pairing.c ../pairing.h ../pairing_json.c ../pairing_client.c ../pairing_client.h ../pairing_net_vita.c ../platform.h ../sha256.c ../sha256.h)
     file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/${control_source}" control_digest)
     string(APPEND control_fingerprint "${control_digest}")
 endforeach()
@@ -41,7 +41,7 @@ target_compile_definitions(control_starter PRIVATE R_BUILD_ID="${control_build_i
 target_compile_options(control_starter PRIVATE -std=c11 -Wall -Wextra -Werror -O2 -g)
 target_link_libraries(control_starter SceNet_stub SceRtc_stub vita2d taihen_stub SceDisplay_stub SceGxm_stub SceSysmodule_stub SceCtrl_stub ScePgf_stub ScePvf_stub SceCommonDialog_stub SceAppMgr_stub SceIofilemgr_stub SceKernelThreadMgr_stub SceProcessmgr_stub freetype png jpeg z m)
 control_self(control_starter.self control_starter UNSAFE)
-vita_create_vpk(control_starter.vpk CHRS00011 control_starter.self VERSION "01.05" NAME "Control Starter"
+vita_create_vpk(control_starter.vpk CHRS00011 control_starter.self VERSION "01.06" NAME "Control Starter"
  FILE assets/icon0.png sce_sys/icon0.png FILE assets/bg.png sce_sys/livearea/contents/bg.png
  FILE assets/startup.png sce_sys/livearea/contents/startup.png
  FILE ${CMAKE_CURRENT_SOURCE_DIR}/../../assets/template.xml sce_sys/livearea/contents/template.xml

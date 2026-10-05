@@ -2,6 +2,8 @@
 #include "pairing_client.h"
 #include "platform.h"
 #include "pairing_approval.h"
+#include "pairing_code.h"
+#ifndef PU_HOST_TEST
 #include <psp2/ctrl.h>
 #include <psp2/kernel/rng.h>
 #include <psp2/kernel/threadmgr.h>
@@ -9,11 +11,12 @@
 #include <psp2/net/net.h>
 #include <psp2/sysmodule.h>
 #include <psp2/rtc.h>
+#endif
 #define INK(r,g,b) ((unsigned)(r)|((unsigned)(g)<<8)|((unsigned)(b)<<16)|0xff000000u)
 enum { NONE, OPEN, APPROVE, CLOSE, LIST, REVOKE };
 typedef struct {char id[33],name[65];uint64_t seen,expires;int revoked;} Phone;
 typedef struct {
-    int mode,command,ready,selected,count;unsigned revision;
+    int mode,command,ready,selected,count,fault;unsigned revision;
     char state[24],name[65],request[33],client[33],nonce[33],code[7],digest[65],message[160];
     uint64_t deadline;
     Phone phones[PR_MAX_PHONES];
@@ -24,6 +27,7 @@ static volatile int running;
 static char admin[33];
 static unsigned char net_memory[128*1024] __attribute__((aligned(16)));
 static int network_owned,initialized;
+static unsigned diagnostic_bytes;
 static PAArm approval_arm;
 static void lock(void){sceKernelLockMutex(mutex,1,0);}
 static void unlock(void){sceKernelUnlockMutex(mutex,1);}
@@ -32,6 +36,18 @@ static int rng(void *out,size_t n){return n<=64?sceKernelGetRandomNumber(out,(un
 static int hex32(const char *p){if(R_STRLEN(p)!=32)return 0;for(unsigned i=0;i<32;i++)if(!((p[i]>='0'&&p[i]<='9')||(p[i]>='a'&&p[i]<='f')))return 0;return 1;}
 static void clear_code(UI *v){R_MEMSET(v->code,0,sizeof(v->code));R_MEMSET(v->digest,0,sizeof(v->digest));}
 static void message(UI *v,const char *text){R_SNPRINTF(v->message,sizeof(v->message),"%s",text);}
+/* Only fixed event names and integer return codes; never log replies, codes or verifiers. */
+static void diagnostic(const char *event,int result) {
+    char line[128];int n=R_SNPRINTF(line,sizeof(line),"%s: 0x%08x\n",event,(unsigned)result);
+    if(n<=0||(unsigned)n>=sizeof(line)||diagnostic_bytes+(unsigned)n>4096)return;
+    int fd=sceIoOpen("ux0:data/vita-control/pairing-ui.log",SCE_O_WRONLY|SCE_O_CREAT|SCE_O_APPEND,0600);
+    if(fd>=0){sceIoWrite(fd,line,(unsigned)n);sceIoClose(fd);diagnostic_bytes+=(unsigned)n;}
+}
+static void failure(UI *v,const char *step,int result) {
+    clear_code(v);v->ready=0;v->fault=1;
+    R_SNPRINTF(v->message,sizeof(v->message),"%s (0x%08x). SQUARE: retry; CIRCLE: return.",step,(unsigned)result);
+    diagnostic(step,result);
+}
 static void date_text(uint64_t seconds,char out[40]) {
     SceDateTime date={0};if(sceRtcSetTime64_t(&date,seconds)<0){R_SNPRINTF(out,40,"unavailable");return;}
     R_SNPRINTF(out,40,"%04u-%02u-%02u %02u:%02u UTC",date.year,date.month,date.day,date.hour,date.minute);
@@ -65,12 +81,10 @@ static int list_reply(UI *v,const char *json) {
     if(v->selected>=v->count)v->selected=0;
     v->ready=1;message(v,"UP/DOWN: select. CROSS: forget phone. CIRCLE: return.");return 1;
 }
-static int worker(unsigned args,void *arg) {
-    (void)args;(void)arg;uint64_t next_poll=0;
-    while(__atomic_load_n(&running,__ATOMIC_ACQUIRE)) {
+static int worker_step(uint64_t *next_poll) {
         lock();UI current=ui;int command=ui.command;ui.command=NONE;unlock();
-        if(!command&&current.mode==1&&current.ready&&now()>=next_poll)command=NONE;
-        else if(!command){sceKernelDelayThread(20000);continue;}
+        if(!command&&current.mode==1&&current.ready&&!current.fault&&now()>=*next_poll)command=NONE;
+        else if(!command)return 0;
         const char *path="/pairing/ui/poll";char body[512]="{\"protocol\":1}",reply[PR_JSON_MAX];
         if(command==OPEN){path="/pairing/ui/open";R_SNPRINTF(body,sizeof(body),"{\"protocol\":1,\"control_build_id\":\"%s\"}",R_BUILD_ID);}
         else if(command==CLOSE)path="/pairing/ui/close";
@@ -80,9 +94,15 @@ static int worker(unsigned args,void *arg) {
         int result=pc_call(pc_platform_io(),17866,admin,path,body,reply);
         if(result==200&&command==REVOKE){current.mode=2;result=pc_call(pc_platform_io(),17866,admin,"/pairing/ui/list","{\"protocol\":1}",reply);}
         int good=result==200&&(command==CLOSE||(current.mode==2?list_reply(&current,reply):poll_reply(&current,reply)));
-        if(!good){clear_code(&current);current.ready=0;message(&current,"Pairing unavailable. CIRCLE: return; check the Resident service.");}
+        if(!good)failure(&current,command==APPROVE?"Approval RPC failed":"Pairing RPC failed",result);
         lock();if(ui.revision==current.revision){int waiting=ui.command;ui=current;ui.command=waiting;}unlock();
-        R_MEMSET(body,0,sizeof(body));R_MEMSET(reply,0,sizeof(reply));R_MEMSET(&current,0,sizeof(current));next_poll=now()+500;
+        R_MEMSET(body,0,sizeof(body));R_MEMSET(reply,0,sizeof(reply));R_MEMSET(&current,0,sizeof(current));*next_poll=now()+500;
+        return 1;
+}
+static int worker(unsigned args,void *arg) {
+    (void)args;(void)arg;uint64_t next_poll=0;
+    while(__atomic_load_n(&running,__ATOMIC_ACQUIRE)) {
+        if(!worker_step(&next_poll))sceKernelDelayThread(20000);
     }
     char reply[PR_JSON_MAX];pc_call(pc_platform_io(),17866,admin,"/pairing/ui/close","{\"protocol\":1}",reply);R_MEMSET(reply,0,sizeof(reply));return 0;
 }
@@ -92,6 +112,9 @@ void pu_init(void) {
     if((n!=32&&!(n==33&&bytes[32]=='\n'))||closed<0){message(&ui,"Resident pairing configuration unavailable.");return;}
     bytes[32]=0;if(!hex32(bytes)){R_MEMSET(bytes,0,sizeof(bytes));return;}R_MEMCPY(admin,bytes,33);R_MEMSET(bytes,0,sizeof(bytes));
     initialized=1;
+    char fixed[7]={0};int formatted=R_SNPRINTF(fixed,sizeof(fixed),"%06u",7u);
+    diagnostic("native fixed padding return",formatted);
+    diagnostic("native fixed padding matches",!R_STRCMP(fixed,"000007"));
 }
 static int start_worker(void) {
     if(thread>=0)return 1;
@@ -104,13 +127,15 @@ static int start_worker(void) {
 int pu_active(void){if(mutex<0)return 0;lock();int mode=ui.mode;unlock();return mode!=0;}
 void pu_input(unsigned held,unsigned pressed,int valid) {
     if(mutex<0)return;
-    if(pressed&(SCE_CTRL_SQUARE|SCE_CTRL_TRIANGLE)){int available=start_worker();lock();clear_code(&ui);ui.mode=(pressed&SCE_CTRL_TRIANGLE)?2:1;ui.command=available?(ui.mode==2?LIST:OPEN):NONE;ui.ready=0;ui.revision++;message(&ui,available?"Connecting to Resident...":"Pairing unavailable. CIRCLE: return.");unlock();return;}
+    if(pressed&(SCE_CTRL_SQUARE|SCE_CTRL_TRIANGLE)){int available=start_worker();lock();clear_code(&ui);ui.fault=0;ui.mode=(pressed&SCE_CTRL_TRIANGLE)?2:1;ui.command=available?(ui.mode==2?LIST:OPEN):NONE;ui.ready=0;ui.revision++;message(&ui,available?"Connecting to Resident...":"Pairing unavailable. CIRCLE: return.");unlock();return;}
     lock();
     int approved=pa_cross(&approval_arm,now(),ui.ready&&((ui.mode==1&&!R_STRCMP(ui.state,"pending"))||ui.mode==3),valid,held,pressed,SCE_CTRL_CROSS);
     if(ui.mode&&pressed&SCE_CTRL_CIRCLE){ui.mode=0;clear_code(&ui);ui.command=thread>=0?CLOSE:NONE;ui.revision++;}
     else if(approved&&ui.mode==1) {
-        if(ui.deadline>now()&&pr_random_code(rng,ui.code)){pr_code_digest(ui.request,ui.client,ui.nonce,ui.code,ui.digest);ui.command=APPROVE;ui.ready=0;ui.revision++;message(&ui,"Recording physical approval...");}
-        else{clear_code(&ui);message(&ui,"Request expired or random source unavailable.");}
+        int random_result=0;clear_code(&ui);ui.revision++;
+        if(ui.deadline<=now())failure(&ui,"Approval request expired",-1);
+        else if(!pu_code(rng,ui.code,&random_result))failure(&ui,"Code generation failed",random_result);
+        else{diagnostic("approval random result",random_result);pr_code_digest(ui.request,ui.client,ui.nonce,ui.code,ui.digest);ui.command=APPROVE;ui.ready=0;message(&ui,"Recording physical approval...");}
     } else if(ui.mode==2&&ui.ready&&ui.count) {
         if(pressed&SCE_CTRL_DOWN)ui.selected=(ui.selected+1)%ui.count;
         if(pressed&SCE_CTRL_UP)ui.selected=(ui.selected+ui.count-1)%ui.count;

@@ -7,7 +7,7 @@ def candidate(package,expected_sha256,root=ROOT):
     base=root/('dist/control' if package=='starter' else 'dist/workbench')
     report=json.loads((base/'build-report.json').read_text())
     info=report['starter_package' if package=='starter' else 'package'];payload=(base/('control_starter.vpk' if package=='starter' else 'input_target.vpk')).read_bytes()
-    identity=('CHRS00011','01.05') if package=='starter' else ('CHRS00012','01.00')
+    identity=('CHRS00011','01.06') if package=='starter' else ('CHRS00012','01.00')
     if (info['titleId'],info['version'])!=identity or info['sha256']!=expected_sha256 or hashlib.sha256(payload).hexdigest()!=expected_sha256 or len(payload)!=info['bytes'] or not 0<len(payload)<2*1024*1024:raise ValueError('Candidate package identity differs')
     if package=='starter' and report['version']!='0.3.4':raise ValueError('Unexpected Control release')
     for relative,digest in {**report['source_hashes'],**report['accepted_artifacts_preserved']}.items():
