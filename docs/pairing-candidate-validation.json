@@ -234,7 +234,7 @@
     "resident": "bb428d1911e87359b0859235abe7b92437e22ba9e55967fad2640bf65cfd6863",
     "control": "830fc26c47c98478e8135ccdaab247b8b2fe58add6e12bdb951e5af0553d30aa"
   },
-  "source_inputs_current": true,
+  "source_inputs_current": false,
   "device_changes": "Manual Resident 0.1.2 replacement and Starter 01.06 installation completed. Config and all 11 installed Starter files verified. Normal reboot confirmed; exact prior session marker retained by guarded rename before one matching Control activation. Control is not boot-loaded. Existing administrator token retained. Registered desktop MCP unchanged.",
   "phone_authority": "Inspection only. Screen reads blocked while the original approved/completed 120-second challenge or privacy-authority failure applies.",
   "physical_acceptance": "PARTIAL: startup, native window/request, physical code display, and graceful timeout. Successful confirmation, individual authority, lifecycle and regressions pending. Phone allowlist is not qualified for release.",
@@ -296,5 +296,7 @@
     "late_confirmation": "HTTP 409, no credential created, no replay",
     "graceful_challenge_timeout": "PASS (operator confirmed)",
     "codes_or_tokens_in_public_evidence": false
-  }
+  },
+  "source_inputs_note": "The native build reports and 106-source audit were verified against commit 3d3de2fe737a81cc8c6789deda4aa356d12ebd04 on October 4 local time. The October 5 publication updates PC registration text, public utilities, CI and guides, so those complete source lists are historical. Native fingerprints and installed files are unchanged; fresh checkouts must regenerate their own build reports.",
+  "latest_source_publication": "source-publication-2026-10-05.json"
 }

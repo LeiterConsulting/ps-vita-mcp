@@ -21,7 +21,9 @@
     "private_device_address_matches": 0,
     "private_tracked_paths": 0,
     "force_added_phone_source_rejection": "PASS",
-    "scope": "Fetched repository history paths; staged content scanned against current known private credentials and addresses. Filename CI gate does not replace content review."
+    "scope": "Fetched repository history paths; staged content scanned against current known private credentials and addresses. Filename CI gate does not replace content review.",
+    "known_private_credential_history_matches": 0,
+    "historical_blobs_scanned": 454
   },
   "host_validation": {
     "scope": "Host code and actual stdio MCP against simulated local adapters; no device acceptance",
@@ -84,5 +86,6 @@
   "native_validation_record": "pairing-candidate-validation.json",
   "device_gate_record": "PAIRING-DEVICE-TESTS.md",
   "source_only": true,
-  "binary_release": false
+  "binary_release": false,
+  "native_build_scope": "Native reports remain bound to the earlier build source; this publication does not rerun ARM builds or hardware. PC registration/output text and standalone tools do not change the native fingerprints. Build fresh reports from your checkout."
 }
