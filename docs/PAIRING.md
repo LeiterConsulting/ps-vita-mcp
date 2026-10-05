@@ -1,6 +1,6 @@
 # Vita Companion pairing implementation
 
-This isolated native candidate implements the approved six-digit exchange alongside the existing Windows administrator token. It starts from the reviewed Workbench sources on Windows. The installed Vita remains Control 0.3.3; this candidate is not installed or physically qualified. Planned native versions are Resident 0.1.2, Control 0.3.4 and Starter 01.05. New build identities must pass native checks and device gates before the phone allowlist changes.
+This native candidate implements the approved six-digit exchange alongside the existing Windows administrator token. Resident 0.1.2, Control 0.3.4 and Starter 01.06 are installed on the test Vita. Matching service startup, physical code display and graceful challenge timeout passed. Individual credential confirmation and the remaining [device gates](PAIRING-DEVICE-TESTS.md) are still open. These partial results do not qualify the phone allowlist for release.
 
 ## Contract decisions recorded before implementation
 
@@ -32,7 +32,7 @@ An expired, rejected or exhausted nonce cannot start another deadline when the l
 
 ## Operator flow after manual candidate installation
 
-Use the exact build identities in [candidate validation](pairing-candidate-validation.json). Retain the currently qualified packages and configuration. Replace the Resident plugin and install Starter manually during a confirmed normal reboot; never activate a second Control pair within the existing boot. Do not add Control to `config.txt`. No candidate installation or boot-config change has been performed by the host tests.
+Use the exact build identities in [candidate validation](pairing-candidate-validation.json). Retain the previously qualified packages and configuration. Replace the Resident plugin and install Starter manually during a confirmed normal reboot; never activate a second Control pair within the existing boot. Do not add Control to `config.txt`. Host checks and native installation receipts are separate evidence.
 
 Before native activation, use this checkout's host bridge and its Python environment: `resident/bridge.py` recognizes the new versions while retaining legacy compatibility. Set `VITA_RESIDENT_CONFIG` to the existing private desktop configuration path. Keep that file outside Git; do not move a token into source, an issue or a report. Update the private Workbench build pins to the exact candidate reports only when manually activating those binaries. The old registered desktop bridge and installed Vita are still unchanged by this work.
 
@@ -42,7 +42,7 @@ Before native activation, use this checkout's host bridge and its Python environ
 4. Return from Starter using START+SELECT. Status inspection works immediately; captures wait until the original challenge deadline has passed. Do not run a desktop input/work trial concurrently with the phone session.
 5. TRIANGLE shows paired phones, last-seen and expiry dates. Select a phone, press CROSS, release the controls briefly, then press CROSS again to confirm Forget. Forgotten or expired credentials cannot reconnect; pair again with a fresh nonce.
 
-The old legacy import remains usable with the installed 0.1.1 / 0.3.3 device. Do not promote the 0.1.2 / 0.3.4 phone allowlist based on host tests alone. That import has administrator authority and no individual expiry. It is separate from this protocol.
+The old legacy import targets the retained 0.1.1 / 0.3.3 rollback. The existing Windows administrator token also works with the installed candidate. Do not promote the 0.1.2 / 0.3.4 phone allowlist based on host tests or partial startup checks alone. Legacy import has administrator authority and no individual expiry; it is separate from this protocol.
 
 ```mermaid
 flowchart LR

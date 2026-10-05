@@ -1,11 +1,11 @@
 {
-  "recorded_utc": "2026-10-04T23:17:19.832793+00:00",
-  "state": "host_and_native_build_passed; NOT installed or physically qualified",
-  "scope": "Actual C with ASan/UBSan and POSIX/SDK substitutes; actual stdio MCP against simulated devices; ARM/SELF/import/export/package verification. No live Vita action or phone pairing in this candidate run.",
+  "recorded_utc": "2026-10-05T01:10:17.397245+00:00",
+  "state": "installed candidate; startup, physical code display and graceful timeout passed; full pairing qualification pending",
+  "scope": "Full host C/HTTP/MCP, ARM/SELF/import/export/package validation plus separately recorded native partial acceptance. No individual credential was created by the expired device trial.",
   "versions": {
     "resident": "0.1.2",
     "control": "0.3.4",
-    "starter": "01.05",
+    "starter": "01.06",
     "abi": 2
   },
   "resident": {
@@ -30,12 +30,12 @@
     "linked_allocated_section_bytes": 319964,
     "worker_stack_bytes": 65536
   },
-  "control_build_id": "2dd7c10babe89636885479d76b494472de14b63a534ff56638d0b5f03ad705bf",
+  "control_build_id": "22a9a4202a5feb39f413f37cb235c9a31391bd785b9dff573bb0d638e5fdc8fa",
   "control_modules": {
     "vita_control": {
       "file": "vita_control.suprx",
       "bytes": 27765,
-      "sha256": "67ebb75d98c4d97c7a1f78a5ef2c4fa1b1e3ef3511db2ec53bca6684e74f52ff",
+      "sha256": "294bdaf994a8e93084f1acaa748560ec89805cdc83897d9572856fae202d7677",
       "authid": "2f00000000000001",
       "exports": [
         {
@@ -46,8 +46,8 @@
           "variables": 1
         }
       ],
-      "elf_sha256": "6595a7b04c35ff902135ab600f403cf922bb6ef1d51762ee00bb4087523ee335",
-      "velf_sha256": "043c4dbf5ce1a21c0ab4011e5faed54c0c8a35663eef84e4cda16e0302ec93ca",
+      "elf_sha256": "ae1d86664d9ee010833e79e84d064ecc70c408f8a7b3825b75dd3d1517fef86b",
+      "velf_sha256": "2f8a412f73f32622a00e0911370d15714480344c931a780b3cfbef05b72cbe79",
       "imports": [
         "SceAppMgrUser",
         "SceIofilemgr",
@@ -67,7 +67,7 @@
     "vita_control_kernel": {
       "file": "vita_control_kernel.skprx",
       "bytes": 10512,
-      "sha256": "b9dfdad8e11097877166d44ddefd26c1aa84ff5e63172517adc75e82861e8e27",
+      "sha256": "2b6698d6722d57e94c6ce98f5607a5af518e9b57f39d0637f8a7c48010652173",
       "authid": "2f00000000000002",
       "exports": [
         {
@@ -85,8 +85,8 @@
           "variables": 0
         }
       ],
-      "elf_sha256": "2961763646a6e0afa5bd71c64dc5766b66b372444e1b877ec9e18c709233f698",
-      "velf_sha256": "f339f7601e59d0e5d183407e4fbd63b306970647f550f345f27a24aca77614f5",
+      "elf_sha256": "e82e3d5e5164f377557e2530fb056ff5cb2937148bee5995f2f163851c20a95d",
+      "velf_sha256": "3f53e6a0aa4360867e85d9abeb2babeb9889e044ee3055402ef4eebe903a1fa5",
       "imports": [
         "SceCtrlForDriver",
         "SceDisplayForDriver",
@@ -104,7 +104,7 @@
     "control_bootstrap_probe": {
       "file": "control_bootstrap_probe.suprx",
       "bytes": 5086,
-      "sha256": "2bc305ec3d12dfcfada6fea0e56d46ce0e526d55783b5a7c57c42dea56d22ac0",
+      "sha256": "1f326eab660eae2f4e5902b62ecf236cca79662bbf6a5f1f3f4a5b88d01ac96e",
       "authid": "2f00000000000001",
       "imports": [
         "SceIofilemgr",
@@ -124,8 +124,8 @@
     },
     "control_starter": {
       "file": "control_starter.self",
-      "bytes": 98016,
-      "sha256": "71bb0191c35e254ff7c03ef24c3b04787b9b9a406d183adf61531844c16d4076",
+      "bytes": 98718,
+      "sha256": "7c7caf5d0d153be78b0de7f44271a28febcdd7bbf4a8cbc0564384a564567a7d",
       "authid": "2f00000000000001",
       "imports": [
         "SceAppMgrUser",
@@ -163,14 +163,22 @@
   "starter_package": {
     "file": "control_starter.vpk",
     "title_id": "CHRS00011",
-    "version": "01.05",
-    "bytes": 133859,
-    "sha256": "497e564633e7ee541fd55e8ccc4e99af5aab42521dfa723b99b55070417f98db"
+    "version": "01.06",
+    "bytes": 134547,
+    "sha256": "ffe619fe71034701daf37c271dba7b92bbc4591d783b35c4a271fab014dccc24"
   },
   "new_checks": {
     "actual_core_groups": 23,
     "bounded_client_privacy_approval_groups": 6,
-    "actual_two_service_http_tests": 11
+    "actual_two_service_http_tests": 11,
+    "actual_ui_worker_groups": 9,
+    "resident_mcp_checks": 15,
+    "loopback_pc_form_state_tests": 4,
+    "loopback_pc_form_http_boundary_checks": 6,
+    "regression_sensitivity": {
+      "ui_revision_invalidation_removed": "expected assertion failure",
+      "legacy_upload_signature_restored": "expected candidate MCP assertion failure"
+    }
   },
   "portable_ci": {
     "scope": "Host code and actual stdio MCP against simulated local adapters; no device acceptance",
@@ -219,32 +227,34 @@
         "name": "workbench-decisions",
         "exit_code": 0
       }
-    ]
+    ],
+    "record_scope": "Historical host checks for the earlier candidate, not a current-source CI run. Follow the draft PR checks for newer runs."
   },
   "build_record_sha256": {
-    "resident": "1bb2a344c4f43235c7874d22143e8faa2ea7198396155ef50a481f041e757061",
-    "control": "6c2b6d642e2a109ee9f11da28504b17d5c8820b9b7ec6e9a71176d60e916f3c2"
+    "resident": "bb428d1911e87359b0859235abe7b92437e22ba9e55967fad2640bf65cfd6863",
+    "control": "830fc26c47c98478e8135ccdaab247b8b2fe58add6e12bdb951e5af0553d30aa"
   },
   "source_inputs_current": true,
-  "device_changes": "None: no transfer, install, native activation, boot configuration or registered PC MCP change.",
+  "device_changes": "Manual Resident 0.1.2 replacement and Starter 01.06 installation completed. Config and all 11 installed Starter files verified. Normal reboot confirmed; exact prior session marker retained by guarded rename before one matching Control activation. Control is not boot-loaded. Existing administrator token retained. Registered desktop MCP unchanged.",
   "phone_authority": "Inspection only. Screen reads blocked while the original approved/completed 120-second challenge or privacy-authority failure applies.",
-  "physical_acceptance": "pending; phone allowlist must not be promoted as device-qualified",
-  "failure_history": "Earlier failed compile/import/framing checks are preserved in private logs, alongside their repaired passing runs. A Windows PowerShell 5 invocation treated native stderr as an exception; the final aggregate ran in PowerShell 7.",
+  "physical_acceptance": "PARTIAL: startup, native window/request, physical code display, and graceful timeout. Successful confirmation, individual authority, lifecycle and regressions pending. Phone allowlist is not qualified for release.",
+  "failure_history": "Starter 01.05 code display failed. The actual UI worker host harness reproduced stale refresh overwriting a generation error; 01.06 latches the error and invalidates stale replies. Uniform decimal code formatting avoids padded SDK formatting. Physical display passed after manual installation. The exact earlier SDK cause remains unconfirmed. The first 01.06 confirmation was late and rejected cleanly. Candidate upload had a host signature mismatch, now repaired and regression-tested; no native upload through that repaired path has been attempted.",
   "remaining_gates": [
-    "Manual replacement/rollback proof and one-time matching module activation",
-    "SDK RNG, RTC, title lookup, sync and native loopback transport on firmware 3.65",
-    "Physical approval/rejection/Forget and phone-specific saved reconnect",
-    "Leading-zero, lost Wi-Fi confirmation and expiry/revoke/reboot recovery on device",
-    "Global screen denial during code window, Starter denial and LiveArea overlays/thumbnails",
-    "No unexpected input/work lease; desktop and phone session ownership",
-    "Physical front and rear touch restoration plus button/stick/motion regression",
+    "Successful native confirmation with durable individual credential and exact 90-day renewal through both services",
+    "Saved credential reconnect, five phone write denials and retained independent Windows access",
+    "Physical rejection, held-CROSS denial, leading-zero display and Forget on device",
+    "Lost Wi-Fi confirmation recovery and revoke/reboot persistence",
+    "Global code-window privacy under LiveArea overlays/thumbnails, Starter input denial and positive non-Starter capture",
+    "Physical front/rear touch restoration plus button/stick/motion regression on current fingerprints",
+    "Native input/focus/Lua restoration and managed-file qualification through current bridge",
     "Completed soak, independent sleep/wake and Wi-Fi-loss trials",
-    "Clean-machine onboarding and complete binary dependency notices"
+    "Clean-machine onboarding, manual recovery exercise and complete binary dependency notices",
+    "Separately reviewed Companion allowlist and actual phone acceptance"
   ],
   "previous_release_qualification": "QUALIFICATION.md; installed 0.3.3 evidence is not acceptance of this candidate",
   "github_ci": {
     "result": "PASS",
-    "scope": "Host-only Linux CI; no native device acceptance",
+    "scope": "Historical host-only Linux CI for the recorded earlier commit; no acceptance of the newer UI/upload repair. New runs are linked from the draft PR.",
     "commit": "bacd7cea696f015b91e2b0962b092e7b588b1a03",
     "run_id": 37243479382,
     "url": "https://github.com/LeiterConsulting/ps-vita-mcp/actions/runs/37243479382"
@@ -252,10 +262,39 @@
   "publication": {
     "draft_pr": "https://github.com/LeiterConsulting/ps-vita-mcp/pull/4",
     "base_qualification_pr": "https://github.com/LeiterConsulting/ps-vita-mcp/pull/3",
-    "source_hashes_against_committed_blobs": 121,
+    "source_hashes_against_committed_blobs": 106,
     "source_mismatches": 0,
     "private_tracked_paths": 0,
     "device_token_matches": 0,
-    "missing_document_links": 0
+    "missing_document_links": 0,
+    "source_hash_audit_scope": "Resident and Control build reports for the UI/upload repair; staged Git inputs verified before commit."
+  },
+  "installed_starter_package": {
+    "file": "control_starter.vpk",
+    "title_id": "CHRS00011",
+    "version": "01.06",
+    "bytes": 134547,
+    "sha256": "8161a626620083aae137cc542a124dcde025f7e5b6af0565d722393483105350"
+  },
+  "package_rebuild_note": "The current VPK container was repacked after the host bridge repair. All 11 entry sizes/hashes and native module fingerprints are identical to the installed VPK; its separate original container hash is retained here.",
+  "native_observations": {
+    "firmware": "3.65 (operator reported)",
+    "normal_boot": "PASS (operator confirmed)",
+    "starter_installed_file_readbacks": 11,
+    "exact_resident_control_identities": "PASS",
+    "initial_input_work_leases_ms": [
+      0,
+      0
+    ],
+    "native_control_registration": "HTTP 200",
+    "private_LAN_route_denials": "13/13 HTTP 403, including 11 implemented private routes and 2 generic nonexistent routes",
+    "physical_code_display_01_05": "FAIL; repaired in 01.06",
+    "physical_code_display_01_06": "PASS (operator saw six digits)",
+    "confirmation_before_physical_approval": "HTTP 403",
+    "admin_capture_during_approved_window": "preview/RLE HTTP 503, no pixels",
+    "starter_all_four_capture_routes": "HTTP 503, no pixels; does not certify overlay privacy",
+    "late_confirmation": "HTTP 409, no credential created, no replay",
+    "graceful_challenge_timeout": "PASS (operator confirmed)",
+    "codes_or_tokens_in_public_evidence": false
   }
 }

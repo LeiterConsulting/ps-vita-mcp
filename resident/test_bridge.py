@@ -80,7 +80,7 @@ async def main():
     try:
         with tempfile.TemporaryDirectory() as temp:
             fixture_root = Path(temp)
-            for name in ('resident/bridge.py', 'bridge/ftp_staging.py', 'resident/control/bridge_tools.py', 'resident/control/rgb_codec.py'):
+            for name in ('resident/bridge.py', 'bridge/server.py', 'bridge/ftp_staging.py', 'resident/control/bridge_tools.py', 'resident/control/rgb_codec.py'):
                 destination = fixture_root / name
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(ROOT / name, destination)
@@ -105,9 +105,25 @@ async def main():
                 archive.writestr('eboot.bin', b'SCE\0fixture')
                 archive.writestr('sce_sys/param.sfo', sfo)
             package_hash = hashlib.sha256(package_path.read_bytes()).hexdigest()
+            # A separately labelled synthetic Input Target checks the actual
+            # Workbench candidate journal -> Resident upload -> two-readback flow.
+            target_path = fixture_root / 'dist/workbench/input_target.vpk'
+            target_path.parent.mkdir(parents=True)
+            with zipfile.ZipFile(target_path, 'w') as archive:
+                archive.writestr('eboot.bin', b'SCE\0fixture')
+                archive.writestr('sce_sys/param.sfo', sfo.replace(b'CHRS00003', b'CHRS00012').replace(b'01.03', b'01.00'))
+            target_bytes = target_path.read_bytes()
+            target_hash = hashlib.sha256(target_bytes).hexdigest()
+            with zipfile.ZipFile(target_path) as archive:
+                target_files = [{'name': name, 'bytes': len(archive.read(name)), 'sha256': hashlib.sha256(archive.read(name)).hexdigest()} for name in archive.namelist()]
+            target_report = {'build_id': 'e' * 64, 'package': {'titleId': 'CHRS00012', 'version': '01.00',
+                             'sha256': target_hash, 'bytes': len(target_bytes), 'files': target_files},
+                             'source_hashes': {'resident/bridge.py': hashlib.sha256((fixture_root / 'resident/bridge.py').read_bytes()).hexdigest()},
+                             'accepted_artifacts_preserved': {}}
+            (target_path.parent / 'build-report.json').write_text(json.dumps(target_report))
             config = Path(temp) / 'resident.json'
             config.write_text(json.dumps({'host': '127.0.0.1', 'port': server.server_port, 'token': TOKEN}), encoding='utf-8')
-            env = {**os.environ, 'VITA_RESIDENT_CONFIG': str(config)}
+            env = {**os.environ, 'VITA_RESIDENT_CONFIG': str(config), 'VITA_WORKBENCH_LOCK': str(fixture_root / 'session.lock')}
             async with stdio_client(StdioServerParameters(command=sys.executable, args=[str(fixture_root / 'resident/bridge.py')], env=env)) as (read, write):
                 async with ClientSession(read, write) as session:
                     await session.initialize()
@@ -129,6 +145,44 @@ async def main():
                     bad = await session.call_tool('vita_resident_stage_package', {'package': 'devloop', 'expected_sha256': '0' * 64})
                     assert bad.isError and len(calls) == before
                     checks.append('wrong-local-hash-refused-before-network')
+                    candidate_args = {'package': 'target', 'expected_sha256': target_hash}
+                    before = len(calls)
+                    staged = value(await session.call_tool('vita_workbench_stage_candidate', candidate_args))
+                    assert staged['result'] == 'verified staged candidate; installation and runtime pending', staged
+                    attempt = staged['attempt']
+                    assert staged['receipt']['attempt'] == attempt and staged['receipt']['read_back_checks'] == 2
+                    assert files[attempt + '/package.vpk'] == target_bytes
+                    assert calls[before:] == [('GET', '/status'), ('POST', '/upload/' + attempt + '/package.vpk'),
+                                             ('GET', '/files/' + attempt + '/package.vpk'), ('GET', '/files/' + attempt + '/package.vpk')]
+                    journal = [json.loads(line) for line in (Path(staged['evidence_directory']) / 'journal.jsonl').read_text().splitlines()]
+                    assert [entry['kind'] for entry in journal] == ['mutation_intent', 'mutation_receipt']
+                    assert journal[0]['attempt'] == attempt == journal[1]['receipt']['attempt']
+                    assert staged['activation'] == 'not performed'
+                    checks.append('candidate-MCP-journal-wire-attempt-and-two-readbacks-match')
+                    before = len(calls)
+                    drift = target_path.parent / 'build-report.json'
+                    bad_report = {**target_report, 'source_hashes': {'resident/bridge.py': '0' * 64}}
+                    drift.write_text(json.dumps(bad_report))
+                    assert (await session.call_tool('vita_workbench_stage_candidate', candidate_args)).isError
+                    assert len(calls) == before
+                    drift.write_text(json.dumps(target_report))
+                    checks.append('candidate-source-drift-refused-before-network')
+                    fault['drop_reply'] = True
+                    before = len(calls)
+                    uncertain = value(await session.call_tool('vita_workbench_stage_candidate', candidate_args))
+                    fault['drop_reply'] = False
+                    assert uncertain['result'] == 'failed or publication uncertain; inspect this attempt without replay'
+                    attempt = uncertain['attempt']
+                    assert calls[before:] == [('GET', '/status'), ('POST', '/upload/' + attempt + '/package.vpk')]
+                    journal = [json.loads(line) for line in (Path(uncertain['evidence_directory']) / 'journal.jsonl').read_text().splitlines()]
+                    assert [entry['kind'] for entry in journal] == ['mutation_intent', 'mutation_unconfirmed']
+                    assert journal[0]['attempt'] == attempt and journal[1]['replayed'] is False
+                    recovered = value(await session.call_tool('vita_resident_verify_upload', {'attempt': attempt, 'file': 'package.vpk',
+                                      'expected_sha256': target_hash, 'expected_bytes': len(target_bytes)}))
+                    assert recovered['attempt'] == attempt and recovered['read_back_checks'] == 2
+                    assert calls[before:] == [('GET', '/status'), ('POST', '/upload/' + attempt + '/package.vpk'),
+                                             ('GET', '/files/' + attempt + '/package.vpk'), ('GET', '/files/' + attempt + '/package.vpk')]
+                    checks.append('candidate-lost-reply-retains-journal-attempt-read-only-recovery')
                     fault['bad_readback'] = True
                     bad = await session.call_tool('vita_resident_probe_upload', {})
                     assert bad.isError
@@ -162,6 +216,24 @@ async def main():
                     bad = await session.call_tool('vita_resident_status', {})
                     assert bad.isError and TOKEN not in bad.content[0].text
                     checks.append('auth-failure-and-no-token-in-error')
+            # The internal supplied-attempt API is not remotely callable through
+            # MCP. Its guard must reject wrong types/paths before any request.
+            sys.path.insert(0, str(fixture_root / 'resident'))
+            sys.path.insert(0, str(fixture_root / 'bridge'))
+            import importlib.util
+            spec = importlib.util.spec_from_file_location('candidate_upload_guard', fixture_root / 'resident/bridge.py')
+            bridge = importlib.util.module_from_spec(spec); spec.loader.exec_module(bridge)
+            sent = []
+            bridge.request = lambda *args, **kwargs: sent.append(args)
+            for invalid in ('', '../ur0', 'A' * 32, '0' * 31, '0' * 33, 7, False, b'0' * 32):
+                try:
+                    bridge.upload(b'x', 'package.vpk', invalid)
+                except ValueError:
+                    pass
+                else:
+                    raise AssertionError('Invalid attempt accepted')
+            assert not sent
+            checks.append('supplied-upload-attempt-type-and-path-guard-before-network')
         print(json.dumps({'fixture': 'Simulated HTTP device; actual MCP stdio bridge', 'passed': len(checks), 'checks': checks}, indent=2))
     finally:
         server.shutdown()

@@ -10,7 +10,7 @@ PS Vita MCP connects a desktop MCP client to a modded Vita. The functional stagi
 
 *Original DevLoop 01.02 framebuffer capture. [Gallery and provenance](docs/SCREENSHOTS.md).*
 
-**Pairing candidate:** [six-digit Companion pairing](docs/PAIRING.md) adds individual inspection credentials, physical approval and durable 90-day inactivity expiry. Resident 0.1.2 / Control 0.3.4 / Starter 01.05 are isolated candidates; they have not been installed or qualified on the Vita. [Candidate checks and remaining gates](docs/pairing-candidate-validation.json).
+**Pairing candidate:** [six-digit Companion pairing](docs/PAIRING.md) adds individual inspection credentials, physical approval and durable 90-day inactivity expiry. Resident 0.1.2 / Control 0.3.4 / Starter 01.06 are installed on the test Vita. Normal startup, physical code display and graceful challenge timeout passed; individual credential confirmation and the wider device gates remain open. [Candidate checks and remaining gates](docs/PAIRING-DEVICE-TESTS.md).
 
 ## Where we are
 
@@ -19,10 +19,10 @@ The October 3 baseline is retained in [the historical record](docs/BASELINE.md).
 | Component | Role | Source / recorded runtime |
 | --- | --- | --- |
 | Vita DevLoop | Foreground Lua edit/run/observe/recover; ten MCP tools | Public 01.03 candidate; hardware record uses 01.02. Changed 01.03 needs physical acceptance. |
-| [Vita Resident](docs/RESIDENT.md) | Boot-loaded status and verified DevLoop package inbox; four tools | 0.1.2 pairing candidate; installed hardware record remains 0.1.1 |
-| [Vita Control](docs/CONTROL.md) | Background screen, managed files, app commands and bounded synthetic input; thirteen tools | 0.3.4 pairing candidate, ABI 2; installed record remains 0.3.3; physical gates open |
+| [Vita Resident](docs/RESIDENT.md) | Boot-loaded status and verified DevLoop package inbox; four tools | 0.1.2 pairing candidate installed; startup passed, pairing qualification open |
+| [Vita Control](docs/CONTROL.md) | Background screen, managed files, app commands and bounded synthetic input; thirteen tools | 0.3.4 pairing candidate installed, ABI 2; startup passed, physical regressions open |
 | [Vita Workbench](workbench/README.md) | Hash-pinned Lua trials, metrics, capture soak, candidate staging and file recovery; ten tools | Developer preview; public-package acceptance pending |
-| Control Starter | Explicit activation after normal boot, then exits | 01.04, title `CHRS00011` |
+| Control Starter | Explicit activation after normal boot, then exits | 01.06 pairing candidate installed, title `CHRS00011`; 01.04 retained as the older rollback |
 | [Control Inspector](docs/INSPECTOR.md) | Optional read-only app/Shell diagnostic | 01.03; not required for the baseline |
 
 Resident and Control share one **27-tool desktop MCP server**. DevLoop has its own ten-tool server. The computer speaks MCP over stdio; the Vita runs authenticated HTTP services. Control remains available after Starter exits, until normal reboot. DevLoop must be open for Lua operations.

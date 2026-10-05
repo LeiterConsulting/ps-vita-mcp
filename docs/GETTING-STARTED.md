@@ -165,4 +165,4 @@ For endpoint changes, update the `host` in the appropriate private JSON files wh
 
 ## Companion pairing candidate
 
-The optional native pairing path builds Resident 0.1.2 and Starter 01.05 / Control 0.3.4. It requires manual installation and its own hardware gates. Follow [PAIRING.md](PAIRING.md); keep the desktop token private and keep the phone session separate from desktop input/work trials. The historical device acceptance above applies to the older installed builds.
+The optional native pairing path builds Resident 0.1.2 and Starter 01.06 / Control 0.3.4. It is installed on the test Vita with startup, physical code display and graceful timeout verified; full pairing and physical regression gates remain open. Follow [PAIRING.md](PAIRING.md); keep the desktop token private and keep the phone session separate from desktop input/work trials. The historical device acceptance above applies to the older builds.

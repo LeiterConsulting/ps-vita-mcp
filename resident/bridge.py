@@ -124,10 +124,13 @@ def vita_resident_verify_upload(attempt: str, file: Literal['package.vpk', 'prob
     return verify(attempt, file, expected_sha256, expected_bytes)
 
 
-def upload(payload: bytes, leaf: str) -> dict:
+def upload(payload: bytes, leaf: str, attempt: str | None = None) -> dict:
     if not 0 < len(payload) <= MAX_FILE or leaf not in ['package.vpk', 'probe.bin']:
         raise ValueError('Invalid upload')
-    attempt = uuid.uuid4().hex
+    if attempt is None:
+        attempt = uuid.uuid4().hex
+    elif not isinstance(attempt, str) or not re.fullmatch('[0-9a-f]{32}', attempt):
+        raise ValueError('Invalid upload attempt')
     digest = hashlib.sha256(payload).hexdigest()
     try:
         data, content_type, timing = request('POST', f'/upload/{attempt}/{leaf}', payload, digest)
