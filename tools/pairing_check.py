@@ -353,4 +353,3 @@ if __name__ == '__main__':
             parser.error('Live pairing requires --resident-build and --control-build exact pins')
         RESIDENT, CONTROL = args.resident_build, args.control_build
         serve(args.config)
-
