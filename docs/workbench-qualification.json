@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "recorded_date": "2026-10-04",
+  "scope": "Sanitized development-device observations on one firmware-3.65 Vita. Public artifacts and physical acceptance are separate.",
+  "device_count": 1,
+  "firmware": "3.65",
+  "host_os": "Windows",
+  "background_mcp_tools": 27,
+  "components": {
+    "devloop": {
+      "version": "01.02",
+      "title_id": "CHRS00003",
+      "package_sha256": "06f37e958acefb16305edc20c55d5a821c5094bcc505d9db3f218503cd92d2c6"
+    },
+    "resident": {
+      "version": "0.1.1",
+      "build_id": "46711c2e158b0ca7217c226e706c2a44951e1993340f3abf35292d4cad33cd51"
+    },
+    "control": {
+      "version": "0.3.3",
+      "abi": 2,
+      "build_id": "fc24ac2a69eb5119707e2712f990e576cf7d2778cf68ae663c4705fec6062efd"
+    },
+    "starter": {
+      "version": "01.04",
+      "title_id": "CHRS00011",
+      "bytes": 106702,
+      "package_sha256": "2d2017d8d1dea240544ca0246ee7609b55e369551060a87896dba18365f7b2b4"
+    },
+    "target": {
+      "version": "01.00",
+      "title_id": "CHRS00012",
+      "build_id": "eab91dbefdc337fbf0bc72ea7223c99662116e4c4728ca76d5b67f72beace3c9",
+      "bytes": 82830,
+      "package_sha256": "203a5bfbda607cef404512d37e885d0de32f347abf74b98abeb724c61cfaf9ea"
+    }
+  },
+  "checks": {
+    "power": {
+      "result": "passed software/device brightness and timer readbacks; physical and visual gates pending",
+      "physical_and_visual_acceptance": "pending"
+    },
+    "synthetic_idle": {
+      "result": "passed synthetic input delivery without idle reset or brightness restoration",
+      "checks": [
+        {
+          "gate": "synthetic mask 256 leaves idle dim intact",
+          "passed": true
+        },
+        {
+          "gate": "synthetic mask 512 leaves idle dim intact",
+          "passed": true
+        },
+        {
+          "gate": "synthetic mask 16416 leaves idle dim intact",
+          "passed": true
+        }
+      ]
+    },
+    "input": {
+      "result": "passed",
+      "checks": [
+        {
+          "gate": "both sticks, both panels, buttons and expiry without manual release",
+          "passed": true
+        },
+        {
+          "gate": "button_mask_256",
+          "passed": true
+        },
+        {
+          "gate": "button_mask_512",
+          "passed": true
+        },
+        {
+          "gate": "button_mask_62448",
+          "passed": true
+        },
+        {
+          "gate": "button_mask_8",
+          "passed": true
+        },
+        {
+          "gate": "button_mask_1",
+          "passed": true
+        },
+        {
+          "gate": "kernel focus cancellation after target exits itself",
+          "passed": true
+        }
+      ],
+      "physical_controller_acceptance": "not implied"
+    },
+    "trials": {
+      "result": "passed",
+      "profiles": [
+        {
+          "name": "smoke",
+          "result": "passed",
+          "restoration": "passed; previous mode paused"
+        },
+        {
+          "name": "input",
+          "result": "passed",
+          "restoration": "passed; previous mode paused"
+        }
+      ]
+    },
+    "files": {
+      "original_publication": "confirmation uncertain; not replayed",
+      "recovery": "passed",
+      "device_recovery_file_mutations": 0,
+      "verified_bytes": 1048576,
+      "sha256": "fbbab289f7f94b25736c58be46a994c441fd02552cc6022352e3d86d2fab7c83",
+      "native_hashes": "before and after two full reads",
+      "copy_and_owned_copy_delete": "passed; original retained",
+      "maximum_protocol_size_qualified": false
+    },
+    "capture_soak": {
+      "result": "completion unconfirmed; not passed",
+      "requested_seconds": 600,
+      "retained_samples": 356,
+      "first_utc": "2026-10-04T16:09:43.284264+00:00",
+      "last_utc": "2026-10-04T16:18:59.099347+00:00",
+      "screen_round_trip_ms": {
+        "median": 88.49,
+        "max": 2738.24
+      },
+      "stable_saved_build": true,
+      "stable_saved_pid": true,
+      "final_cleanup_receipt": false,
+      "cause": "not established"
+    },
+    "later_read_only_check": {
+      "utc": "2026-10-04T21:44:12.572217+00:00",
+      "control_identity": "matched",
+      "input_lease_remaining_ms": 0,
+      "work_lease_remaining_ms": 0,
+      "devloop": "unavailable",
+      "target": "unavailable",
+      "forced_wake": false
+    }
+  },
+  "remaining_gates": [
+    "Physical front and rear held-touch brightness restoration",
+    "Button, stick and motion regressions on exact repaired build",
+    "Completed capture soak",
+    "Independent Wi-Fi loss before lease expiry",
+    "Manual sleep/wake without module reload",
+    "Exact public-package installation and runtime",
+    "DevLoop 01.03 exit and sleep/return",
+    "Complete binary dependency notices",
+    "Clean-machine operator setup",
+    "Additional device configurations and larger transfers"
+  ],
+  "evidence": [
+    {
+      "gate": "activation",
+      "private_report": "activation-Control033-20261004/activation.json",
+      "sha256": "0a0f4632678a766604d06d94dcd182d61184ef9ff75bb86e97135406d7c5ffa6",
+      "raw_report_published": false
+    },
+    {
+      "gate": "power",
+      "private_report": "power-live-20261004T160754Z-dfaf173c/report.json",
+      "sha256": "edee9a1e62efdee89a7af079cab8910455e9eaabf1ef297f4e4f49473019a680",
+      "raw_report_published": false
+    },
+    {
+      "gate": "synthetic_idle",
+      "private_report": "synthetic-idle-20261004T160820Z-87e9ca8b/report.json",
+      "sha256": "a116af35584291f618868d260a5f7e17e8230772d931ffb45b99dd422d8104a9",
+      "raw_report_published": false
+    },
+    {
+      "gate": "input",
+      "private_report": "integration-input-20261004T160901Z-c1143619/report.json",
+      "sha256": "f415f36b9c7203fbdb0ccab443777efe39128c0ef29a92e8e02a27ef3f633243",
+      "raw_report_published": false
+    },
+    {
+      "gate": "trials",
+      "private_report": "integration-trials-20261004T160912Z-5a294146/report.json",
+      "sha256": "0b36483bdd3fcfd11bb7e7f7fa3a221509d569fd89b4fe659931dc3ddf346a43",
+      "raw_report_published": false
+    },
+    {
+      "gate": "original_file_failure",
+      "private_report": "integration-files-20261004T160026Z-f193f9b8/report.json",
+      "sha256": "392bab2a90f0fe41d2e6bd985ea1bd1ee2c2481e38207a40ed51715450d857e3",
+      "raw_report_published": false
+    },
+    {
+      "gate": "file_recovery",
+      "private_report": "file-verification-20261004T160223Z-8e788893/report.json",
+      "sha256": "c5fe6d4d5373c229748e4a63f65cf25e03e6b69accd2d26bc4c53b8069651789",
+      "raw_report_published": false
+    },
+    {
+      "gate": "file_regression",
+      "private_report": "file-regression-Control033-20261004/report.json",
+      "sha256": "5d9b14565516c2bc79328783b052b6f084fd205651fefc8a008c77f14446f68e",
+      "raw_report_published": false
+    },
+    {
+      "gate": "incomplete_soak",
+      "private_report": "soak-20261004T160943Z-81977ae6/report.json",
+      "sha256": "739da5edb13d5334650cc69c446fe71ee534f2ee236f50ea80b133fcb25feb97",
+      "raw_report_published": false
+    },
+    {
+      "gate": "interruption_review",
+      "private_report": "unattended-control033-interruption-review-20261004/report.json",
+      "sha256": "075b09414aafe8cf8f5a60c66c3a9cb58f0ffc194112999518801a7ddc3fb1ba",
+      "raw_report_published": false
+    }
+  ]
+}

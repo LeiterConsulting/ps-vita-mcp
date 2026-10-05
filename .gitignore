@@ -25,3 +25,28 @@ __pycache__/
 .codex/
 .DS_Store
 Thumbs.db
+
+# Private iPhone Companion implementation and distribution/signing material.
+# Public phone guides belong under docs/, outside these private directories.
+companion/
+iphone/
+ios/
+VitaCompanionCore/
+*.swift
+*.m
+*.mm
+*.storyboard
+*.xib
+*.entitlements
+*.xcconfig
+*.xcassets/
+*.xcodeproj/
+*.xcworkspace/
+*.pbxproj
+*.ipa
+*.xcarchive/
+*.mobileprovision
+*.p12
+*.p8
+companion.zip
+*MacHandoff*.zip

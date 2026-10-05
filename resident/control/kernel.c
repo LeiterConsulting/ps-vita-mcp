@@ -1,6 +1,11 @@
 /* Adapted from devnoname120/vitacompanion, MIT. See LICENSE.vitacompanion. */
 #include "api.h"
 #include "lease.h"
+#include "button_map.h"
+#include "touch_activity.h"
+#include "pairing_privacy.h"
+#include <psp2kern/power.h>
+int module_get_export_func(SceUID pid,const char *module,uint32_t library,uint32_t function,uintptr_t *address);
 #include <psp2kern/display.h>
 #include <psp2kern/kernel/cpu.h>
 #include <psp2kern/kernel/sysroot.h>
@@ -42,6 +47,11 @@ static uint32_t capture_sequence;
 static unsigned char capture_row[8192], output_row[1440];
 static analog_state analog_states[2];
 static touch_state touch_states[2][4];
+static RTState physical_touch;
+static int pairing_process_allowed(SceUID pid) {
+    char title[32]={0};int result=ksceKernelGetProcessTitleId(pid,title,sizeof(title));
+    return rc_pairing_process_allowed(result,title);
+}
 
 static SceUID touch_hook_ids[4] = {-1, -1, -1, -1};
 static tai_hook_ref_t touch_peek_ref;
@@ -61,13 +71,13 @@ static void state_unlock(void)
         ksceKernelUnlockMutex(state_mutex, 1);
 }
 
-static void clear_state(void)
+static void clear_state(uint32_t reason)
 {
     int port;
     int slot;
 
     button_state = 0;
-    rlease_clear(&lease);
+    rlease_clear(&lease,(uint64_t)ksceKernelGetSystemTimeWide()/1000,reason);
     for (port = 0; port < 2; ++port)
     {
         analog_states[port].active = 0;
@@ -116,7 +126,8 @@ static int ctrl_thread(unsigned int args, void *argp)
             SceDisplayFrameBufInfo current={0}; current.size=sizeof(current);
             int frame_result=ksceDisplayGetProcFrameBufInternal(-1,ksceDisplayGetPrimaryHead(),0,&current);
             if(frame_result<0||!current.paddr) frame_result=ksceDisplayGetProcFrameBufInternal(-1,ksceDisplayGetPrimaryHead(),1,&current);
-            if(rlease_expired(&lease,(uint64_t)ksceKernelGetSystemTimeWide()/1000,frame_result<0?-1:current.pid)) clear_state();
+            uint32_t reason=rlease_reason(&lease,(uint64_t)ksceKernelGetSystemTimeWide()/1000,frame_result<0?-1:current.pid);
+            if(reason) clear_state(reason);
         }
         buttons = button_state;
         left = analog_states[0];
@@ -124,8 +135,9 @@ static int ctrl_thread(unsigned int args, void *argp)
 
         if (buttons != 0 || last_buttons != 0)
         {
+            uint32_t driver_buttons=rc_driver_buttons(buttons);
             ksceCtrlSetButtonEmulation(
-                0, 3, buttons & USER_BUTTON_MASK, buttons,
+                0, 3, driver_buttons & USER_BUTTON_MASK, driver_buttons,
                 CTRL_EMULATION_SAMPLES);
         }
         last_buttons = buttons;
@@ -176,8 +188,30 @@ static void patch_touch_data(unsigned int port, SceTouchData *data,
         return;
 
     state_lock();
+    /* The foreground application receives physical samples that Shell may
+       not receive. Observe native contacts before our augmentation, including
+       when there is no synthetic lease. Bound all source samples and retain
+       only a short foreground-scoped activity window. */
+    if(count<=64) {
+        uint64_t now=(uint64_t)ksceKernelGetSystemTimeWide()/1000;
+        int32_t pid=ksceKernelGetProcessId();
+        for(unsigned n=0;n<count;n++) {
+            uint32_t contacts=0;
+            for(unsigned t=0;t<data[n].reportNum&&t<SCE_TOUCH_MAX_REPORT;t++) {
+                const SceTouchReport *contact=&data[n].report[t];int emulated=0;
+                if(lease.active&&pid==lease.input.target_pid)
+                    for(unsigned p=0;p<4;p++) {
+                        touch_state point=touch_states[port][p];
+                        if(rt_synthetic(contact->id,contact->x,contact->y,point.active,SYNTHETIC_TOUCH_ID_BASE+p,point.x,point.y)) emulated=1;
+                    }
+                if(!emulated) contacts++;
+            }
+            if(data[n].reportNum<=SCE_TOUCH_MAX_REPORT)
+                rt_observe(&physical_touch,port,pid,contacts,data[n].timeStamp,now);
+        }
+    }
     if(!lease.active||ksceKernelGetProcessId()!=lease.input.target_pid) { state_unlock(); return; }
-    if(lease.active&&(uint64_t)ksceKernelGetSystemTimeWide()/1000>=lease.expires_ms) clear_state();
+    if(lease.active&&(uint64_t)ksceKernelGetSystemTimeWide()/1000>=lease.expires_ms) clear_state(RC_RELEASE_EXPIRED);
     for (slot = 0; slot < 4; ++slot)
         points[slot] = touch_states[port][slot];
     state_unlock();
@@ -350,8 +384,8 @@ int vitaControlInput(const RInput *user_input,unsigned size) {
         SceDisplayFrameBufInfo fb={0}; fb.size=sizeof(fb);
         int got=ksceDisplayGetProcFrameBufInternal(-1,ksceDisplayGetPrimaryHead(),0,&fb);
         if(got<0||!fb.paddr) got=ksceDisplayGetProcFrameBufInternal(-1,ksceDisplayGetPrimaryHead(),1,&fb);
-        if(got>=0&&fb.pid==input.target_pid) {
-            state_lock(); clear_state();
+        if(got>=0&&fb.pid==input.target_pid&&pairing_process_allowed(fb.pid)) {
+            state_lock(); clear_state(RC_RELEASE_REPLACED);
             rlease_apply(&lease,&input,(uint64_t)ksceKernelGetSystemTimeWide()/1000);
             button_state=input.buttons;
             analog_states[0]=(analog_state){(input.flags&1)!=0,input.lx,input.ly};
@@ -365,8 +399,23 @@ int vitaControlInput(const RInput *user_input,unsigned size) {
 }
 int vitaControlRelease(void) {
     int state,result=-1; ENTER_SYSCALL(state);
-    if(shell_caller()) { state_lock(); clear_state(); reset_ctrl_emulation(); state_unlock(); result=0; }
+    if(shell_caller()) { state_lock(); clear_state(RC_RELEASE_MANUAL); reset_ctrl_emulation(); state_unlock(); result=0; }
     EXIT_SYSCALL(state); return result;
+}
+int vitaControlBrightness(int value) {
+    static unsigned (*getter)(void);
+    int state,result=-1;ENTER_SYSCALL(state);
+    if(shell_caller()) {
+        if(value==-1) {
+            if(!getter) {
+                uintptr_t address=0;
+                if(module_get_export_func(KERNEL_PID,"SceOled",0x60C7478A,0x43EF811A,&address)>=0) getter=(unsigned (*)(void))address;
+                else if(module_get_export_func(KERNEL_PID,"SceLcd",0xFA916D71,0x3A6D6AC3,&address)>=0) getter=(unsigned (*)(void))address;
+            }
+            if(getter) { unsigned current=getter();result=current<=65536?(int)current:-2; }
+        } else if(value>=21&&value<=65536) result=kscePowerSetDisplayBrightness(value);
+    }
+    EXIT_SYSCALL(state);return result;
 }
 int vitaControlReadback(RReadback *user_out,unsigned size) {
     int state,result=-1; ENTER_SYSCALL(state);
@@ -375,10 +424,35 @@ int vitaControlReadback(RReadback *user_out,unsigned size) {
         value.sample_ms=(uint64_t)ksceKernelGetSystemTimeWide()/1000;
         state_lock(); value.lease=lease; state_unlock();
         SceCtrlData pad={0}; value.sample_result=ksceCtrlPeekBufferPositive(0,&pad,1);
-        value.buttons=pad.buttons; value.lx=pad.lx; value.ly=pad.ly; value.rx=pad.rx; value.ry=pad.ry;
+        value.buttons=rc_vita_buttons(pad.buttons); value.lx=pad.lx; value.ly=pad.ly; value.rx=pad.rx; value.ry=pad.ry;
         result=ksceKernelCopyToUser(user_out,&value,sizeof(value));
     }
     EXIT_SYSCALL(state); return result;
+}
+int vitaControlTouchActivity(RTouchActivity *user_out,unsigned size) {
+    int state,result=-1;ENTER_SYSCALL(state);
+    if(shell_caller()&&size==sizeof(RTouchActivity)) {
+        SceDisplayFrameBufInfo fb={0};fb.size=sizeof(fb);
+        int got=ksceDisplayGetProcFrameBufInternal(-1,ksceDisplayGetPrimaryHead(),0,&fb);
+        if(got<0||!fb.paddr) got=ksceDisplayGetProcFrameBufInternal(-1,ksceDisplayGetPrimaryHead(),1,&fb);
+        RTouchActivity value={0};value.magic=RC_TOUCH_MAGIC;value.abi=RC_ABI;
+        value.sampled_ms=(uint64_t)ksceKernelGetSystemTimeWide()/1000;
+        if(got>=0&&fb.paddr&&fb.pid>0) {
+            value.foreground_pid=fb.pid;
+        }
+        state_lock();value.panels=rt_panels(&physical_touch,value.foreground_pid,value.sampled_ms);
+        for(unsigned p=0;p<2;p++) {
+            RTouchPanel *out=&value.panel[p];const RTEvent *e=rt_reader(&physical_touch,p,value.foreground_pid);
+            out->last_reader_pid=physical_touch.last_pid[p];out->hook_reads=physical_touch.reads[p];
+            if(e) {
+                out->reader_pid=e->pid;out->native_contacts=e->count;out->reads=e->reads;out->advances=e->advances;
+                out->source_ticks=e->source_ticks;out->received_ms=e->received_ms;out->changed_ms=e->changed_ms;
+            }
+        }
+        state_unlock();
+        result=ksceKernelCopyToUser(user_out,&value,sizeof(value));
+    }
+    EXIT_SYSCALL(state);return result;
 }
 int vitaControlCapture(void *user_pixels,unsigned capacity,RFrame *user_frame,unsigned scale) {
     int state,result=-1; ENTER_SYSCALL(state);
@@ -391,7 +465,7 @@ int vitaControlCapture(void *user_pixels,unsigned capacity,RFrame *user_frame,un
     RFrame frame={0}; frame.magic=RC_FRAME_MAGIC; frame.abi=RC_ABI;
     frame.started_us=ksceKernelGetSystemTimeWide();
     if(result>=0) {
-        if(!fb.framebuf.base||fb.pid<=0||fb.framebuf.pixelformat!=SCE_DISPLAY_PIXELFORMAT_A8B8G8R8||
+        if(!pairing_process_allowed(fb.pid)||!fb.framebuf.base||fb.pid<=0||fb.framebuf.pixelformat!=SCE_DISPLAY_PIXELFORMAT_A8B8G8R8||
            fb.framebuf.width<4||fb.framebuf.width>960||fb.framebuf.height<4||fb.framebuf.height>544||
            fb.framebuf.pitch<fb.framebuf.width||fb.framebuf.pitch>2048) result=-3;
         else {
@@ -426,7 +500,7 @@ int module_start(SceSize argc, const void *args)
     (void)argc;
     (void)args;
 
-    clear_state();
+    clear_state(RC_RELEASE_STOP);
     state_mutex = ksceKernelCreateMutex(
         "vita-control-input", 0, 0, NULL);
     if (state_mutex < 0)
@@ -478,7 +552,7 @@ int module_stop(SceSize argc, const void *args)
     (void)args;
 
     state_lock();
-    clear_state();
+    clear_state(RC_RELEASE_STOP);
     state_unlock();
 
     ctrl_thread_running = 0;

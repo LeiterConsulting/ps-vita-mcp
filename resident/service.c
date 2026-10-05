@@ -1,17 +1,21 @@
 /* Authenticated, allocation-free HTTP service. Same code is exercised on the host. */
 #include "platform.h"
 #include "sha256.h"
+#include "pairing.h"
 
 static unsigned char buffer[R_CHUNK];
 static char headers[4097];
-static char reply[2048];
+static char reply[4096];
+static PRState pairing_state;
+static char phone_token[33];
+static void error(int socket,int status,const char *reason);
 static uint64_t started,heartbeat,requests,uploads;
 static uint64_t idle_deadline,total_deadline;
 
 typedef struct {
-    char method[8],path[128],authorization[48],digest[65];
+    char method[8],path[128],authorization[48],digest[65],mime[64];
     uint32_t length;
-    int has_length,has_auth,has_digest;
+    int has_length,has_auth,has_digest,has_mime;
 } Request;
 
 static int hex(const char *s,size_t n) {
@@ -56,6 +60,8 @@ static int parse(char *text,Request *request) {
             request->length=size;
         } else if(lower_equal(line,"x-sha256")) {
             if(request->has_digest++||!copy(request->digest,sizeof(request->digest),colon)) return 400;
+        } else if(lower_equal(line,"content-type")) {
+            if(request->has_mime++||!copy(request->mime,sizeof(request->mime),colon))return 400;
         } else if(lower_equal(line,"transfer-encoding")||lower_equal(line,"expect")) return 400;
         line=end+2;
     }
@@ -73,6 +79,10 @@ static int send_all(int socket,const void *data,size_t size) {
     return 1;
 }
 static int response_header(int socket,int status,const char *type,uint32_t length) {
+    if(status>=200&&status<300&&phone_token[0]) {
+        int renewal=pr_auth(&pairing_state,phone_token,1);
+        if(renewal!=200){phone_token[0]=0;error(socket,renewal,"Phone renewal could not be committed");return 0;}
+    }
     char text[256]; int n=R_SNPRINTF(text,sizeof(text),"HTTP/1.1 %d Result\r\nContent-Type: %s\r\nContent-Length: %u\r\nConnection: close\r\nCache-Control: no-store\r\n\r\n",status,type,(unsigned)length);
     return n>0&&(size_t)n<sizeof(text)&&send_all(socket,text,(unsigned)n);
 }
@@ -153,10 +163,11 @@ static void download(int socket,const Request *request) {
 }
 static void status(int socket) {
     RDevice d; r_device(&d);
-    R_SNPRINTF(reply,sizeof(reply),"{\"app\":\"Vita Resident\",\"protocol\":1,\"version\":\"0.1.1\",\"build_id\":\"%s\",\"port\":17866,\"started_ms\":%llu,\"uptime_ms\":%llu,\"heartbeat\":%llu,\"requests\":%llu,\"uploads\":%llu,\"battery_percent\":%d,\"charging\":%d,\"clocks_mhz\":[%d,%d,%d,%d],\"network_state\":%d,\"keep_awake\":false,\"max_upload_bytes\":%u,\"process\":\"SceShell user plugin\"}",R_BUILD_ID,(unsigned long long)started,(unsigned long long)(r_now()-started),(unsigned long long)heartbeat,(unsigned long long)requests,(unsigned long long)uploads,d.battery,d.charging,d.cpu,d.bus,d.gpu,d.xbar,d.network,R_MAX_FILE);
+    R_SNPRINTF(reply,sizeof(reply),"{\"app\":\"Vita Resident\",\"protocol\":1,\"version\":\"0.1.2\",\"build_id\":\"%s\",\"port\":17866,\"started_ms\":%llu,\"uptime_ms\":%llu,\"heartbeat\":%llu,\"requests\":%llu,\"uploads\":%llu,\"battery_percent\":%d,\"charging\":%d,\"clocks_mhz\":[%d,%d,%d,%d],\"network_state\":%d,\"keep_awake\":false,\"max_upload_bytes\":%u,\"process\":\"SceShell user plugin\"}",R_BUILD_ID,(unsigned long long)started,(unsigned long long)(r_now()-started),(unsigned long long)heartbeat,(unsigned long long)requests,(unsigned long long)uploads,d.battery,d.charging,d.cpu,d.bus,d.gpu,d.xbar,d.network,R_MAX_FILE);
     respond(socket,200,reply);
 }
 static void client(int socket,const char token[33]) {
+    phone_token[0]=0;
     size_t used=0,header_size=0; idle_deadline=r_now()+5000; total_deadline=r_now()+120000;
     while(used<sizeof(headers)-1&&!timed()) {
         int n=r_recv(socket,headers+used,sizeof(headers)-1-used);
@@ -173,7 +184,34 @@ static void client(int socket,const char token[33]) {
     char saved=headers[header_size]; headers[header_size]=0;
     Request request; int result=parse(headers,&request); headers[header_size]=saved;
     if(result) { error(socket,result,"Invalid request framing"); return; }
-    if(!request.has_auth||R_STRLEN(request.authorization)!=39||R_STRNCMP(request.authorization,"Bearer ",7)||!equal_token(request.authorization+7,token)) { error(socket,401,"Pairing authorization required"); return; }
+    const char *bearer=request.has_auth&&R_STRLEN(request.authorization)==39&&!R_STRNCMP(request.authorization,"Bearer ",7)?request.authorization+7:"";
+    int admin=*bearer&&equal_token(bearer,token);
+    if(!R_STRNCMP(request.path,"/pairing/",9)) {
+        char body[PR_REQUEST_MAX+1];size_t body_used=used-header_size;
+        if(request.length>PR_REQUEST_MAX||body_used>request.length){error(socket,413,"Pairing request exceeds bound");return;}
+        if(!R_STRCMP(request.method,"GET")) {
+            if(request.length||body_used){error(socket,400,"GET body is not supported");return;}
+        } else {
+            if(!request.has_length){error(socket,400,"Pairing content length required");return;}
+            if(!request.has_mime||R_STRNCMP(request.mime,"application/json",16)||(request.mime[16]&&request.mime[16]!=';')){error(socket,415,"Pairing JSON required");return;}
+        }
+        R_MEMCPY(body,headers+header_size,body_used);
+        while(body_used<request.length&&!timed()) {
+            int got=r_recv(socket,body+body_used,request.length-body_used);
+            if(got>0){body_used+=(unsigned)got;idle_deadline=r_now()+5000;}
+            else if(got==-2)r_delay(5);else break;
+        }
+        if(body_used!=request.length){error(socket,408,"Incomplete pairing request");return;}
+        body[body_used]=0;
+        int code=pr_dispatch(&pairing_state,request.method,request.path,r_peer_loopback(socket),admin,bearer,body,body_used,reply);
+        R_MEMSET(body,0,sizeof(body));respond(socket,code,reply);return;
+    }
+    if(!admin) {
+        int authorization=pr_auth(&pairing_state,bearer,0);
+        if(authorization!=200){error(socket,authorization,"Pairing authorization required");return;}
+        if(R_STRCMP(request.method,"GET")||R_STRCMP(request.path,"/status")){error(socket,403,"Phone credentials permit inspection only");return;}
+        R_MEMCPY(phone_token,bearer,33);
+    }
     requests++;
     if(!R_STRCMP(request.method,"GET")) {
         if(request.length||used!=header_size) { error(socket,400,"GET body is not supported"); return; }
@@ -187,6 +225,7 @@ void r_service(const char token[33]) {
     if(!hex(token,32)) { r_log("pairing invalid",-1); return; }
     if(r_network_init()<0) { r_log("network initialization failed",-1); return; }
     if(!r_directory_exists("ux0:data/vita-resident/inbox")) { r_log("inbox missing",-1); r_network_end(); return; }
+    if(!pr_init(&pairing_state,pr_platform_io(),R_PORT,17867,R_BUILD_ID))r_log("Phone pairing unavailable; legacy auth preserved",-1);
     int listener=-1; uint64_t previous=started;
     r_log("worker ready",0);
     while(r_running()) {

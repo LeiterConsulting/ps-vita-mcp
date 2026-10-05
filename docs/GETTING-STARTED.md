@@ -1,8 +1,8 @@
-# From a modded Vita to the functional MCP baseline
+# From a modded Vita to the developer preview
 
 This is the supported staging path for further autonomous DevLoop work. It starts with an **already modded Vita** and ends with background inspection, verified file transfer, screen readback and bounded input, plus live Lua development in DevLoop. It does not install a firmware exploit or configure a storage adapter.
 
-The recorded device runs firmware **3.65**. The qualified runtime combination is DevLoop **01.02**, Resident **0.1.1**, Control **0.2.2**, and Control Starter **01.00**. Public DevLoop source builds **01.03**, which includes a graphics shutdown repair and still requires its own device acceptance. [Exact baseline and limits](BASELINE.md). Building a candidate does not certify a new device.
+The development device runs firmware **3.65** with DevLoop **01.02**, Resident **0.1.1**, Control **0.3.3** and Starter **01.04**. Its unattended software tests have scoped evidence; physical touch and lifecycle gates remain open. Public DevLoop builds **01.03**, and all freshly built public packages need their own hardware acceptance. See [current qualification](QUALIFICATION.md) and [release gates](RELEASE-CHECKLIST.md). Building or staging a candidate does not certify a device.
 
 ## 1. Prepare the host and Vita
 
@@ -13,12 +13,11 @@ Enable WiFi using normal Vita settings. The PC and Vita must be reachable on the
 ```powershell
 git clone https://github.com/LeiterConsulting/ps-vita-mcp.git
 cd ps-vita-mcp
-git checkout functional-mcp-2026-10-03
 .\Setup-DevLoop.ps1
 .\Build-McpBaseline.ps1
 ```
 
-Setup creates a private checkout-local Python environment. The build runs host/simulated MCP/FTP tests and creates DevLoop, Resident and Starter artifacts. It never contacts your Vita. Docker may download the digest-pinned SDK image initially; build containers use `--network none`.
+Setup creates a private checkout-local Python environment. The build runs host/simulated MCP/FTP tests and creates DevLoop, Resident, Starter and Input Target artifacts. It never contacts your Vita. Docker may download the digest-pinned SDK image initially; build containers use `--network none`.
 
 Expected output:
 
@@ -27,6 +26,7 @@ Expected output:
 | `dist/devloop/vita_devloop.vpk` | Foreground Lua development host, title `CHRS00003` |
 | `dist/resident/vita_resident.suprx` | Boot-loaded status/upload service |
 | `dist/control/control_starter.vpk` | Starter app with its matched kernel/helper pair, title `CHRS00011` |
+| `dist/workbench/input_target.vpk` | Disposable synthetic-input test app, title `CHRS00012` |
 | Each component's `build-report.json` | Local artifact hashes, source fingerprint and validation |
 
 No prebuilt binary release is implied by this guide. Build reports from this checkout identify your candidates. Preserve their hashes and reports for device acceptance. Complete linked-library notices before redistributing binaries.
@@ -87,7 +87,7 @@ $controlBuild = Get-Content .\dist\control\build-report.json -Raw | ConvertFrom-
   --expected-config-sha256 <new-inspected-config-sha256>
 ```
 
-Staging uploads only a fresh Starter VPK, with part and final readbacks. It does not alter boot config, pairing, installed apps or loaded modules. It requires matching Resident pairing and exact recorded source/package hashes. An unknown installed Starter is refused rather than overwritten.
+First-install FTP staging uploads only a fresh Starter VPK, with part and final readbacks. For an update over an older installed Starter, use `vita_workbench_stage_candidate` with `package: starter` and the exact VPK hash; boot Resident can stage it while Control is inactive. Installation remains manual. Do not retire an active session guard to satisfy a staging precondition. It does not alter boot config, pairing, installed apps or loaded modules. It requires matching Resident pairing and exact recorded source/package hashes. An unknown installed Starter is refused rather than overwritten.
 
 Manually install the printed `ux0:data/vita-control/inbox/.../control_starter.vpk`. Reboot normally, open **Control Starter**, press **CROSS once**, and wait about ten seconds. Expect **MODULES LOADED**. Exit using **START + SELECT**. Control remains available after the app closes. Keep the installed matched pair together.
 
@@ -112,7 +112,7 @@ Register two stdio servers using absolute paths from this checkout:
 }
 ```
 
-DevLoop exposes ten tools and resources. The combined Resident bridge exposes **four Resident plus thirteen Control tools**. Control uses the existing Resident token and port **17867**; Resident uses **17866**; foreground DevLoop uses **17865**. The desktop process speaks MCP; the Vita services speak authenticated HTTP.
+DevLoop exposes ten tools and resources. The combined Resident bridge exposes **four Resident, thirteen Control and ten Workbench tools**. Control uses the existing Resident token and port **17867**; Resident uses **17866**; foreground DevLoop uses **17865**. The desktop process speaks MCP; the Vita services speak authenticated HTTP.
 
 Restart/refresh this client's existing MCP connection after updating the bridge. A long-lived old bridge rejected Control 0.2.2 as an unexpected identity until it was restarted. Restart the **PC connection**, not the loaded Vita modules. The supplied `resident/Register-Mcp.ps1` is an optional Codex CLI registration helper; other clients can use the JSON above.
 
@@ -121,7 +121,7 @@ Restart/refresh this client's existing MCP connection after updating the bridge.
 .\.venv-devloop\Scripts\python.exe resident\control\call_tool.py vita_control_status
 ```
 
-Expect Control 0.2.2, ABI 1, the local Control build ID, `lease_remaining_ms: 0`, and `keep_awake: false`.
+For this pairing branch, expect Control 0.3.4, ABI 2, the local Control build ID, `lease_remaining_ms: 0`, and `keep_awake: false`.
 
 ## 6. Qualify this device before autonomous work
 
@@ -141,7 +141,9 @@ Open DevLoop and qualify hot reload with `bridge/prove_scripts.py`, or the minim
 
 Then capture the current PID before a bounded request. The monitor expects right+cross, both stick offsets and the two exact touch coordinates documented in [CONTROL.md](CONTROL.md). It should latch mask **31**, matching frames greater than zero, and `neutral_after: 1` after the lease expires. Read app telemetry as well as the Control receipt.
 
-Complete the [baseline acceptance checklist](BASELINE.md#acceptance-on-a-new-device). Keep physical controller acceptance, screen inspection, sustained load and sleep recovery as separate results. Stop and collect logs if the device freezes, crashes, produces a persistent black screen or leaves input active. Do not automatically replay an uncertain change.
+Install `dist/workbench/input_target.vpk` manually when ready to qualify synthetic controls. Open it, read `vita_workbench_target_status`, and call `vita_workbench_qualify_input` with the exact Control and Target build fingerprints. The test ends through Target self-exit; it does not simulate physical touch acceptance. Open paused native DevLoop for the hash-pinned Lua profiles described in [Workbench](../workbench/README.md).
+
+Complete the [release acceptance checklist](RELEASE-CHECKLIST.md). Keep physical controller acceptance, screen inspection, sustained load and sleep recovery as separate results. Stop and collect logs if the device freezes, crashes, produces a persistent black screen or leaves input active. Do not automatically replay an uncertain change.
 
 ## 7. Resume after another reboot
 
@@ -160,3 +162,7 @@ $controlBuild = Get-Content .\dist\control\build-report.json -Raw | ConvertFrom-
 This retains the marker under a fresh name after checking the exact installed Starter and unchanged config. It never unloads modules or changes boot config. **FTP availability is not reboot proof.** A failure/uncertain rename needs inspection before another action. Then open Starter, CROSS once, wait, exit, and read Control status again. Never remove an active marker to force a duplicate load.
 
 For endpoint changes, update the `host` in the appropriate private JSON files while preserving their token and port; configure FTP separately. Requests reread the saved endpoint. For recovery, diagnostics and support reports, use [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+
+## Companion pairing candidate
+
+The optional native pairing path builds Resident 0.1.2 and Starter 01.06 / Control 0.3.4. It is installed on the test Vita with startup, physical code display and graceful timeout verified; full pairing and physical regression gates remain open. Follow [PAIRING.md](PAIRING.md); keep the desktop token private and keep the phone session separate from desktop input/work trials. The historical device acceptance above applies to the older builds.

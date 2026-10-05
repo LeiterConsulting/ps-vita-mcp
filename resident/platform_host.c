@@ -20,6 +20,15 @@ static const char *mapped(const char *path) {
     if(strncmp(path,prefix,strlen(prefix))||strstr(path,"..")) return "/invalid-resident-path";
     snprintf(target,sizeof(target),"%s%s",root,path+strlen(prefix)); return target;
 }
+static uint64_t fixture_offset(void) {char path[2048],text[32]={0};snprintf(path,sizeof(path),"%s/fixture-ms-offset",root);int fd=open(path,O_RDONLY);if(fd<0)return 0;int n=(int)read(fd,text,sizeof(text)-1);close(fd);return n>0?strtoull(text,0,10):0;}
+uint64_t r_pair_mono(void) { return r_now()+fixture_offset(); }
+int r_pair_utc(uint64_t *out) { *out=(uint64_t)time(0)+fixture_offset()/1000;return 0; }
+int r_pair_random(void *out,size_t bytes) {int fd=open("/dev/urandom",O_RDONLY);if(fd<0)return -1;int n=(int)read(fd,out,bytes);int closed=close(fd);return n==(int)bytes&&closed==0?0:-1;}
+int r_pair_exists(const char *path) {struct stat s;int result=stat(mapped(path),&s);return result==0?1:errno==ENOENT?0:-1;}
+int r_pair_remove(const char *path) {return unlink(mapped(path));}
+int r_pair_sync_file(int fd) {return fault("pair-sync")?-1:fsync(fd);}
+int r_pair_sync_device(void) {int fd=open(root,O_RDONLY|O_DIRECTORY);if(fd<0)return -1;int result=fsync(fd);close(fd);return fault("pair-device-sync")?-1:result;}
+int r_peer_loopback(int socket) {if(fault("pair-lan"))return 0;struct sockaddr_in a={0};socklen_t size=sizeof(a);return getpeername(socket,(struct sockaddr *)&a,&size)==0&&a.sin_family==AF_INET&&ntohl(a.sin_addr.s_addr)==0x7f000001u;}
 uint64_t r_now(void) { struct timespec t; clock_gettime(CLOCK_MONOTONIC,&t); return (uint64_t)t.tv_sec*1000+(uint64_t)t.tv_nsec/1000000; }
 void r_delay(unsigned ms) { struct timespec t={ms/1000,(long)(ms%1000)*1000000}; nanosleep(&t,0); }
 int r_running(void) { return active; }

@@ -17,3 +17,9 @@ Keep changes small and describe the resulting behavior. Include validation appro
 Run `Build-Resident.ps1` for Resident changes, `Build-Control.ps1` for Control/Starter changes, and `Build-Inspector.ps1` for Inspector changes. `Build-McpBaseline.ps1` runs the three baseline component builds sequentially; `-IncludeInspector` adds the optional diagnostic. Their default tests use host adapters and local fixtures without contacting the Vita. Live proofs, FTP staging, configuration activation and session retirement are explicit device operations; coordinate them separately from a source review.
 
 Original contributions use the project's MIT license. Imported dependencies retain their own notices and licenses.
+
+## Public source and private phone app
+
+This repository publishes the PC bridges, Vita services, Workbench, examples, tests and public guides. The iPhone Companion implementation remains private. Do not add its Swift packages, Xcode projects, signing material, app builds or handoff archives. Phone documentation belongs in `docs/`; the public [Companion guide](docs/IPHONE-COMPANION.md) describes the workflow and protocol without distributing the app.
+
+Run `python scripts/check_public_scope.py` before publishing. CI repeats this tracked-path check; it also catches files force-added despite `.gitignore`. Keep credentials and device evidence excluded, and inspect the diff for private content before pushing. Passing this filename check does not establish that arbitrary file contents are safe to publish.

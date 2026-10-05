@@ -1,6 +1,6 @@
 # Control service and MCP tools
 
-Control 0.2.2 consists of a matched kernel helper and an authenticated user service in SceShell, activated by Control Starter 01.00. It runs independently of DevLoop after Starter exits. [Setup](GETTING-STARTED.md), [runtime qualification](BASELINE.md), [recovery](TROUBLESHOOTING.md).
+Control 0.3.4 consists of a matched kernel helper and an authenticated user service in SceShell, activated by Control Starter 01.06. It runs independently of DevLoop after Starter exits. The installed candidate passed matching startup, physical code display and graceful timeout; full pairing and physical/lifecycle acceptance remain open. [Setup](GETTING-STARTED.md), [current pairing gates](PAIRING-DEVICE-TESTS.md), [historical runtime qualification](BASELINE.md), [recovery](TROUBLESHOOTING.md).
 
 ## Service boundaries
 
@@ -11,7 +11,7 @@ Control 0.2.2 consists of a matched kernel helper and an authenticated user serv
 | Control | 17867 | Same Resident token | Starter loaded pair, until normal reboot |
 | File manager FTP | Displayed by file manager | Separate FTP settings | User explicitly enabled it |
 
-The combined desktop server is `resident/bridge.py`. Its four Resident tools remain available and its thirteen Control tools use the service below. Tokens are read on the PC; the loopback preview page receives no token.
+The combined desktop server is `resident/bridge.py`. Its four Resident and thirteen Control tools remain available, with ten additional [Workbench tools](../workbench/README.md) for 27 total. Tokens are read on the PC; the loopback preview page receives no token.
 
 ## Tool reference
 
@@ -28,7 +28,7 @@ The combined desktop server is `resident/bridge.py`. Its four Resident tools rem
 | `vita_control_publish_file` | `relative_file` relative to this checkout's `outgoing/`, exact `expected_sha256`; at most 8 MiB. |
 | `vita_control_copy_file` | Source `attempt`, `name`, `expected_sha256`, `new_name`; fresh revision, source retained. |
 | `vita_control_delete_file` | `attempt`, `name`, `expected_sha256`; deletes only an exact-hash managed file. |
-| `vita_control_app` | `action` `launch`/`quit`, allowlisted `title_id` `CHRS00003`/`CHRS00009`. A native receipt needs separate screen/runtime observation. |
+| `vita_control_app` | `action` `launch`/`quit`, allowlisted `title_id` `CHRS00003`/`CHRS00009`/`CHRS00012`. A native receipt needs separate screen/runtime observation. |
 | `vita_control_sequence` | Latest `target_pid`, list of input steps. Up to 20 steps, at most five seconds total lease duration, 30-second execution budget. Before/after PNGs and trace retained; release in `finally`; stop on error/focus change. |
 
 Known buttons are `up`, `down`, `left`, `right`, `cross`, `circle`, `square`, `triangle`, `l`, `r`, `start`, `select`. Sticks use integer pairs 0–255. Raw touch coordinate bounds are 0–1919 and 0–1087; normalized rear-panel coordinates can differ because the app uses panel calibration. Both contacts appear as synthetic ID 112 in the recorded trial. Physical contacts may also be present.
@@ -86,3 +86,11 @@ Starter loads the full kernel helper once, uses its own temporary bootstrap prox
 The Shell-caller guard protects input, capture and readback syscalls; the tiny readiness syscall is read-only. Four touch hooks and a lease worker initialize at runtime. Kernel/syscall modules are retained until reboot, with no forced hot unload. `control-session.lock` blocks duplicate submission across Starter app restarts. [Session reset procedure](GETTING-STARTED.md#7-resume-after-another-reboot).
 
 `Build-Control.ps1` checks actual metadata/proxy/lease/HTTP C under host adapters, real MCP stdio against simulated HTTP, guarded FTP staging/retirement, native ARM imports/exports and SELF privilege isolation, and the exact eleven-entry Starter VPK including both MIT notices. Public packaging adds the original project license to the prototype's ten entries. This qualifies source/package behavior on the host; [BASELINE.md](BASELINE.md) records the distinct original hardware evidence.
+
+## Temporary power and foreground touch diagnostics
+
+Work renews a 30-second temporary keep-awake lease. Default idle dimming uses 30 seconds and 20% brightness; the Workbench lease tool permits idle 5–120 seconds and dim 5–50%. Status reads alone do not renew. End/expiry, activity, network loss or missing fresh motion restores runtime brightness. Saved settings are unchanged; manual sleep remains possible and forced waking is excluded.
+
+Control 0.3.3 uses per-reader source advancement and kernel receipt time for physical touch freshness. `/power/status` reports `physical_touch_panels` (front 1, rear 2), `touch_source_pid`, `touch_sample_ms` and per-panel `touch_diagnostics`: reader PID, last reader PID, contact count, read/advance counters, source ticks and receipt/change times. Only the current foreground reader can qualify activity. Touch sampled by a different process, stale repeated data and emulation are excluded. Physical restoration still needs user/device acceptance.
+
+Bulk transfer confirmations and captures can have multi-second outliers. If a publish/copy outcome is uncertain, retain its attempt/name/size/hash and use `vita_workbench_verify_file` before any further mutation. It performs native hashes and two full reads without rewriting the file. An accepted app-launch receipt can also leave a LiveArea confirmation dialog; inspect the screen and runtime endpoint separately. A bounded tap succeeded in the recorded development transition, while simulated buttons did not dismiss that dialog. This does not establish arbitrary system UI automation.

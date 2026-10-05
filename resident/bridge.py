@@ -43,7 +43,7 @@ class ResidentRejection(RuntimeError):
         super().__init__(f'Resident rejected request with HTTP {status}' + (': ' + self.reason if self.reason else ''))
 
 
-mcp = FastMCP('Vita Resident', instructions='This server exposes four Resident and thirteen Control tools. Resident runs in SceShell at boot; Control loads only through Starter after normal boot and remains until reboot. Read exact identity, current display PID and lease state before action. Input leases are bounded and cancel on focus change; confirm delivery through app telemetry. Screens are on-demand framebuffer copies, not synchronized video. Files are confined to managed revisions and fresh inboxes; native installation is manual. Never automatically replay an uncertain write/action; inspect the exact revision or attempt. True sleep may make services unavailable; do not change sleep settings. Physical acceptance is separate from host fixtures.', log_level='WARNING')
+mcp = FastMCP('Vita Resident', instructions='This server exposes four Resident, thirteen Control and ten Workbench tools. Optional Companion credentials permit inspection only; the desktop administrator token stays private. An active pairing challenge blocks captures until its original deadline. Resident runs in SceShell at boot; Control loads only through Starter after normal boot and remains until reboot. Read exact identity, current display PID and lease state before action. Input leases are bounded and cancel on focus change; confirm delivery through app telemetry. Screens are on-demand framebuffer copies, not synchronized video. Files are confined to managed revisions and fresh inboxes; native installation is manual. Never automatically replay an uncertain write/action; inspect the exact revision or attempt. True sleep may make services unavailable; do not change sleep settings. Physical acceptance is separate from host fixtures.', log_level='WARNING')
 
 
 def configuration() -> dict:
@@ -94,7 +94,7 @@ def vita_resident_status() -> dict:
     """Read resident heartbeat, process instance, battery, clocks and network state."""
     data, content_type, timing = request('GET', '/status')
     value = json.loads(data)
-    if content_type != 'application/json' or value.get('app') != 'Vita Resident' or value.get('protocol') != 1 or value.get('version') != '0.1.1':
+    if content_type != 'application/json' or value.get('app') != 'Vita Resident' or value.get('protocol') != 1 or value.get('version') not in ('0.1.1','0.1.2'):
         raise RuntimeError('Unexpected resident service identity')
     if not isinstance(value.get('build_id'), str) or not re.fullmatch('[0-9a-f]{64}', value['build_id']):
         raise RuntimeError('Invalid resident build identifier')
@@ -124,10 +124,13 @@ def vita_resident_verify_upload(attempt: str, file: Literal['package.vpk', 'prob
     return verify(attempt, file, expected_sha256, expected_bytes)
 
 
-def upload(payload: bytes, leaf: str) -> dict:
+def upload(payload: bytes, leaf: str, attempt: str | None = None) -> dict:
     if not 0 < len(payload) <= MAX_FILE or leaf not in ['package.vpk', 'probe.bin']:
         raise ValueError('Invalid upload')
-    attempt = uuid.uuid4().hex
+    if attempt is None:
+        attempt = uuid.uuid4().hex
+    elif not isinstance(attempt, str) or not re.fullmatch('[0-9a-f]{32}', attempt):
+        raise ValueError('Invalid upload attempt')
     digest = hashlib.sha256(payload).hexdigest()
     try:
         data, content_type, timing = request('POST', f'/upload/{attempt}/{leaf}', payload, digest)
@@ -182,6 +185,8 @@ def vita_resident_stage_package(package: Literal['devloop'], expected_sha256: st
 
 from control.bridge_tools import register as register_control_tools
 register_control_tools(mcp, configuration, ROOT)
+from workbench.server import register as register_workbench_tools
+register_workbench_tools(mcp)
 
 if __name__ == '__main__':
     mcp.run()

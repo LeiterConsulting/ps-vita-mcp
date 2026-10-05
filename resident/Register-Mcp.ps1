@@ -22,4 +22,4 @@ if (Test-Path -LiteralPath $residentConfigFile) {
 if ($LASTEXITCODE -ne 0) { throw 'Resident MCP registration failed.' }
 $residentRegistered = & $residentCodex mcp get vita_resident --json | ConvertFrom-Json
 if ($LASTEXITCODE -ne 0 -or $residentRegistered.transport.command -ne $residentPython -or $residentRegistered.transport.args[0] -ne $residentBridge) { throw 'Resident MCP registration read-back failed.' }
-Write-Host 'vita_resident registered. Refresh the local MCP connection to discover four Resident and thirteen Control tools.'
+Write-Host 'vita_resident registered. Refresh the local MCP connection to discover four Resident, thirteen Control and ten Workbench tools.'

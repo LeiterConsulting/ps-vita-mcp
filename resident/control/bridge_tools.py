@@ -11,9 +11,13 @@ import struct
 import time
 from typing import Literal
 import uuid
+import sys
 from PIL import Image as PILImage
 from mcp.server.fastmcp import Image
 from mcp.types import CallToolResult, TextContent, ToolAnnotations
+from .rgb_codec import decode_rle
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
+from workbench.session import serialized
 
 MAX_FILE=8*1024*1024
 FRAME=struct.Struct('<6Ii5I2Q')
@@ -24,8 +28,20 @@ REMOVE=ToolAnnotations(readOnlyHint=False,destructiveHint=True,idempotentHint=Fa
 
 
 class ControlClient:
-    def __init__(self,configuration): self.configuration=configuration
+    def __init__(self,configuration): self.configuration=configuration; self.abi=None; self.codecs=[];self.power_protocol=None;self.work_renewed=0
+    @serialized
     def request(self,method,path,body=None,digest=None,limit=8192):
+        # Work keeps an awake display alive; status/power inspection alone does not.
+        if path!='/status' and not path.startswith('/power/'):
+            if self.abi is None:self.status()
+            if self.power_protocol==1 and time.monotonic()-self.work_renewed>=10:
+                raw,mime,_=self._wire('POST','/power/lease',struct.pack('<5I',0x31505756,2,30000,30000,20))
+                work=json.loads(raw)
+                if mime!='application/json' or work.get('app')!='Vita Work Power' or work.get('abi')!=2 or type(work.get('lease_remaining_ms')) is not int or not 0<work['lease_remaining_ms']<=30000:
+                    raise RuntimeError('Work lease receipt differs; requested operation was not submitted')
+                self.work_renewed=time.monotonic()
+        return self._wire(method,path,body,digest,limit)
+    def _wire(self,method,path,body=None,digest=None,limit=8192):
         config=self.configuration()
         port=int(os.environ.get('VITA_CONTROL_PORT',config['port']+1))
         if not 1<=port<=65535: raise ValueError('Invalid control port')
@@ -49,20 +65,32 @@ class ControlClient:
         return {**result,'bridge':timing}
     def status(self):
         value=self.json('GET','/status')
-        if value.get('app')!='Vita Control' or value.get('abi')!=1 or value.get('version') not in ('0.2.1','0.2.2') or not re.fullmatch('[0-9a-f]{64}',value.get('build_id','')):
+        if value.get('app')!='Vita Control' or (value.get('version'),value.get('abi')) not in (('0.2.1',1),('0.2.2',1),('0.3.0',2),('0.3.1',2),('0.3.2',2),('0.3.3',2),('0.3.4',2)) or not re.fullmatch('[0-9a-f]{64}',value.get('build_id','')):
             raise RuntimeError('Unexpected control endpoint identity')
+        self.abi=value['abi']; self.codecs=value.get('capture_codecs',[]);self.power_protocol=value.get('power_protocol')
         return value
     def capture(self,detail=False):
-        body,mime,timing=self.request('GET','/screen/'+('detail' if detail else 'preview'),limit=64+480*272*3)
-        if mime!='application/x-vita-rgb' or len(body)<64: raise RuntimeError('Unexpected framebuffer format')
+        if self.abi is None: self.status()
+        compressed=self.abi==2 and 'rle' in self.codecs
+        body,mime,timing=self.request('GET','/screen/'+('detail' if detail else 'preview')+('/rle' if compressed else ''),limit=76+480*272*3+1020)
+        if mime!=('application/x-vita-rgb-rle' if compressed else 'application/x-vita-rgb') or len(body)<64: raise RuntimeError('Unexpected framebuffer format')
         magic,abi,seq,w,h,size,pid,vblank,sw,sh,flags,reserved,start,end=FRAME.unpack(body[:64])
-        if magic!=0x31465256 or abi!=1 or not 0<w<=480 or not 0<h<=272 or size!=w*h*3 or len(body)!=64+size or pid<=0 or sw>960 or sh>544 or sw<w or sh<h or end<start or flags!=1 or reserved!=0:
+        if magic!=0x31465256 or abi!=self.abi or not 0<w<=480 or not 0<h<=272 or size!=w*h*3 or pid<=0 or sw>960 or sh>544 or sw<w or sh<h or end<start or flags!=1 or reserved!=0:
             raise RuntimeError('Invalid framebuffer dimensions, process or timestamps')
-        output=io.BytesIO(); PILImage.frombytes('RGB',(w,h),body[64:]).save(output,format='PNG')
-        metadata={'sequence':seq,'target_pid':pid,'width':w,'height':h,'source_width':sw,'source_height':sh,'vblank':vblank,'capture_ms':round((end-start)/1000,3),'capture_started_us':start,'capture_ended_us':end,'may_span_rendered_frames':True,'rgb_sha256':hashlib.sha256(body[64:]).hexdigest(),'png_sha256':hashlib.sha256(output.getvalue()).hexdigest(),'bridge':timing}
+        encoding_us=0
+        if compressed:
+            if len(body)<76: raise RuntimeError('Missing frame codec header')
+            tag,encoded_size,encoding_us=struct.unpack('<3I',body[64:76])
+            if tag!=0x31454c52 or encoded_size!=len(body)-76: raise RuntimeError('Invalid frame codec header')
+            rgb=decode_rle(body[76:],size)
+        else:
+            if len(body)!=64+size: raise RuntimeError('Invalid raw frame length')
+            rgb=body[64:]
+        output=io.BytesIO(); PILImage.frombytes('RGB',(w,h),rgb).save(output,format='PNG')
+        metadata={'codec':'rle' if compressed else 'rgb','transfer_bytes':len(body),'decoded_bytes':size,'encoding_ms':encoding_us/1000,'sequence':seq,'target_pid':pid,'width':w,'height':h,'source_width':sw,'source_height':sh,'vblank':vblank,'capture_ms':round((end-start)/1000,3),'capture_started_us':start,'capture_ended_us':end,'may_span_rendered_frames':True,'rgb_sha256':hashlib.sha256(rgb).hexdigest(),'png_sha256':hashlib.sha256(output.getvalue()).hexdigest(),'bridge':timing}
         return output.getvalue(),metadata
     @staticmethod
-    def pack_input(target_pid,buttons,ttl_ms,left_stick=None,right_stick=None,front_touch=None,rear_touch=None):
+    def pack_input(target_pid,buttons,ttl_ms,left_stick=None,right_stick=None,front_touch=None,rear_touch=None,abi=1):
         if type(target_pid) is not int or target_pid<=0 or type(ttl_ms) is not int or not 16<=ttl_ms<=1000 or not isinstance(buttons,list) or len(buttons)>12 or any(name not in BUTTONS for name in buttons):
             raise ValueError('Input requires the latest screen PID, known buttons and a 16–1000 ms lease')
         coords=[]; flags=0
@@ -73,9 +101,12 @@ class ControlClient:
             flags|=bit; coords.extend(value)
         mask=0
         for button in buttons: mask|=BUTTONS[button]
-        return struct.pack('<13Ii',0x31495256,1,ttl_ms,mask,flags,*coords,target_pid)
+        if abi not in (1,2): raise ValueError('Unsupported input ABI')
+        return struct.pack('<13Ii',0x31495256,abi,ttl_ms,mask,flags,*coords,target_pid)
     def input(self,target_pid,buttons,ttl_ms,left_stick=None,right_stick=None,front_touch=None,rear_touch=None):
-        return self.json('POST','/input',self.pack_input(target_pid,buttons,ttl_ms,left_stick,right_stick,front_touch,rear_touch))
+        self.pack_input(target_pid,buttons,ttl_ms,left_stick,right_stick,front_touch,rear_touch)
+        self.status()
+        return self.json('POST','/input',self.pack_input(target_pid,buttons,ttl_ms,left_stick,right_stick,front_touch,rear_touch,abi=self.abi))
     def release(self): return self.json('POST','/release',b'')
     @staticmethod
     def file_identity(attempt,name):
@@ -118,7 +149,7 @@ def register(mcp,configuration,root):
         return CallToolResult(content=[TextContent(type='text',text=json.dumps(metadata)),Image(data=png,format='png').to_image_content()],structuredContent=metadata)
     @mcp.tool(annotations=WRITE)
     def vita_control_input(target_pid:int,buttons:list[str],ttl_ms:int=250,left_stick:list[int]|None=None,right_stick:list[int]|None=None,front_touch:list[int]|None=None,rear_touch:list[int]|None=None)->dict:
-        """Replace synthetic input for the latest screen PID. Lease expires within 1 second; focus changes cancel it. Sticks 0–255; raw touch 0–1919,0–1087."""
+        """Replace synthetic input for the latest screen PID. Lease expires within 1 second; focus changes cancel it. Sticks 0–255 are offsets around 128 added to physical input; raw touch 0–1919,0–1087."""
         return client.input(target_pid,buttons,ttl_ms,left_stick,right_stick,front_touch,rear_touch)
     @mcp.tool(annotations=WRITE)
     def vita_control_release()->dict:
@@ -148,7 +179,7 @@ def register(mcp,configuration,root):
         return client.publish(name,payload)
     @mcp.tool(annotations=WRITE)
     def vita_control_publish_file(relative_file:str,expected_sha256:str)->dict:
-        """Publish an exact local file under this checkout's outgoing/ (up to 8 MiB). Never installs or overwrites an app."""
+        """Publish an exact local file under this project outgoing directory (up to 8 MiB). Never installs or overwrites an app."""
         base=(root/'outgoing').resolve(); source=(base/relative_file).resolve()
         if base not in source.parents or not source.is_file() or not re.fullmatch('[0-9a-f]{64}',expected_sha256): raise ValueError('Choose a file within the outgoing directory and its exact hash')
         with source.open('rb') as handle: payload=handle.read(MAX_FILE+1)
@@ -165,9 +196,9 @@ def register(mcp,configuration,root):
         if not re.fullmatch('[0-9a-f]{64}',expected_sha256): raise ValueError('Expected SHA-256 is required')
         return client.json('POST','/workspace/delete/'+client.file_identity(attempt,name),b'',expected_sha256)
     @mcp.tool(annotations=WRITE)
-    def vita_control_app(action:Literal['launch','quit'],title_id:Literal['CHRS00003','CHRS00009'])->dict:
-        """Launch or quit DevLoop or Quake. Native acceptance is followed by separate screen/runtime observation."""
-        if action not in ('launch','quit') or title_id not in ('CHRS00003','CHRS00009'): raise ValueError('Invalid development app')
+    def vita_control_app(action:Literal['launch','quit'],title_id:Literal['CHRS00003','CHRS00009','CHRS00012'])->dict:
+        """Launch or quit DevLoop, Quake or Input Target. Native acceptance is followed by separate screen/runtime observation."""
+        if action not in ('launch','quit') or title_id not in ('CHRS00003','CHRS00009','CHRS00012'): raise ValueError('Invalid development app')
         return client.json('POST',f'/app/{action}/{title_id}',b'')
     @mcp.tool(annotations=WRITE)
     def vita_control_sequence(target_pid:int,steps:list[dict])->dict:
@@ -190,7 +221,7 @@ def register(mcp,configuration,root):
                 if time.monotonic()>=deadline: raise RuntimeError('Sequence time budget expired')
                 entry={'index':index,'requested':values,'state':'requesting input'};trace['steps'].append(entry)
                 (folder/'trace.json').write_text(json.dumps(trace,indent=2),encoding='utf-8')
-                entry['receipt']=client.json('POST','/input',payload);entry['state']='input accepted'
+                entry['receipt']=client.input(target_pid,**values);entry['state']='input accepted'
                 time.sleep(values['ttl_ms']/1000+.02)
                 client.release();png,metadata=client.capture();(folder/f'{index+1:02d}.png').write_bytes(png);entry['screen']=metadata
                 if metadata['target_pid']!=target_pid: raise RuntimeError('Foreground changed during sequence')

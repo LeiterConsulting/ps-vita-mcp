@@ -72,3 +72,7 @@ Control publication adds source, runtime-only staging, explicit marker retiremen
 | Publication | Source, dependency notices, setup guide and validation summary describe the same release candidate |
 
 A passed build is build evidence. A transferred VPK is transfer evidence. Graphics, audible audio, physical controls and recovery need the corresponding device observations.
+
+## Workbench qualification on October 4 2026
+
+[Current qualification](QUALIFICATION.md) separates the development Control 0.3.3 hardware run from fresh public package checks. The added host workflow runs portable C sanitizer harnesses, actual stdio MCP against local HTTP/FTP adapters and Workbench decision tests. It never connects to a Vita and does not certify native package installation, physical input or sleep/wake. Build-McpBaseline.ps1 additionally checks native ARM/package outputs in a fresh Windows checkout. [Release gates](RELEASE-CHECKLIST.md) define the remaining acceptance and publication sequence.

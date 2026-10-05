@@ -54,3 +54,9 @@ Each addition should complete a useful user workflow and retain a working recove
 - [ ] Add a package registry and qualified installation/activation before unattended native VPK iteration.
 
 The original Control 0.2.0 boot activation hung and was rolled back. Control 0.2.2 loads at runtime through Starter; it must not be added to boot configuration. Inspector 01.03 remains an optional read-only diagnostic. [Complete setup](docs/GETTING-STARTED.md), [Control](docs/CONTROL.md) and [evidence boundaries](docs/VALIDATION.md).
+
+## 6. Deliver the Workbench preview
+
+The October 4 development session passed hash-pinned Lua trials with restoration, separate software input channels/focus cancellation, power readbacks and managed-file recovery. The current public branch adds those workflows, source-bound candidate staging, RLE capture and clock-independent touch diagnostics.
+
+Next: complete front/rear physical touch, motion/buttons/sticks regression, manual sleep/wake and independent Wi-Fi-loss restoration. Then install freshly built public packages and repeat their exact acceptance matrix, including DevLoop 01.03 lifecycle. Finish dependency notices and the clean-machine setup trial before publishing signed checksums and a preview release. Native installation remains an operator step; full unattended native iteration follows a separately qualified install/activation design. See [the release checklist](docs/RELEASE-CHECKLIST.md).

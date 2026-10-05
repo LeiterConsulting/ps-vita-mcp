@@ -1,0 +1,91 @@
+{
+  "recorded_utc": "2026-10-05T12:26:53.116715+00:00",
+  "publication_date": "2026-10-05",
+  "scope": "Public PC/Vita source and documentation update. Development/device testing remain paused; no device actions performed.",
+  "public_components": [
+    "DevLoop PC bridge and native Lua app",
+    "Resident/Control PC bridge and native services",
+    "Workbench runners, observers and recovery",
+    "PC loopback pairing qualification utility",
+    "Build/setup/staging scripts, tests, CI and guides"
+  ],
+  "iphone_implementation": "PRIVATE: no app source, Swift packages, Xcode project, signing material, app builds or handoff archives included",
+  "public_phone_material": [
+    "Operator guide",
+    "Public pairing contract",
+    "Vita-side protocol implementation"
+  ],
+  "privacy_audit": {
+    "private_phone_history_paths": 0,
+    "private_credential_matches": 0,
+    "private_device_address_matches": 0,
+    "private_tracked_paths": 0,
+    "force_added_phone_source_rejection": "PASS",
+    "scope": "Fetched repository history paths; staged content scanned against current known private credentials and addresses. Filename CI gate does not replace content review.",
+    "known_private_credential_history_matches": 0,
+    "historical_blobs_scanned": 454
+  },
+  "host_validation": {
+    "scope": "Host code and actual stdio MCP against simulated local adapters; no device acceptance",
+    "checks": [
+      {
+        "name": "public-source-scope",
+        "exit_code": 0
+      },
+      {
+        "name": "pc-pairing-form",
+        "exit_code": 0
+      },
+      {
+        "name": "devloop-c",
+        "exit_code": 0
+      },
+      {
+        "name": "resident-c",
+        "exit_code": 0
+      },
+      {
+        "name": "control-c",
+        "exit_code": 0
+      },
+      {
+        "name": "target-c",
+        "exit_code": 0
+      },
+      {
+        "name": "test_bridge-tests",
+        "exit_code": 0
+      },
+      {
+        "name": "test_scripts_bridge-tests",
+        "exit_code": 0
+      },
+      {
+        "name": "test_bridge-resident",
+        "exit_code": 0
+      },
+      {
+        "name": "test_bridge-control",
+        "exit_code": 0
+      },
+      {
+        "name": "test_staging-control",
+        "exit_code": 0
+      },
+      {
+        "name": "test_mcp-workbench",
+        "exit_code": 0
+      },
+      {
+        "name": "workbench-decisions",
+        "exit_code": 0
+      }
+    ]
+  },
+  "hardware_validation": "No new run. Latest installed candidate is Resident 0.1.2 / Control 0.3.4 / Starter 01.06. Normal startup, physical code display and graceful timeout passed on October 4; successful individual confirmation and broader device gates remain pending.",
+  "native_validation_record": "pairing-candidate-validation.json",
+  "device_gate_record": "PAIRING-DEVICE-TESTS.md",
+  "source_only": true,
+  "binary_release": false,
+  "native_build_scope": "Native reports remain bound to the earlier build source; this publication does not rerun ARM builds or hardware. PC registration/output text and standalone tools do not change the native fingerprints. Build fresh reports from your checkout."
+}

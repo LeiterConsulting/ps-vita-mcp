@@ -1,0 +1,302 @@
+{
+  "recorded_utc": "2026-10-05T01:10:17.397245+00:00",
+  "state": "installed candidate; startup, physical code display and graceful timeout passed; full pairing qualification pending",
+  "scope": "Full host C/HTTP/MCP, ARM/SELF/import/export/package validation plus separately recorded native partial acceptance. No individual credential was created by the expired device trial.",
+  "versions": {
+    "resident": "0.1.2",
+    "control": "0.3.4",
+    "starter": "01.06",
+    "abi": 2
+  },
+  "resident": {
+    "file": "vita_resident.suprx",
+    "bytes": 27777,
+    "sha256": "8d80243a69f088553942ab214c3d3e4b1c05b2bc06e7753ee9085ac1447ccdbf",
+    "build_id": "cc816e8db301e5a250ee5d19d060c1f896244c7af1f0a7333a46380f1fd4f0ef",
+    "elf_sha256": "e6b8ee529d19f5d4ce11c517cc65bcb50c6cd3f8ba61263458b87345623bd9ac",
+    "velf_sha256": "73ec8011023e5515fc921723ef75ddcf733a47be484e53b43ed1c4c12fb21062",
+    "module_attributes": 0,
+    "imports": [
+      "SceIofilemgr",
+      "SceLibKernel",
+      "SceLibRng",
+      "SceNet",
+      "SceNetCtl",
+      "ScePower",
+      "SceRtcUser",
+      "SceSysmodule",
+      "SceThreadmgr"
+    ],
+    "linked_allocated_section_bytes": 319964,
+    "worker_stack_bytes": 65536
+  },
+  "control_build_id": "22a9a4202a5feb39f413f37cb235c9a31391bd785b9dff573bb0d638e5fdc8fa",
+  "control_modules": {
+    "vita_control": {
+      "file": "vita_control.suprx",
+      "bytes": 27765,
+      "sha256": "294bdaf994a8e93084f1acaa748560ec89805cdc83897d9572856fae202d7677",
+      "authid": "2f00000000000001",
+      "exports": [
+        {
+          "name": "main",
+          "nid": "00000000",
+          "flags": "8000",
+          "functions": 2,
+          "variables": 1
+        }
+      ],
+      "elf_sha256": "ae1d86664d9ee010833e79e84d064ecc70c408f8a7b3825b75dd3d1517fef86b",
+      "velf_sha256": "2f8a412f73f32622a00e0911370d15714480344c931a780b3cfbef05b72cbe79",
+      "imports": [
+        "SceAppMgrUser",
+        "SceIofilemgr",
+        "SceLibKernel",
+        "SceMotion",
+        "SceNet",
+        "SceNetCtl",
+        "ScePower",
+        "SceProcessmgr",
+        "SceSysmodule",
+        "SceThreadmgr",
+        "SceTouch",
+        "VitaControlKernel"
+      ],
+      "allocated_section_bytes": 1103416
+    },
+    "vita_control_kernel": {
+      "file": "vita_control_kernel.skprx",
+      "bytes": 10512,
+      "sha256": "2b6698d6722d57e94c6ce98f5607a5af518e9b57f39d0637f8a7c48010652173",
+      "authid": "2f00000000000002",
+      "exports": [
+        {
+          "name": "main",
+          "nid": "00000000",
+          "flags": "8000",
+          "functions": 2,
+          "variables": 1
+        },
+        {
+          "name": "VitaControlKernel",
+          "nid": "a0866f5b",
+          "flags": "4001",
+          "functions": 9,
+          "variables": 0
+        }
+      ],
+      "elf_sha256": "e82e3d5e5164f377557e2530fb056ff5cb2937148bee5995f2f163851c20a95d",
+      "velf_sha256": "3f53e6a0aa4360867e85d9abeb2babeb9889e044ee3055402ef4eebe903a1fa5",
+      "imports": [
+        "SceCtrlForDriver",
+        "SceDisplayForDriver",
+        "ScePowerForDriver",
+        "SceSysclibForDriver",
+        "SceSysmemForDriver",
+        "SceSysrootForDriver",
+        "SceSysrootForKernel",
+        "SceThreadmgrForDriver",
+        "taihenForKernel",
+        "taihenModuleUtils"
+      ],
+      "allocated_section_bytes": 17684
+    },
+    "control_bootstrap_probe": {
+      "file": "control_bootstrap_probe.suprx",
+      "bytes": 5086,
+      "sha256": "1f326eab660eae2f4e5902b62ecf236cca79662bbf6a5f1f3f4a5b88d01ac96e",
+      "authid": "2f00000000000001",
+      "imports": [
+        "SceIofilemgr",
+        "SceLibKernel",
+        "SceThreadmgr",
+        "VitaControlKernel"
+      ],
+      "exports": [
+        {
+          "name": "main",
+          "nid": "00000000",
+          "flags": "8000",
+          "functions": 2,
+          "variables": 1
+        }
+      ]
+    },
+    "control_starter": {
+      "file": "control_starter.self",
+      "bytes": 98718,
+      "sha256": "7c7caf5d0d153be78b0de7f44271a28febcdd7bbf4a8cbc0564384a564567a7d",
+      "authid": "2f00000000000001",
+      "imports": [
+        "SceAppMgrUser",
+        "SceCommonDialog",
+        "SceCtrl",
+        "SceDisplay",
+        "SceDisplayUser",
+        "SceGxm",
+        "SceGxmInternalForVsh",
+        "SceIofilemgr",
+        "SceLibKernel",
+        "SceLibRng",
+        "SceNet",
+        "ScePgf",
+        "SceProcessmgr",
+        "SceRtcUser",
+        "SceSharedFb",
+        "SceSysmem",
+        "SceSysmodule",
+        "SceThreadmgr",
+        "SceThreadmgrCoredumpTime",
+        "taihenUnsafe"
+      ],
+      "exports": [
+        {
+          "name": "main",
+          "nid": "00000000",
+          "flags": "8000",
+          "functions": 1,
+          "variables": 2
+        }
+      ]
+    }
+  },
+  "starter_package": {
+    "file": "control_starter.vpk",
+    "title_id": "CHRS00011",
+    "version": "01.06",
+    "bytes": 134547,
+    "sha256": "ffe619fe71034701daf37c271dba7b92bbc4591d783b35c4a271fab014dccc24"
+  },
+  "new_checks": {
+    "actual_core_groups": 23,
+    "bounded_client_privacy_approval_groups": 6,
+    "actual_two_service_http_tests": 11,
+    "actual_ui_worker_groups": 9,
+    "resident_mcp_checks": 15,
+    "loopback_pc_form_state_tests": 4,
+    "loopback_pc_form_http_boundary_checks": 6,
+    "regression_sensitivity": {
+      "ui_revision_invalidation_removed": "expected assertion failure",
+      "legacy_upload_signature_restored": "expected candidate MCP assertion failure"
+    }
+  },
+  "portable_ci": {
+    "scope": "Host code and actual stdio MCP against simulated local adapters; no device acceptance",
+    "checks": [
+      {
+        "name": "devloop-c",
+        "exit_code": 0
+      },
+      {
+        "name": "resident-c",
+        "exit_code": 0
+      },
+      {
+        "name": "control-c",
+        "exit_code": 0
+      },
+      {
+        "name": "target-c",
+        "exit_code": 0
+      },
+      {
+        "name": "test_bridge-tests",
+        "exit_code": 0
+      },
+      {
+        "name": "test_scripts_bridge-tests",
+        "exit_code": 0
+      },
+      {
+        "name": "test_bridge-resident",
+        "exit_code": 0
+      },
+      {
+        "name": "test_bridge-control",
+        "exit_code": 0
+      },
+      {
+        "name": "test_staging-control",
+        "exit_code": 0
+      },
+      {
+        "name": "test_mcp-workbench",
+        "exit_code": 0
+      },
+      {
+        "name": "workbench-decisions",
+        "exit_code": 0
+      }
+    ],
+    "record_scope": "Historical host checks for the earlier candidate, not a current-source CI run. Follow the draft PR checks for newer runs."
+  },
+  "build_record_sha256": {
+    "resident": "bb428d1911e87359b0859235abe7b92437e22ba9e55967fad2640bf65cfd6863",
+    "control": "830fc26c47c98478e8135ccdaab247b8b2fe58add6e12bdb951e5af0553d30aa"
+  },
+  "source_inputs_current": false,
+  "device_changes": "Manual Resident 0.1.2 replacement and Starter 01.06 installation completed. Config and all 11 installed Starter files verified. Normal reboot confirmed; exact prior session marker retained by guarded rename before one matching Control activation. Control is not boot-loaded. Existing administrator token retained. Registered desktop MCP unchanged.",
+  "phone_authority": "Inspection only. Screen reads blocked while the original approved/completed 120-second challenge or privacy-authority failure applies.",
+  "physical_acceptance": "PARTIAL: startup, native window/request, physical code display, and graceful timeout. Successful confirmation, individual authority, lifecycle and regressions pending. Phone allowlist is not qualified for release.",
+  "failure_history": "Starter 01.05 code display failed. The actual UI worker host harness reproduced stale refresh overwriting a generation error; 01.06 latches the error and invalidates stale replies. Uniform decimal code formatting avoids padded SDK formatting. Physical display passed after manual installation. The exact earlier SDK cause remains unconfirmed. The first 01.06 confirmation was late and rejected cleanly. Candidate upload had a host signature mismatch, now repaired and regression-tested; no native upload through that repaired path has been attempted.",
+  "remaining_gates": [
+    "Successful native confirmation with durable individual credential and exact 90-day renewal through both services",
+    "Saved credential reconnect, five phone write denials and retained independent Windows access",
+    "Physical rejection, held-CROSS denial, leading-zero display and Forget on device",
+    "Lost Wi-Fi confirmation recovery and revoke/reboot persistence",
+    "Global code-window privacy under LiveArea overlays/thumbnails, Starter input denial and positive non-Starter capture",
+    "Physical front/rear touch restoration plus button/stick/motion regression on current fingerprints",
+    "Native input/focus/Lua restoration and managed-file qualification through current bridge",
+    "Completed soak, independent sleep/wake and Wi-Fi-loss trials",
+    "Clean-machine onboarding, manual recovery exercise and complete binary dependency notices",
+    "Separately reviewed Companion allowlist and actual phone acceptance"
+  ],
+  "previous_release_qualification": "QUALIFICATION.md; installed 0.3.3 evidence is not acceptance of this candidate",
+  "github_ci": {
+    "result": "PASS",
+    "scope": "Historical host-only Linux CI for the recorded earlier commit; no acceptance of the newer UI/upload repair. New runs are linked from the draft PR.",
+    "commit": "bacd7cea696f015b91e2b0962b092e7b588b1a03",
+    "run_id": 37243479382,
+    "url": "https://github.com/LeiterConsulting/ps-vita-mcp/actions/runs/37243479382"
+  },
+  "publication": {
+    "draft_pr": "https://github.com/LeiterConsulting/ps-vita-mcp/pull/4",
+    "base_qualification_pr": "https://github.com/LeiterConsulting/ps-vita-mcp/pull/3",
+    "source_hashes_against_committed_blobs": 106,
+    "source_mismatches": 0,
+    "private_tracked_paths": 0,
+    "device_token_matches": 0,
+    "missing_document_links": 0,
+    "source_hash_audit_scope": "Resident and Control build reports for the UI/upload repair; staged Git inputs verified before commit."
+  },
+  "installed_starter_package": {
+    "file": "control_starter.vpk",
+    "title_id": "CHRS00011",
+    "version": "01.06",
+    "bytes": 134547,
+    "sha256": "8161a626620083aae137cc542a124dcde025f7e5b6af0565d722393483105350"
+  },
+  "package_rebuild_note": "The current VPK container was repacked after the host bridge repair. All 11 entry sizes/hashes and native module fingerprints are identical to the installed VPK; its separate original container hash is retained here.",
+  "native_observations": {
+    "firmware": "3.65 (operator reported)",
+    "normal_boot": "PASS (operator confirmed)",
+    "starter_installed_file_readbacks": 11,
+    "exact_resident_control_identities": "PASS",
+    "initial_input_work_leases_ms": [
+      0,
+      0
+    ],
+    "native_control_registration": "HTTP 200",
+    "private_LAN_route_denials": "13/13 HTTP 403, including 11 implemented private routes and 2 generic nonexistent routes",
+    "physical_code_display_01_05": "FAIL; repaired in 01.06",
+    "physical_code_display_01_06": "PASS (operator saw six digits)",
+    "confirmation_before_physical_approval": "HTTP 403",
+    "admin_capture_during_approved_window": "preview/RLE HTTP 503, no pixels",
+    "starter_all_four_capture_routes": "HTTP 503, no pixels; does not certify overlay privacy",
+    "late_confirmation": "HTTP 409, no credential created, no replay",
+    "graceful_challenge_timeout": "PASS (operator confirmed)",
+    "codes_or_tokens_in_public_evidence": false
+  },
+  "source_inputs_note": "The native build reports and 106-source audit were verified against commit 3d3de2fe737a81cc8c6789deda4aa356d12ebd04 on October 4 local time. The October 5 publication updates PC registration text, public utilities, CI and guides, so those complete source lists are historical. Native fingerprints and installed files are unchanged; fresh checkouts must regenerate their own build reports.",
+  "latest_source_publication": "source-publication-2026-10-05.json"
+}
