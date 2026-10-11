@@ -29,6 +29,18 @@ REMOVE=ToolAnnotations(readOnlyHint=False,destructiveHint=True,idempotentHint=Fa
 
 class ControlClient:
     def __init__(self,configuration): self.configuration=configuration; self.abi=None; self.codecs=[];self.power_protocol=None;self.work_renewed=0
+    def current_endpoint(self):
+        config=self.configuration()
+        port=int(os.environ.get('VITA_CONTROL_PORT',config['port']+1))
+        if not 1<=port<=65535:raise ValueError('Invalid control port')
+        return {'host':config['host'],'port':port,'token':config['token']}
+    def endpoint(self):
+        frozen=getattr(self,'_frozen_endpoint',None)
+        return dict(zip(('host','port','token'),frozen)) if frozen is not None else self.current_endpoint()
+    def freeze_endpoint(self):
+        if getattr(self,'_frozen_endpoint',None) is None:
+            value=self.current_endpoint();self._frozen_endpoint=(value['host'],value['port'],value['token'])
+        return self.endpoint()
     @serialized
     def request(self,method,path,body=None,digest=None,limit=8192):
         # Work keeps an awake display alive; status/power inspection alone does not.
@@ -42,10 +54,8 @@ class ControlClient:
                 self.work_renewed=time.monotonic()
         return self._wire(method,path,body,digest,limit)
     def _wire(self,method,path,body=None,digest=None,limit=8192):
-        config=self.configuration()
-        port=int(os.environ.get('VITA_CONTROL_PORT',config['port']+1))
-        if not 1<=port<=65535: raise ValueError('Invalid control port')
-        connection=http.client.HTTPConnection(config['host'],port,timeout=10 if body is None else 30)
+        config=self.endpoint()
+        connection=http.client.HTTPConnection(config['host'],config['port'],timeout=10 if body is None else 30)
         headers={'Authorization':'Bearer '+config['token'],'Connection':'close'}
         if digest: headers['X-SHA256']=digest
         started=time.monotonic()

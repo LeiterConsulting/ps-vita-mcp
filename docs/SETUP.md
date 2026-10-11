@@ -4,7 +4,7 @@ This guide covers DevLoop alone. For background status, screen readback, managed
 
 The initial host qualification uses Windows, PowerShell 7, Python 3.13 and Docker Desktop running Linux containers. Other hosts are not yet qualified. A homebrew-enabled Vita is needed to install the app; the tested prototype device runs firmware 3.65. This guide does not change firmware or install homebrew support.
 
-The source builds experimental candidate **01.03**, title ID **CHRS00003**. Its device qualification is pending. Keep a copy of a working package before updating an existing DevLoop installation.
+The source builds experimental candidate **01.04**, title ID **CHRS00003**, with native title/PID, run and build telemetry. Its device qualification is pending. Historical 01.02/01.03 runtimes remain compatible with script-only Workbench work; synthetic profiles require installed 01.04, an exact expected build pin and matching fresh captures. [Autonomous readiness](AUTONOMOUS-DEVLOOP.md). Keep a copy of a working package before updating an existing DevLoop installation.
 
 ## Build from a checkout
 
@@ -90,4 +90,4 @@ The tool validates the selected local DevLoop VPK, uploads to a fresh inbox, ver
 
 Host tests and package verification do not certify an installed candidate. The separate `bridge/prove_device.py`, `bridge/prove_scripts.py` and `bridge/prove_upload.py` helpers perform live actions when explicitly run. The script proof loads and changes experiments; the upload proof stages the selected package. Review their scope and coordinate device availability before running them.
 
-For 01.03, repeat both examples, visible editing, recovery and capture on the installed device, then verify physical input, clean exit and sleep/return. Record the exact package hash with the observations. [Acceptance gates](VALIDATION.md).
+For 01.04, verify native title/PID/run/build telemetry against the actual package report and fresh Control captures. Repeat both examples, visible editing, recovery and capture on the installed device, then verify physical input, clean exit and sleep/return. Record the exact package hash with the observations. [Acceptance gates](VALIDATION.md).

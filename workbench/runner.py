@@ -64,10 +64,34 @@ class Device:
     def release(self): return self.control.release()
     def screen(self): return self.control.capture()
     def input(self,pid,values): return self.control.input(pid,**values)
-    def control_status(self): return self.control.status()
+    def freeze_control_endpoint(self,with_target=False):
+        config=self.control.freeze_endpoint()
+        if with_target and not hasattr(self,'_target_endpoint'):
+            port=int(os.environ.get('VITA_TARGET_PORT','17868'))
+            if not 1<=port<=65535:raise ValueError('Invalid target port')
+            self._target_endpoint={'host':config['host'],'port':port,'token':config['token']}
+        return config
+    def control_status(self):
+        self.freeze_control_endpoint()
+        return self.control.status()
+    def launch_devloop(self): return self.control.json('POST','/app/launch/CHRS00003',b'')
+    def validate_devloop_endpoint(self):
+        provider=getattr(self,'_prepare_foreground_provider',self.foreground.configuration)
+        foreground=provider()
+        control=self.control.current_endpoint() if hasattr(self,'_prepare_endpoint_pin') else self.control.freeze_endpoint()
+        if foreground['host']!=control['host']:
+            raise RuntimeError('DevLoop and Control must address the same Vita')
+        identity=tuple((config['host'],config['port'],config['token']) for config in (foreground,control))
+        pinned=getattr(self,'_prepare_endpoint_pin',identity)
+        if identity!=pinned:raise RuntimeError('Vita endpoint configuration changed during preparation')
+        self._prepare_endpoint_pin=identity
+        if not hasattr(self,'_prepare_foreground_provider'):
+            self._prepare_foreground_provider=provider
+            frozen=dict(foreground)
+            self.foreground.configuration=lambda:dict(frozen)
     def target(self):
-        config=self.resident.configuration();port=int(os.environ.get('VITA_TARGET_PORT','17868'))
-        if not 1<=port<=65535:raise ValueError('Invalid target port')
+        self.freeze_control_endpoint(with_target=True)
+        config=dict(self._target_endpoint);port=config['port']
         import http.client
         c=http.client.HTTPConnection(config['host'],port,timeout=7)
         try:
@@ -78,6 +102,13 @@ class Device:
             return value
         except (OSError,http.client.HTTPException,ValueError) as error: raise RuntimeError('Input Target is unavailable or returned invalid telemetry') from error
         finally:c.close()
+
+def freeze_device_endpoints(device,with_target=False):
+    """Freeze before the baseline, retaining compatibility with offline adapters."""
+    freeze=getattr(device,'freeze_control_endpoint',None)
+    if freeze is not None:return freeze(with_target=with_target)
+    freeze=getattr(device.control,'freeze_endpoint',None)
+    if freeze is not None:return freeze()
 class Journal:
     def __init__(self,root,kind):
         self.folder=root/'evidence/workbench'/(kind+'-'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'-'+uuid.uuid4().hex[:8]);self.folder.mkdir(parents=True)
@@ -105,6 +136,34 @@ class Journal:
 def check_identity(control,expected):
     if not re.fullmatch('[0-9a-f]{64}',expected) or control['build_id']!=expected: raise RuntimeError('Control build differs from the pinned trial build')
     if control.get('lease_remaining_ms')!=0: raise RuntimeError('Another synthetic input lease is active')
+
+def devloop_target_pid(state):
+    pid=state.get('pid')
+    return pid if state.get('version')=='01.04' and state.get('app')=='Vita DevLoop' and state.get('title_id')=='CHRS00003' and type(pid) is int and pid>0 else None
+
+def devloop_runtime_identity(state,expected_build=None):
+    if state.get('version')!='01.04':
+        if expected_build is not None:raise RuntimeError('Legacy DevLoop cannot verify a native build pin')
+        return None
+    if (state.get('app')!='Vita DevLoop' or type(state.get('protocol')) is not int or state['protocol']!=1 or
+            devloop_target_pid(state) is None or not isinstance(state.get('run'),str) or
+            not re.fullmatch('[0-9a-f]{32}',state['run']) or not isinstance(state.get('build_id'),str) or
+            not re.fullmatch('[0-9a-f]{64}',state['build_id'])):
+        raise RuntimeError('DevLoop 01.04 native process identity is invalid')
+    if expected_build is not None and state['build_id']!=expected_build:
+        raise RuntimeError('DevLoop native build differs from the pinned candidate')
+    return {key:state[key] for key in ('app','protocol','version','title_id','pid','run','build_id')}
+
+def check_devloop_runtime(state,pinned):
+    if pinned is None:
+        if state.get('version')=='01.04':raise RuntimeError('DevLoop runtime changed from the legacy session')
+    elif devloop_runtime_identity(state)!=pinned:raise RuntimeError('DevLoop native run/build/PID identity changed during the job')
+
+def require_input_target(state,screen):
+    pid=devloop_target_pid(state)
+    if pid is None or type(screen.get('target_pid')) is not int or screen['target_pid']!=pid:
+        raise RuntimeError('Synthetic trial requires native DevLoop title/PID matching the captured foreground; legacy runtime is script-only')
+    return pid
 def predicates(checks,metrics):
     out=[]
     for c in checks:
@@ -112,39 +171,61 @@ def predicates(checks,metrics):
         if passed:passed=('min' not in c or v>=c['min']) and ('max' not in c or v<=c['max']) and ('equals' not in c or v==c['equals'])
         out.append({**c,'actual':v if type(v) in (int,float) and math.isfinite(v) else None,'passed':bool(passed)})
     return out
-def run_trial(relative,expected_profile_sha256,expected_control_build,device=None,root=WORKDIR):
+def run_trial(relative,expected_profile_sha256,expected_control_build,device=None,root=WORKDIR,expected_devloop_build=None):
+    if expected_devloop_build is not None and (not isinstance(expected_devloop_build,str) or not re.fullmatch('[0-9a-f]{64}',expected_devloop_build)):
+        raise ValueError('Pin an exact native DevLoop build ID')
     p,source,identity=profile(relative,expected_profile_sha256,root);d=device or Device()
     with exclusive():
         j=Journal(root,'trial');j.report.update(identity);j.report['control_build']=expected_control_build;j.save()
-        owned_revision=None;mutation_started=False;initial=None;original=None;keeper=WorkKeeper(d.control,j.folder)
+        owned_revision=None;mutation_started=False;initial=None;original=None;runtime_pin=None;keeper=WorkKeeper(d.control,j.folder)
         try:
+            d.validate_devloop_endpoint()
             control=d.control_status();check_identity(control,expected_control_build)
             initial=d.status();original=d.script();j.report['initial']=initial;j.report['original_script']=original;j.save()
-            if initial.get('app')!='Vita DevLoop' or initial.get('version') not in ('01.02','01.03') or not initial.get('paused') or original.get('faulted') or original['revision']!=initial['revision']: raise RuntimeError('Trial requires healthy paused DevLoop 01.02 or 01.03')
+            if initial.get('app')!='Vita DevLoop' or initial.get('version') not in ('01.02','01.03','01.04') or not initial.get('paused') or original.get('faulted') or original['revision']!=initial['revision']: raise RuntimeError('Trial requires healthy paused DevLoop 01.02, 01.03 or 01.04')
+            runtime_pin=devloop_runtime_identity(initial,expected_devloop_build);check_devloop_runtime(original,runtime_pin)
+            j.report['runtime_identity']=runtime_pin;j.report['expected_devloop_build']=expected_devloop_build
+            j.report['native_candidate_pin_verified']=runtime_pin is not None and expected_devloop_build is not None
+            if p.get('steps') and initial.get('version')=='01.04' and expected_devloop_build is None:
+                raise RuntimeError('Synthetic input requires expected_devloop_build from the exact candidate package report')
             keeper.start(control)
             png,screen=d.screen();(j.folder/'before.png').write_bytes(png);pid=screen['target_pid'];j.report['target_pid']=pid
+            if p.get('steps'):
+                require_input_target(initial,screen)
+                j.report['input_target_verification']='native DevLoop title/PID matches captured foreground; rechecked before each input'
+            else:j.report['input_target_verification']='not requested; profile contains no synthetic input steps'
             mutation_started=True
             owned_revision=initial['revision']+1
             loaded=j.mutation('load_script',{'name':p['name'],'sha256':identity['source_sha256'],'expected_revision':initial['revision']},lambda:d.load(p['name'],source,initial['revision']))
+            check_devloop_runtime(loaded,runtime_pin)
             if loaded['revision']!=owned_revision:raise RuntimeError('Load revision differs')
             if loaded.get('sha256')!=identity['source_sha256'] or not loaded.get('paused') or not loaded.get('active'): raise RuntimeError('Uploaded script receipt differs')
             previous_revision=owned_revision;owned_revision+=1
             resumed=j.mutation('resume',{'expected_revision':previous_revision},lambda:d.resume(previous_revision))
+            check_devloop_runtime(resumed,runtime_pin)
             if resumed['revision']!=owned_revision:raise RuntimeError('Resume revision differs')
             time.sleep(p.get('warmup_s',.5));start=time.monotonic();deadline=start+p.get('duration_s',5);index=0;last_frame=initial['frame'];samples=[]
             while True:
+                d.validate_devloop_endpoint()
                 state=d.script();current=d.control_status()
+                check_devloop_runtime(state,runtime_pin)
                 if current['build_id']!=expected_control_build or state['revision']!=owned_revision or state.get('sha256')!=identity['source_sha256'] or not state.get('active') or state.get('paused') or state.get('faulted') or state['frame']<=last_frame: raise RuntimeError('Trial lost identity, revision, progress or healthy execution')
                 last_frame=state['frame'];samples.append(state);j.report['samples']=samples;j.save()
                 elapsed=time.monotonic()-start
                 if index<len(p.get('steps',[])) and elapsed>=p['steps'][index]['at_s']:
                     step=p['steps'][index];values={k:v for k,v in step.items() if k!='at_s'}
+                    d.validate_devloop_endpoint()
+                    target=d.status();_,target_screen=d.screen()
+                    check_devloop_runtime(target,runtime_pin)
+                    if require_input_target(target,target_screen)!=pid or target.get('revision')!=owned_revision:
+                        raise RuntimeError('Synthetic input target ownership changed before submission')
                     j.mutation('input',{'index':index,'target_pid':pid,'requested':values},lambda:d.input(pid,values));index+=1
                 if time.monotonic()>=deadline:break
                 time.sleep(.25)
             if index!=len(p.get('steps',[])): raise RuntimeError('Device latency prevented all scheduled inputs')
             time.sleep(1.05) # Observe expiry without an explicit release.
             state=d.script();current=d.control_status();j.report['expiry_observation']=current
+            check_devloop_runtime(state,runtime_pin)
             if state['revision']!=owned_revision or state.get('faulted') or current['build_id']!=expected_control_build or current.get('lease_remaining_ms')!=0: raise RuntimeError('Trial final identity or input expiry failed')
             png,screen=d.screen();(j.folder/'after.png').write_bytes(png);j.report['final_screen']=screen
             if screen['target_pid']!=pid:raise RuntimeError('Foreground changed during the trial')
@@ -158,15 +239,19 @@ def run_trial(relative,expected_profile_sha256,expected_control_build,device=Non
                 except Exception:j.report['final_release']='unconfirmed; kernel lease bounds remain in force'
                 try:
                     state=d.script()
+                    check_devloop_runtime(state,runtime_pin)
                     # Ownership must survive revision/hash inspection, including a lost load reply.
                     expected_revisions={owned_revision}
                     if state.get('faulted') and state.get('paused'):expected_revisions.add(owned_revision+1)
                     if state.get('sha256')!=identity['source_sha256'] or state['revision'] not in expected_revisions:raise RuntimeError('Restoration skipped because experiment ownership changed')
                     action='rollback' if original.get('loaded') else 'native'
                     restored=j.mutation('restore_'+action,{'expected_revision':state['revision']},lambda:d.restore(action,state['revision']))
+                    check_devloop_runtime(restored,runtime_pin)
                     if original.get('loaded') and restored.get('sha256')!=original.get('sha256'):raise RuntimeError('Rollback hash differs')
-                    if not original.get('active') and action=='rollback':restored=j.mutation('restore_native',{'expected_revision':restored['revision']},lambda:d.restore('native',restored['revision']))
+                    if not original.get('active') and action=='rollback':
+                        restored=j.mutation('restore_native',{'expected_revision':restored['revision']},lambda:d.restore('native',restored['revision']));check_devloop_runtime(restored,runtime_pin)
                     final=d.status();j.report['restored']=final
+                    check_devloop_runtime(final,runtime_pin)
                     if not final.get('paused') or final.get('parameters')!=initial.get('parameters') or final.get('ball')!=initial.get('ball') or final.get('added_obstacles')!=initial.get('added_obstacles') or final.get('score')!=initial.get('score'):raise RuntimeError('Native scene or physics restoration differs')
                     j.report['restoration']='passed; previous mode paused'
                 except Exception as error:j.report['restoration']='unconfirmed: '+str(error)[:200];j.report['result']='failed'

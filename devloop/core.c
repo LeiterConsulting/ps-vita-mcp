@@ -15,6 +15,15 @@ void dev_init(DevCore *c) {
     memset(c,0,sizeof(*c)); world_init(&c->world); c->params=physics_defaults(); c->paused=true; c->revision=1;
     dev_log(c,"DevLoop ready; experiment starts paused");
 }
+bool dev_identity(DevCore *c,int32_t pid,uint64_t system_us,uint64_t process_us,const char *build_id) {
+    if(c->pid||pid<=0||!system_us||!process_us||system_us<process_us||!build_id) return false;
+    for(unsigned n=0;n<64;n++) if(!build_id[n]||!strchr("0123456789abcdef",build_id[n])) return false;
+    if(build_id[64]) return false;
+    /* Session correlation only: clocks and PID are not a secret or an auth token. */
+    int count=snprintf(c->run,sizeof(c->run),"%016llx%08x%08x",(unsigned long long)system_us,(unsigned)(process_us&UINT32_MAX),(unsigned)pid);
+    if(count!=32) { c->run[0]=0;return false; }
+    memcpy(c->build_id,build_id,65);c->pid=pid;return true;
+}
 static void reset(DevCore *c) { world_init(&c->world); c->accumulator=0; }
 void dev_tick(DevCore *c,const Input *in,uint64_t ms) {
     c->input=*in; c->sampled_ms=ms; c->frame++;
@@ -147,8 +156,8 @@ int dev_apply(DevCore *c,const DevCommand *cmd,char *error,size_t cap) {
 }
 static float json_number(float value) { return isfinite(value)?value:0; }
 void dev_status_json(const DevCore *c,char *out,size_t cap) {
-    snprintf(out,cap,"{\"protocol\":1,\"app\":\"Vita DevLoop\",\"version\":\"%s\",\"experiment\":\"%s\",\"revision\":%u,\"frame\":%llu,\"sampled_ms\":%llu,\"fps\":%.2f,\"frame_ms\":%.3f,\"paused\":%s,\"mode\":\"%s\",\"parameters\":{\"gravity\":%.3f,\"drag\":%.3f,\"brake\":%.3f,\"max_speed\":%.3f},\"ball\":{\"x\":%.3f,\"y\":%.3f,\"vx\":%.3f,\"vy\":%.3f},\"score\":%d,\"added_obstacles\":%d}",
-        DEV_VERSION,c->script.active?"lua":"tilt_playground",c->revision,(unsigned long long)c->frame,(unsigned long long)c->sampled_ms,json_number(c->input.fps),json_number(c->input.dt*1000),c->paused?"true":"false",c->stick_only?"stick":"tilt+stick",c->params.gravity,c->params.drag,c->params.brake,c->params.max_speed,json_number(c->world.x),json_number(c->world.y),json_number(c->world.vx),json_number(c->world.vy),c->world.score,c->world.obstacle_count-3);
+    snprintf(out,cap,"{\"protocol\":1,\"app\":\"Vita DevLoop\",\"version\":\"%s\",\"title_id\":\"%s\",\"pid\":%d,\"run\":\"%s\",\"build_id\":\"%s\",\"experiment\":\"%s\",\"revision\":%u,\"frame\":%llu,\"sampled_ms\":%llu,\"fps\":%.2f,\"frame_ms\":%.3f,\"paused\":%s,\"mode\":\"%s\",\"parameters\":{\"gravity\":%.3f,\"drag\":%.3f,\"brake\":%.3f,\"max_speed\":%.3f},\"ball\":{\"x\":%.3f,\"y\":%.3f,\"vx\":%.3f,\"vy\":%.3f},\"score\":%d,\"added_obstacles\":%d}",
+        DEV_VERSION,DEV_TITLE_ID,c->pid,c->run,c->build_id,c->script.active?"lua":"tilt_playground",c->revision,(unsigned long long)c->frame,(unsigned long long)c->sampled_ms,json_number(c->input.fps),json_number(c->input.dt*1000),c->paused?"true":"false",c->stick_only?"stick":"tilt+stick",c->params.gravity,c->params.drag,c->params.brake,c->params.max_speed,json_number(c->world.x),json_number(c->world.y),json_number(c->world.vx),json_number(c->world.vy),c->world.score,c->world.obstacle_count-3);
 }
 static void append(char *out,size_t cap,size_t *used,const char *format,...) {
     if(*used>=cap) return;
@@ -164,12 +173,16 @@ static void json_string(char *out,size_t cap,size_t *used,const char *value) {
     }
     append(out,cap,used,"\"");
 }
+static void identity_json(const DevCore *c,char *out,size_t cap,size_t *used) {
+    append(out,cap,used,"{\"protocol\":1,\"app\":\"Vita DevLoop\",\"version\":\"%s\",\"title_id\":\"%s\",\"pid\":%d,\"run\":\"%s\",\"build_id\":\"%s\",",DEV_VERSION,DEV_TITLE_ID,c->pid,c->run,c->build_id);
+}
 void dev_error_json(char *out,size_t cap,const char *message) {
     size_t used=0; append(out,cap,&used,"{\"error\":"); json_string(out,cap,&used,message); append(out,cap,&used,"}");
 }
 void dev_script_json(const DevCore *c,char *out,size_t cap) {
     const DevScriptInfo *s=&c->script; size_t used=0;
-    append(out,cap,&used,"{\"revision\":%u,\"frame\":%llu,\"sampled_ms\":%llu,\"runtime\":\"Lua 5.4.9\",\"loaded\":%s,\"active\":%s,\"faulted\":%s,\"paused\":%s,\"name\":",
+    identity_json(c,out,cap,&used);
+    append(out,cap,&used,"\"revision\":%u,\"frame\":%llu,\"sampled_ms\":%llu,\"runtime\":\"Lua 5.4.9\",\"loaded\":%s,\"active\":%s,\"faulted\":%s,\"paused\":%s,\"name\":",
         c->revision,(unsigned long long)c->frame,(unsigned long long)c->sampled_ms,s->loaded?"true":"false",s->active?"true":"false",s->faulted?"true":"false",c->paused?"true":"false");
     json_string(out,cap,&used,s->name); append(out,cap,&used,",\"sha256\":"); json_string(out,cap,&used,s->sha256);
     append(out,cap,&used,",\"source_bytes\":%u,\"updates\":%u,\"draw_commands\":%u,\"memory_bytes\":%u,\"peak_memory_bytes\":%u,\"update_ms\":%.3f,\"draw_ms\":%.3f,\"rollback_available\":%s,\"previous_name\":",
@@ -187,13 +200,15 @@ static void panel_json(const TouchPanel *p,char *out,size_t cap,size_t *used) {
 }
 void dev_input_json(const DevCore *c,char *out,size_t cap) {
     const Input *i=&c->input; size_t used=0;
-    append(out,cap,&used,"{\"revision\":%u,\"frame\":%llu,\"sampled_ms\":%llu,\"buttons\":%u,\"controller_read\":%d,\"sticks\":{\"lx\":%u,\"ly\":%u,\"rx\":%u,\"ry\":%u},\"motion\":{\"read_result\":%d,\"acceleration\":[%.5f,%.5f,%.5f],\"gyro\":[%.5f,%.5f,%.5f]},\"front\":",
+    identity_json(c,out,cap,&used);
+    append(out,cap,&used,"\"revision\":%u,\"frame\":%llu,\"sampled_ms\":%llu,\"buttons\":%u,\"controller_read\":%d,\"sticks\":{\"lx\":%u,\"ly\":%u,\"rx\":%u,\"ry\":%u},\"motion\":{\"read_result\":%d,\"acceleration\":[%.5f,%.5f,%.5f],\"gyro\":[%.5f,%.5f,%.5f]},\"front\":",
         c->revision,(unsigned long long)c->frame,(unsigned long long)c->sampled_ms,i->buttons,i->ctrl_result,i->lx,i->ly,i->rx,i->ry,i->motion_result,json_number(i->acceleration.x),json_number(i->acceleration.y),json_number(i->acceleration.z),json_number(i->gyro.x),json_number(i->gyro.y),json_number(i->gyro.z));
     panel_json(&i->front,out,cap,&used); append(out,cap,&used,",\"rear\":"); panel_json(&i->back,out,cap,&used); append(out,cap,&used,"}");
 }
 void dev_logs_json(const DevCore *c,char *out,size_t cap) {
     size_t used=0; unsigned first=c->log_sequence>12?c->log_sequence-12:0;
-    append(out,cap,&used,"{\"revision\":%u,\"frame\":%llu,\"sampled_ms\":%llu,\"sequence\":%u,\"entries\":[",c->revision,(unsigned long long)c->frame,(unsigned long long)c->sampled_ms,c->log_sequence);
+    identity_json(c,out,cap,&used);
+    append(out,cap,&used,"\"revision\":%u,\"frame\":%llu,\"sampled_ms\":%llu,\"sequence\":%u,\"entries\":[",c->revision,(unsigned long long)c->frame,(unsigned long long)c->sampled_ms,c->log_sequence);
     for(unsigned n=first;n<c->log_sequence;n++) {
         append(out,cap,&used,"%s{\"sequence\":%u,\"message\":\"",n>first?",":"",n+1);
         for(const char *p=c->logs[n%12];*p;p++) {

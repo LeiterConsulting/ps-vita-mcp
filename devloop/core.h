@@ -6,7 +6,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #define DEV_PORT 17865
-#define DEV_VERSION "01.03"
+#define DEV_VERSION "01.04"
+#define DEV_TITLE_ID "CHRS00003"
 #define DEV_JSON_MAX 8192
 typedef struct {
     World world; PhysicsParams params; Input input;
@@ -18,6 +19,8 @@ typedef struct {
     unsigned old_ids[MAX_TOUCHES]; int old_count;
     char logs[12][128]; unsigned log_sequence;
     DevScriptInfo script;
+    int32_t pid;
+    char run[33],build_id[65];
 } DevCore;
 typedef struct {
     bool parameters;
@@ -29,6 +32,7 @@ typedef struct {
     char script_name[33],script_sha256[65],script_source[SCRIPT_MAX+1];
 } DevCommand;
 void dev_init(DevCore *core);
+bool dev_identity(DevCore *core,int32_t pid,uint64_t system_us,uint64_t process_us,const char *build_id);
 void dev_tick(DevCore *core,const Input *input,uint64_t sampled_ms);
 int dev_parse_command(const char *path,const char *body,DevCommand *command,char *error,size_t capacity);
 int dev_apply(DevCore *core,const DevCommand *command,char *error,size_t capacity);

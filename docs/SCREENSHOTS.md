@@ -1,6 +1,6 @@
 # Real Vita captures
 
-These are original 960×544 framebuffer PNGs captured through MCP from **DevLoop 01.02** on a homebrew-enabled Vita running firmware 3.65 on October 2, 2026. They include the original local network address as approved for publication. They are not mockups or captures of the changed 01.03 candidate.
+These are original 960×544 framebuffer PNGs captured through MCP from **DevLoop 01.02** on a homebrew-enabled Vita running firmware 3.65 on October 2, 2026. They include the original local network address as approved for publication. They are not mockups or captures of the later 01.03 or 01.04 candidates.
 
 Each scene is paused for inspection, including captures taken after an experiment ran. The status bar's FPS and callback times are samples, not a benchmark of the Vita's maximum capacity. [Image hashes](screenshots.json) and [prototype validation](prototype-validation.json) bind these captures to their source evidence.
 

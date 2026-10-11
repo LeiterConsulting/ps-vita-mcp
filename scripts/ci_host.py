@@ -16,23 +16,28 @@ def main():
     # evidence directories unwritable to the following host-side MCP fixtures.
     user = ['--user', f'{os.getuid()}:{os.getgid()}'] if os.name == 'posix' else []
     checks = [('public-source-scope', [sys.executable, 'scripts/check_public_scope.py']),
-              ('pc-pairing-form', [sys.executable, 'tools/pairing_check.py', '--self-test'])]
+              ('pc-pairing-form', [sys.executable, 'tools/pairing_check.py', '--self-test']),
+              ('devloop-native-identity', [sys.executable, 'tests/test_devloop_identity.py'])]
     checks += [(name, ['docker', 'run', '--rm', '--network', 'none', *user, '--mount',
                       f'type=bind,source={ROOT},target=/workspace', image, 'sh', script])
               for name, script in [('devloop-c', 'scripts/test_devloop.sh'),
                                    ('resident-c', 'resident/test_host.sh'),
                                    ('control-c', 'resident/control/test_host.sh'),
+                                   ('autostart-c', 'resident/autostart/test_host.sh'),
+                                   ('boot-diagnostic-c', 'resident/boot_diagnostic/test_host.sh'),
                                    ('target-c', 'workbench/target/test_host.sh')]]
     checks += [(Path(script).stem + '-' + Path(script).parent.name, [sys.executable, script])
                for script in ['tests/test_bridge.py', 'tests/test_scripts_bridge.py',
                               'resident/test_bridge.py', 'resident/control/test_bridge.py',
                               'resident/control/test_staging.py', 'workbench/test_mcp.py']]
     checks.append(('workbench-decisions', [sys.executable, '-m', 'unittest',
-                   'workbench.test_qualification', 'workbench.test_power',
+                   'workbench.test_prepare', 'workbench.test_endpoints', 'workbench.test_qualification', 'workbench.test_power',
                    'workbench.test_physical', 'workbench.test_disconnect', 'workbench.test_journal']))
+    checks.append(('autostart-staging', [sys.executable, '-m', 'unittest',
+                   'resident.autostart.test_staging']))
     report = {'scope': 'Host code and actual stdio MCP against simulated local adapters; no device acceptance', 'checks': []}
     for name, command in checks:
-        result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=600)
+        result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, encoding='utf-8', timeout=600)
         (output / (name + '.log')).write_text(result.stdout + result.stderr, encoding='utf-8')
         report['checks'].append({'name': name, 'exit_code': result.returncode})
         (output / 'report.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')

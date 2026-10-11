@@ -128,9 +128,9 @@ async def main():
                 async with ClientSession(read, write) as session:
                     await session.initialize()
                     tools = await session.list_tools()
-                    assert len(tools.tools) == 27
+                    assert len(tools.tools) == 28
                     assert {'vita_resident_status', 'vita_resident_verify_upload', 'vita_resident_probe_upload', 'vita_resident_stage_package'}.issubset({tool.name for tool in tools.tools})
-                    checks.append('four-resident-thirteen-control-ten-workbench-tools-listed')
+                    checks.append('four-resident-thirteen-control-eleven-workbench-tools-listed')
                     status = await session.call_tool('vita_resident_status', {})
                     assert not status.isError and value(status)['app'] == 'Vita Resident'
                     checks.append('status-through-MCP')

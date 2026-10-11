@@ -1,6 +1,6 @@
 # MCP tool surface
 
-The foreground DevLoop bridge in `bridge/server.py` exposes these ten tools through MCP stdio. The separate combined Resident bridge exposes [four Resident](RESIDENT.md), [thirteen Control](CONTROL.md) and [ten Workbench tools](../workbench/README.md), for 27 total. Follow [complete baseline setup](GETTING-STARTED.md) or [DevLoop-only pairing](SETUP.md). Clients can discover exact argument schemas through MCP `tools/list`.
+The foreground DevLoop bridge in `bridge/server.py` exposes these ten tools through MCP stdio. The separate combined Resident bridge exposes [four Resident](RESIDENT.md), [thirteen Control](CONTROL.md) and [eleven Workbench tools](../workbench/README.md), for 28 total. Follow [complete baseline setup](GETTING-STARTED.md), [autonomous preparation](AUTONOMOUS-DEVLOOP.md) or [DevLoop-only pairing](SETUP.md). Clients can discover exact argument schemas through MCP `tools/list`.
 
 | Tool | Effect |
 | --- | --- |

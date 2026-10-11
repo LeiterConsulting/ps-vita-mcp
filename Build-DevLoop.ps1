@@ -1,7 +1,7 @@
-param([switch]$SkipTests)
+param([switch]$SkipTests,[string]$Python)
 $ErrorActionPreference = 'Stop'
 $vitaProjectRoot = $PSScriptRoot
-$vitaPython = Join-Path $vitaProjectRoot '.venv-devloop\Scripts\python.exe'
+$vitaPython = if ($Python) { $Python } else { Join-Path $vitaProjectRoot '.venv-devloop\Scripts\python.exe' }
 if (-not (Test-Path -LiteralPath $vitaPython)) { throw 'Run Setup-DevLoop.ps1 first to create the project Python environment.' }
 $vitaImage = (Get-Content -LiteralPath (Join-Path $vitaProjectRoot 'toolchain.lock.json') -Raw | ConvertFrom-Json).image
 New-Item -ItemType Directory -Path (Join-Path $vitaProjectRoot 'evidence\devloop') -Force | Out-Null
@@ -10,6 +10,8 @@ try {
     & $vitaPython scripts/generate_devloop_assets.py
     if ($LASTEXITCODE -ne 0) { throw 'DevLoop artwork generation failed.' }
     if (-not $SkipTests) {
+        & $vitaPython tests/test_devloop_identity.py
+        if ($LASTEXITCODE -ne 0) { throw 'Native DevLoop source identity tests failed.' }
         docker run --rm --network none --mount "type=bind,source=$vitaProjectRoot,target=/workspace" $vitaImage sh scripts/test_devloop.sh 2>&1 | Tee-Object evidence/devloop/host-tests.log
         if ($LASTEXITCODE -ne 0) { throw 'Host physics/DevLoop tests failed.' }
         & $vitaPython scripts/check_publication_regression.py 2>&1 | Tee-Object evidence/devloop/publication-regression-check.log

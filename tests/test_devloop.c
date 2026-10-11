@@ -11,6 +11,14 @@ static void apply(DevCore *c,const char *path,const char *body) {
 }
 int main(void) {
     DevCore c; dev_init(&c); Input in={0}; in.lx=in.ly=in.rx=in.ry=128; in.dt=1.0f/60; in.motion_result=-1;
+    const char *build="0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+    assert(!dev_identity(&c,0,10,1,build)&&!dev_identity(&c,77,0,1,build)&&!dev_identity(&c,77,1,0,build)&&!dev_identity(&c,77,1,2,build));
+    assert(!dev_identity(&c,77,10,1,"bad")&&!dev_identity(&c,77,10,1,"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0"));
+    assert(dev_identity(&c,77,0x123456789abcdef0ULL,0x123456789ULL,build));
+    assert(c.pid==77&&!strcmp(c.run,"123456789abcdef0234567890000004d")&&!strcmp(c.build_id,build));
+    assert(!dev_identity(&c,88,20,1,build)&&c.pid==77);
+    DevCore other;dev_init(&other);assert(dev_identity(&other,77,0x123456789abcdef1ULL,0x123456789ULL,build)&&strcmp(other.run,c.run));
+    puts("PASS bounded immutable process identity, clock/PID validation and per-launch session correlation");
     assert(c.paused&&c.revision==1); float x=c.world.x;
     in.lx=255; for(int n=0;n<10;n++) dev_tick(&c,&in,n*17); assert(c.world.x==x);
     apply(&c,"/control","expected_revision=1&action=resume"); dev_tick(&c,&in,200); assert(c.world.x>x);
@@ -38,6 +46,7 @@ int main(void) {
     char json[DEV_JSON_MAX]; in.acceleration.x=NAN; in.gyro.y=INFINITY; in.front.count=MAX_TOUCHES; in.back.count=MAX_TOUCHES;
     for(int n=0;n<MAX_TOUCHES;n++) { in.front.points[n].id=(unsigned)n; in.front.points[n].x=.2f; in.front.points[n].y=.3f; in.back.points[n]=in.front.points[n]; }
     dev_tick(&c,&in,5034); dev_status_json(&c,json,sizeof(json)); fprintf(out,"%s\n",json);
+    assert(strstr(json,"\"version\":\"01.04\"")&&strstr(json,"\"title_id\":\"CHRS00003\"")&&strstr(json,c.run)&&strstr(json,c.build_id));
     dev_input_json(&c,json,sizeof(json)); fprintf(out,"%s\n",json); assert(!strstr(json,"nan")&&!strstr(json,"inf"));
     for(int n=0;n<20;n++) dev_log(&c,"Escaped \"quote\" and \\ slash");
     dev_logs_json(&c,json,sizeof(json)); fprintf(out,"%s\n",json); fclose(out);

@@ -1,8 +1,8 @@
 # From a modded Vita to the developer preview
 
-This is the supported staging path for further autonomous DevLoop work. It starts with an **already modded Vita** and ends with background inspection, verified file transfer, screen readback and bounded input, plus live Lua development in DevLoop. It does not install a firmware exploit or configure a storage adapter.
+This is the existing manual staging path for further autonomous DevLoop work. It starts with an **already modded Vita** and sets up background inspection, verified file transfer, screen readback and bounded input, plus live Lua development in DevLoop. It does not install a firmware exploit or configure a storage adapter. [The October 11 autonomous candidate](AUTONOMOUS-DEVLOOP.md) adds PC preparation and a separate default-disabled one-shot startup experiment.
 
-The development device runs firmware **3.65** with DevLoop **01.02**, Resident **0.1.1**, Control **0.3.3** and Starter **01.04**. Its unattended software tests have scoped evidence; physical touch and lifecycle gates remain open. Public DevLoop builds **01.03**, and all freshly built public packages need their own hardware acceptance. See [current qualification](QUALIFICATION.md) and [release gates](RELEASE-CHECKLIST.md). Building or staging a candidate does not certify a device.
+The test device runs firmware **3.65**. The latest recorded pairing candidate is Resident **0.1.2**, Control **0.3.4** and Starter **01.06**, with partial [device gates](PAIRING-DEVICE-TESTS.md). The older **0.1.1 / 0.3.3 / 01.04** qualification is historical. DevLoop **01.04** is installed and passed exact native identity plus live Lua reload/recovery on the test device. Control capture mapping, synthetic input and sleep/reopen remain open. Legacy **01.02/01.03** lacks native mapping and is limited to script-only Workbench profiles. Source, build, installation and each hardware result remain separate evidence. See [qualification](QUALIFICATION.md) and [release gates](RELEASE-CHECKLIST.md). Building or staging does not certify a device.
 
 ## 1. Prepare the host and Vita
 
@@ -67,7 +67,7 @@ Use the **hash from your inspection**:
 
 For a first installation, staging creates a fresh Resident root, preserves the original configuration, generates Resident pairing, and verifies every uploaded file. It refuses an existing root/pairing or changed configuration. Read the printed receipt under `evidence/resident/`. In the file manager, copy the proposed setup folder's `config.txt` into `ur0:tai/`, then reboot normally. Keep `config.txt.before-resident` for rollback. **Resident has no installable bubble.** [Resident setup, updates and rollback](RESIDENT.md).
 
-Expect Resident 0.1.1 to answer from LiveArea:
+Expect Resident 0.1.2 to answer from LiveArea:
 
 ```powershell
 .\.venv-devloop\Scripts\python.exe resident\control\call_tool.py vita_resident_status
@@ -112,9 +112,11 @@ Register two stdio servers using absolute paths from this checkout:
 }
 ```
 
-DevLoop exposes ten tools and resources. The combined Resident bridge exposes **four Resident, thirteen Control and ten Workbench tools**. Control uses the existing Resident token and port **17867**; Resident uses **17866**; foreground DevLoop uses **17865**. The desktop process speaks MCP; the Vita services speak authenticated HTTP.
+DevLoop exposes ten tools and resources. The combined Resident bridge exposes **28 tools: four Resident, thirteen Control and eleven Workbench**. Control uses the existing Resident token and port **17867**; Resident uses **17866**; foreground DevLoop uses **17865**. The desktop process speaks MCP; the Vita services speak authenticated HTTP.
 
 Restart/refresh this client's existing MCP connection after updating the bridge. A long-lived old bridge rejected Control 0.2.2 as an unexpected identity until it was restarted. Restart the **PC connection**, not the loaded Vita modules. The supplied `resident/Register-Mcp.ps1` is an optional Codex CLI registration helper; other clients can use the JSON above.
+
+Before long synchronous soaks, configure an adequate per-tool timeout or use the CLI. The [PC guide](PC-SIDE.md#configure-the-bridges) gives Codex's `tool_timeout_sec = 4200` setting for the existing Resident entry; the soak limit remains 3,600 seconds.
 
 ```powershell
 .\.venv-devloop\Scripts\python.exe resident\control\call_tool.py list
@@ -141,13 +143,13 @@ Open DevLoop and qualify hot reload with `bridge/prove_scripts.py`, or the minim
 
 Then capture the current PID before a bounded request. The monitor expects right+cross, both stick offsets and the two exact touch coordinates documented in [CONTROL.md](CONTROL.md). It should latch mask **31**, matching frames greater than zero, and `neutral_after: 1` after the lease expires. Read app telemetry as well as the Control receipt.
 
-Install `dist/workbench/input_target.vpk` manually when ready to qualify synthetic controls. Open it, read `vita_workbench_target_status`, and call `vita_workbench_qualify_input` with the exact Control and Target build fingerprints. The test ends through Target self-exit; it does not simulate physical touch acceptance. Open paused native DevLoop for the hash-pinned Lua profiles described in [Workbench](../workbench/README.md).
+Install `dist/workbench/input_target.vpk` manually when ready to qualify synthetic controls. Open it, read `vita_workbench_target_status`, and call `vita_workbench_qualify_input` with the exact Control and Target build fingerprints. The test ends through Target self-exit; it does not simulate physical touch acceptance. For Lua profiles, call `vita_workbench_prepare_devloop` with the exact installed Control pin. `ready_for_script_reload` permits a profile without input steps; `ready_for_input_trial` additionally requires the exact `expected_devloop_build` from the installed 01.04 build report and native DevLoop title/PID matching fresh captures. Legacy DevLoop lacks that mapping, so input-bearing Workbench profiles are blocked. The direct input-monitor example above is an operator-verified manual test, not an autonomous identity shortcut. [Workbench](../workbench/README.md).
 
 Complete the [release acceptance checklist](RELEASE-CHECKLIST.md). Keep physical controller acceptance, screen inspection, sustained load and sleep recovery as separate results. Stop and collect logs if the device freezes, crashes, produces a persistent black screen or leaves input active. Do not automatically replay an uncertain change.
 
 ## 7. Resume after another reboot
 
-Resident loads at boot; Control does **not**. Normal reboot unloads the Control pair but leaves `ux0:data/vita-control/control-session.lock` on storage. Keep Starter closed. After you have personally confirmed the normal reboot, inspect and retain that exact old marker:
+In the manual path, Resident loads at boot and Control does **not**. Normal reboot unloads the Control pair but leaves `ux0:data/vita-control/control-session.lock` on storage. Keep Starter closed. After you have personally confirmed the normal reboot, inspect and retain that exact old marker:
 
 ```powershell
 .\.venv-devloop\Scripts\python.exe resident\control\retire_session.py --inspect
@@ -161,7 +163,11 @@ $controlBuild = Get-Content .\dist\control\build-report.json -Raw | ConvertFrom-
 
 This retains the marker under a fresh name after checking the exact installed Starter and unchanged config. It never unloads modules or changes boot config. **FTP availability is not reboot proof.** A failure/uncertain rename needs inspection before another action. Then open Starter, CROSS once, wait, exit, and read Control status again. Never remove an active marker to force a duplicate load.
 
-For endpoint changes, update the `host` in the appropriate private JSON files while preserving their token and port; configure FTP separately. Requests reread the saved endpoint. For recovery, diagnostics and support reports, use [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+For endpoint changes, update the `host` in the appropriate private JSON files while preserving their token and port; configure FTP separately. Start a new operation after updating configuration. Active preparation/trial jobs freeze their endpoints, detect drift and keep cleanup directed at the original endpoint. For recovery, diagnostics and support reports, use [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+
+## 8. Separate experimental startup path
+
+The [deferred startup helper](../resident/autostart/README.md) is independent of the manual procedure above. It is disabled by default, consumes one explicit opt-in and retains guards before attempting the exact matched modules. Native boot/load/network behavior and repeated boots remain unqualified. [Autonomous DevLoop](AUTONOMOUS-DEVLOOP.md) describes the build and acceptance progression. Preserve rollback and finish a normal disabled boot before any controlled one-shot trial; do not install direct full-Control boot entries or retire a possibly active guard.
 
 ## Companion pairing candidate
 

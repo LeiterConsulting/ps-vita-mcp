@@ -122,8 +122,8 @@ def watch(duration=1800, start_at='buttons'):
                 raise RuntimeError('Another work session is active')
             state = d.status()
             script = d.script()
-            if state.get('version') not in ('01.02', '01.03') or not state['paused'] or script['active']:
-                raise RuntimeError('Leave native DevLoop 01.02 or 01.03 paused for these gestures')
+            if state.get('version') not in ('01.02', '01.03','01.04') or not state['paused'] or script['active']:
+                raise RuntimeError('Leave native DevLoop 01.02, 01.03 or 01.04 paused for these gestures')
             j.report.update(before_control=baseline, before_power=before, before_devloop=state, before_script=script)
             submitted = True
             work(30000, 'begin')

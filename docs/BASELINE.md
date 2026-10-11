@@ -12,7 +12,7 @@ This baseline is the minimum operational prerequisite for subsequent autonomous 
 | Control Starter, `CHRS00011` | 01.00 | Explicit one-load activation after a normal boot |
 | Control Inspector, `CHRS00010` | 01.03 | Optional read-only diagnostic; not required for normal use |
 
-The physical record covers one modded firmware-3.65 Vita and a Windows bridge. The public DevLoop 01.03 candidate changes shutdown and version reporting; it must pass its own installation, live-loop and lifecycle checks. Control/Resident source fingerprints and package identities are tracked separately. New builds, different firmware, plugins, storage layouts or models need fresh qualification.
+The physical record covers one modded firmware-3.65 Vita and a Windows bridge. At this October 3 staging point, public DevLoop 01.03 changed shutdown and version reporting and still needed separate device qualification. The October 11 source is 01.04 with native process/build identity; it also needs its own installation, live-loop and lifecycle checks. [Current autonomous scope](AUTONOMOUS-DEVLOOP.md). Control/Resident source fingerprints and package identities are tracked separately. New builds, different firmware, plugins, storage layouts or models need fresh qualification.
 
 ## Demonstrated capabilities
 

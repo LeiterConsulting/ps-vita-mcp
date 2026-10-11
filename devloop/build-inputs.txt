@@ -1,0 +1,14 @@
+apps/vita_devloop.c
+common/platform_vita.c
+common/ui.c
+common/math_helpers.c
+common/physics.c
+devloop/core.c
+devloop/server_vita.c
+devloop/script_runtime.c
+devloop/sha256.c
+devloop/build-inputs.txt
+CMakeLists.txt
+scripts/devloop_identity.cmake
+scripts/devloop_identity.py
+toolchain.lock.json

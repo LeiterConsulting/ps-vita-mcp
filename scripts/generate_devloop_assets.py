@@ -19,7 +19,7 @@ bg = Image.new("RGB",(840,500),(10,17,29)); bg.paste(icon,(45,52)); d=ImageDraw.
 d.text((198,72),"Vita DevLoop",font=font(40),fill=(232,239,249))
 d.text((198,133),"A live experiment, connected to MCP",font=font(24),fill=(64,220,191))
 d.text((49,230),"Live Lua / physical inputs / screenshots / rollback",font=font(24),fill=(151,170,195))
-d.text((49,278),"Version 1.03 - Edit, push, run",font=font(22),fill=(151,170,195)); save(bg,"bg.png")
+d.text((49,278),"Version 1.04 - Native session identity",font=font(22),fill=(151,170,195)); save(bg,"bg.png")
 startup=Image.new("RGB",(280,158),(20,32,49)); startup.paste(icon.resize((84,84)),(98,12)); d=ImageDraw.Draw(startup)
 d.text((140,123),"Vita DevLoop",anchor="mm",font=font(23),fill=(64,220,191)); save(startup,"startup.png")
 print("Generated indexed opaque Vita DevLoop package artwork")

@@ -4,6 +4,7 @@ import asyncio
 from datetime import timedelta
 import hashlib
 import json
+import re
 from pathlib import Path
 import sys
 import uuid
@@ -21,6 +22,9 @@ PROFILES={'smoke':'b3c5eb6d4dde5f276563ae531931dd1029cdd53c0ba13825359ffe1dfe868
 async def prove(phase,seconds):
     control=json.loads((ROOT/'dist/control/build-report.json').read_text())['build_id']
     target=json.loads((ROOT/'dist/workbench/build-report.json').read_text())['build_id']
+    candidate=json.loads((ROOT/'dist/devloop/build-report.json').read_text())['package'] if phase=='trials' else None
+    if candidate is not None and (candidate.get('version')!='01.04' or candidate.get('titleId')!='CHRS00003' or not re.fullmatch('[0-9a-f]{64}',candidate.get('buildId',''))):
+        raise ValueError('Trial integration requires the exact native DevLoop 01.04 package report')
     j=Journal(ROOT,'integration-'+phase)
     j.report.update(control_build=control,target_build=target,boundary='fresh actual stdio MCP to live hardware')
     async with stdio_client(StdioServerParameters(command=sys.executable,args=[str(ROOT/'resident/bridge.py')])) as streams:
@@ -62,14 +66,12 @@ async def prove(phase,seconds):
                     j.report['retained_original']=await call('vita_control_file_info',identity)
                     if j.report['retained_original']['sha256']!=digest:raise RuntimeError('Original fixture changed')
                 elif phase=='trials':
-                    j.report['launch']=await call('vita_control_app',{'action':'launch','title_id':'CHRS00003'},True)
-                    await asyncio.sleep(1)
-                    ready=await call('vita_workbench_doctor',{'expected_control_build':control})
-                    j.report['doctor']=ready
-                    if not ready['ready_for_lua_trial']:raise RuntimeError('DevLoop is not healthy and paused; launch is not replayed')
+                    ready=await call('vita_workbench_prepare_devloop',{'expected_control_build':control,'expected_devloop_version':'01.04','expected_devloop_build':candidate['buildId']},True)
+                    j.report['preparation']=ready
+                    if not ready['ready_for_input_trial']:raise RuntimeError('DevLoop candidate is not healthy, paused and mapped; launch is not replayed')
                     j.report['trials']=[]
                     for name,digest in PROFILES.items():
-                        r=await call('vita_workbench_run_trial',{'relative_profile':name+'/trial.json','expected_profile_sha256':digest,'expected_control_build':control},True)
+                        r=await call('vita_workbench_run_trial',{'relative_profile':name+'/trial.json','expected_profile_sha256':digest,'expected_control_build':control,'expected_devloop_build':candidate['buildId']},True)
                         j.report['trials'].append(r);j.save()
                         print(json.dumps({'phase':name,'result':r['result'],'restoration':r.get('restoration'),'evidence':r['evidence_directory']}),flush=True)
                         if r['result']!='passed' or not r.get('restoration','').startswith('passed'):raise RuntimeError('Lua trial failed: '+r.get('failure','inspect its report'))

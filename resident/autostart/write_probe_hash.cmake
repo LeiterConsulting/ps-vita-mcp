@@ -1,0 +1,2 @@
+file(SHA256 "${PROBE}" PROBE_SHA256)
+file(WRITE "${OUTPUT}" "#define AO_PROBE_SHA256 \"${PROBE_SHA256}\"\n")

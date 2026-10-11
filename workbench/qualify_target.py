@@ -1,6 +1,6 @@
 """Prove synthetic input in a disposable app, including an independent self-exit focus gate."""
 import re,time
-from .runner import Device,Journal,WORKDIR,check_identity,utc
+from .runner import Device,Journal,WORKDIR,check_identity,freeze_device_endpoints,utc
 from .session import exclusive
 from .power import WorkKeeper
 def qualify(expected_control_build,expected_target_build,device=None,root=WORKDIR):
@@ -9,6 +9,7 @@ def qualify(expected_control_build,expected_target_build,device=None,root=WORKDI
     with exclusive():
         j=Journal(root,'input-target');checks=[];started=False;focus_submitted=False;keeper=WorkKeeper(d.control,j.folder)
         try:
+            freeze_device_endpoints(d,with_target=True)
             control=d.control_status();check_identity(control,expected_control_build)
             if control.get('version') not in ('0.3.0','0.3.1','0.3.2','0.3.3','0.3.4') or control.get('abi')!=2:raise RuntimeError('Focus cause proof requires Control 0.3.x ABI 2')
             before=d.target();png,screen=d.screen();(j.folder/'before.png').write_bytes(png)

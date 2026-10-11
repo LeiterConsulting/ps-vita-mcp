@@ -15,7 +15,7 @@ From the repository root, with Docker Desktop running:
 
 The build runs the actual C HTTP/storage service under sanitizers with host adapters, MCP stdio fixtures, first-install FTP fixtures and update fixtures. It validates the ARM module's identity, imports, lifecycle, unresolved symbols and source fingerprint. Outputs are `dist/resident/vita_resident.suprx` and `dist/resident/build-report.json`. Building does not contact the Vita.
 
-The combined public bridge exposes four Resident tools, thirteen [Control tools](CONTROL.md) and ten [Workbench tools](../workbench/README.md), for 27 total. The Resident MCP subset retains these four operations:
+The combined public bridge exposes four Resident tools, thirteen [Control tools](CONTROL.md) and eleven [Workbench tools](../workbench/README.md), for 28 total. The Resident MCP subset retains these four operations:
 
 | Tool | Operation |
 | --- | --- |
@@ -64,4 +64,4 @@ DevLoop and Resident have separate native services, ports and pairing configurat
 
 `resident/prove_device.py` performs live actions only when explicitly run. It can collect status continuity, publish a probe or stage DevLoop, and record a user-supplied foreground label. That label does not establish which application is on screen. A restarted service fails a continuity claim. Test physical responsiveness and wake recovery separately.
 
-The combined desktop bridge also exposes runtime-loaded Control for bounded synthetic input, cross-app framebuffer readback and managed files. [Control tools](CONTROL.md) and the [functional baseline](BASELINE.md) document the recorded results and limits. Autonomous native installation remains unqualified. For the complete Resident/Starter/DevLoop path, use [GETTING-STARTED.md](GETTING-STARTED.md).
+The combined desktop bridge also exposes Control for bounded synthetic input, cross-app framebuffer readback and managed files. [Control tools](CONTROL.md) and the [functional baseline](BASELINE.md) document the recorded results and limits. Automatic native installation is not implemented. The existing manual Starter path remains available; the independent [default-disabled one-shot startup experiment](../resident/autostart/README.md) has its own acceptance gates and does not replace Resident. [Autonomous DevLoop](AUTONOMOUS-DEVLOOP.md) explains script/input readiness. For the complete manual Resident/Starter/DevLoop path, use [GETTING-STARTED.md](GETTING-STARTED.md).
