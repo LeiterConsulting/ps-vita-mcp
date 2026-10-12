@@ -1,13 +1,15 @@
 # Resident keep-awake lease
 
-As of October 12, 2026, the corrected **Resident 0.1.6 qualification candidate is
-installed after a confirmed normal boot**. Its plugin SHA-256 is
-`d8ca07cfb6ef6e367ed792b08f4bfe134053e609dfeb10a20c8845aff508c45a`
+As of October 12, 2026, the **Resident 0.1.6 candidate with a two-second native
+HTTP budget is installed after a confirmed normal boot**. Its plugin SHA-256 is
+`dd8da21847f5341bc70112f86176e2f864c92b10aaeb3400ec9855751a6b1ef8`
 and its Resident build ID is
-`ed4abe7bbf3f5cb6f52899d4bcace5483dd2fd19b193e7e6034fb1338ffd04d4`.
-The accepted 0.1.5 is retained for rollback. One bounded three-minute online
-trial has passed; physical sleep confirmation and broader qualification remain
-pending. [The dated evidence record](resident-keep-awake-validation.json)
+`47ece86ad3b5258b6a52b4aaffefb8046e5af48c69f49a763001bf36bd815240`.
+Short MCP checks, an isolated 120-second renewed hold, renewal during a verified
+slow transfer and expiry after PC keeper loss passed. Transport failures remain
+retained. **Keep-awake
+qualification is incomplete.** The accepted 0.1.5
+is retained for rollback. [The dated evidence record](resident-keep-awake-validation.json)
 keeps host, packaging, API and physical results separate.
 
 The lease is designed to keep an already awake Vita available while a bounded development
@@ -20,10 +22,86 @@ by a lease. An already suspended Vita still needs a physical wake.
 
 ## Interim hardware results
 
-Fresh actual stdio MCP exposed all 40 tools and passed the four keep-awake
-operations: status, begin, renew and end. The short trial started from an
-inactive lease, observed successful ticks, ended the exact owner and observed
-no tick growth afterward.
+On the currently installed two-second-budget build, fresh actual stdio MCP
+exposed all 40 tools and passed status, begin, renew and end. The trial started
+inactive, observed successful ticks, ended the exact owner and observed no tick
+growth afterward.
+
+Its subsequent planned 120-second hold at one-minute standby **stopped after
+about 40 seconds**. A renewal POST timed out while reading response headers
+under the PC's five-second HTTP deadline. Cleanup read revision 7 with the
+same active owner: the renewal submitted at revision 6 had been accepted.
+Cleanup then ended that owner at revision 8, with 42 ticks recorded. The POST
+was not resent. This is an accepted renewal with a lost reply; it does not
+establish why that reply was unavailable or whether the Vita slept. Increasing
+the native connection budget alone has not eliminated transient lost replies.
+
+A PC change now reconciles one uncertain renewal with a
+single read-only status request. Continuation requires the exact expected next
+revision, original owner, pinned build and power instance, and a session ceiling
+that does not extend the original deadline; it never resends the POST. All 41
+PC client tests, 35 native-lifecycle host tests and the actual C integration
+test passed. No live renewal reconciliation has been adopted; the successful
+holds reported zero reconciliations, so that path remains host-tested only.
+Live qualification remains incomplete. No native update or reboot is needed
+for that PC change.
+
+Two subsequent holds remain retained failures. The first stopped after about
+11 seconds on a diagnostic GET timeout, before any renewal; cleanup confirmed
+end. The operator had used or moved the Vita, so it was not a controlled idle
+trial. A later controlled hold stopped after about 22 seconds on a diagnostic
+GET timeout, after three samples. The keeper stopped before submitting its
+first renewal and cleanup again confirmed end. Diagnostic read timeouts are
+transport failures; neither trial establishes a failure of the native power
+tick or proves a sleep transition.
+
+The isolated **120-second hold passed** at unchanged one-minute standby:
+11 renewals, zero reconciliations, no keeper errors and a confirmed end at
+21:42:53 UTC. It observed confirmed background renewal receipts without
+additional diagnostic HTTP polling, using local `check(fresh=False)` checks.
+This establishes bounded power and renewal continuity beyond the saved standby
+timeout for that trial. It does not qualify diagnostic GET reliability or the
+production checks before native effects. Production freshness checks remain unchanged.
+
+A subsequent slow-transfer trial sent 4 KiB in 32 chunks of 128 bytes, spaced
+1.1 seconds apart, taking about 35 seconds. The independent keeper completed
+three renewals without errors and confirmed end at 21:43:37 UTC. The main upload
+reply timed out under its five-second response deadline. It was not replayed.
+At 21:48:23 UTC, read-only stat/hash inspection and a complete 4 KiB readback
+confirmed publication and the exact expected payload, SHA-256
+`c8f5d0341d54d951a71b136e6e2afcb14d11ed8489a7ae126a8fee0df6ecf193`.
+The original upload's HTTP 201 reply remains unknown and its timeout remains
+retained. This qualifies background renewal during that verified 35-second
+transfer, without establishing broad HTTP reliability. The coordinator stopped
+and **did not start the native cycle**.
+
+A PC keeper-loss test then **passed**. The keeper process deliberately exited
+with `os._exit` without ending its 30-second lease. At 21:47:42 UTC, read-only
+status observed the same power instance inactive at revision 32 with reason
+`lease_expired`. Two diagnostic GET timeouts were retained. This proves native
+TTL expiry after PC process loss for that trial; it does not confirm physical sleep.
+
+A separate native preview declined to proceed: `ready=false`, one occupied
+application slot and guard result `-12004`. It made zero device mutations and
+the execute tool was not called. This is an unstarted cycle, not a failed native
+installation or launch. The operator has been asked to close all app cards.
+
+After end, both ports had connection timeouts. Physical confirmation of sleep
+on the current build is pending; the operator has been asked to wake the Vita.
+Network unavailability alone does not establish sleep. The operator temporarily
+selected 30-minute standby at about 21:47:43 UTC for further investigation;
+restoring the original one-minute setting is pending. Earlier one-minute trial
+records retain their original setting.
+
+Code review identified a response-budget edge: a lease POST can commit near the
+end of its two-second connection budget, leaving no time to write its response
+headers. This is a possible lost-reply path, not an established cause of the
+periodic delays observed on hardware. Phase instrumentation is the next step.
+
+The following results belong to the **previous 300 ms native-budget build**,
+plugin SHA-256 `d8ca07cfb6ef6e367ed792b08f4bfe134053e609dfeb10a20c8845aff508c45a`,
+build ID `ed4abe7bbf3f5cb6f52899d4bcace5483dd2fd19b193e7e6034fb1338ffd04d4`.
+They remain historical evidence and do not qualify the currently installed build.
 
 The subsequent planned 180-second hold with the operator's original
 one-minute standby setting **failed after about 37 seconds**. A renewal POST
@@ -42,25 +120,25 @@ timeout.
 
 After the operator restored the original one-minute standby setting, a separate
 180-second repeat passed: 48 samples, 16 renewals, no keeper errors and a
-confirmed end. That trial used the same installed native build with updated
+confirmed end. That trial used the same earlier native build with updated
 five-second PC timeout and diagnostics. It establishes bounded remote
 availability beyond the saved standby timeout for that trial. It does not
-identify the cause of the first uncertain renewal or qualify the next native
-candidate.
+identify the cause of the first uncertain renewal or qualify another native build.
 
 A subsequent 95-second status-only observer did not renew a lease. It recorded
 both service ports becoming unreachable about 25 seconds after the confirmed
-end, followed by seven paired-port timeout observations. Physical confirmation
-of full sleep is pending; network unavailability alone does not establish it.
-The normal timer behavior after release remains unqualified.
+end, followed by seven paired-port timeout observations. The operator then
+confirmed full automatic sleep and physically woke the Vita into FTP. That
+explicit-end sleep result is scoped to the previous build. It does not establish
+a full configured standby interval starting at release, or qualify TTL expiry.
 
-The first uncertain renewal remains a retained failure to investigate. A slow
-production-TTL upload, controlled expiry/end followed by confirmed normal sleep,
-keeper process loss, manual sleep/wake, Wi-Fi loss and native lifecycle
-execution with the new lease remain open hardware gates. A two-second native
-connection-budget candidate has built successfully but is not installed. The
-PC five-second absolute HTTP deadline passed 34 host tests and the actual C
-integration rerun. Neither change inherits the installed build's trial results.
+First, instrument the transport phases and response-budget edge, then qualify a
+native cycle with production freshness checks after the idle-shell guard is ready.
+Restore the original standby setting and qualify physical normal sleep after
+end/expiry, manual sleep/wake and Wi-Fi loss. Verified slow-transfer renewal and
+keeper-loss TTL expiry are completed evidence tiers; retained transport failures
+remain evidence to investigate. CI at commit `5f18a25` passed with 32 hashed
+artifact files; that result predates the subsequent PC reconciliation change.
 
 ## Ownership and expiry
 
@@ -134,11 +212,10 @@ wrapper for work that may remain silent for more than thirty seconds.
 
 A separate, bounded HTTP worker serves `GET /keep-awake/status` and
 `POST /keep-awake/lease`. Bulk transfers on port 17866 cannot queue ahead of
-lease renewals. Current candidate source gives each lease connection a two-second
+lease renewals. The installed candidate gives each lease connection a two-second
 total budget, with a five-second absolute PC HTTP deadline; the worker checks policy
-while handling network I/O. The installed build identified above still uses
-the earlier 300 ms native budget. The two-second candidate has passed its build
-and host checks and needs separate activation and hardware qualification.
+while handling network I/O. Its build, host tests, normal boot and short MCP
+checks passed; sustained hardware qualification remains incomplete.
 Once per second, an active lease calls
 `sceKernelPowerTick(SCE_KERNEL_POWER_TICK_DISABLE_AUTO_SUSPEND)`.
 It does not acquire a persistent power lock or refresh OLED dim/off timers.

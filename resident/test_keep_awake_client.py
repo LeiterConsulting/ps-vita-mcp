@@ -37,6 +37,9 @@ class Fixture:
         self.calls = []
         self.packets = []
         self.drop = False
+        self.drop_without_apply = False
+        self.drop_get = False
+        self.after_drop = None
         self.malformed = False
         self.tick_result = 0
         self.drip = ''
@@ -108,6 +111,10 @@ class Fixture:
             def do_GET(self):
                 with owner.lock:
                     if self.auth():
+                        if owner.drop_get:
+                            owner.drop_get = False
+                            self.close_connection = True
+                            return
                         self.reply(owner.state())
 
             def do_POST(self):
@@ -124,6 +131,10 @@ class Fixture:
                         return self.reply({'error': 'cas'}, 409)
                     if duration and owner.lease or not duration and (owner.lease != lease or owner.job != job):
                         return self.reply({'error': 'owner'}, 409)
+                    if owner.drop_without_apply:
+                        owner.drop_without_apply = False
+                        self.close_connection = True
+                        return
                     now = owner.now()
                     if duration:
                         owner.ceiling = now + duration
@@ -136,6 +147,9 @@ class Fixture:
                     value = owner.state()
                     if owner.drop:
                         owner.drop = False
+                        if owner.after_drop:
+                            owner.after_drop()
+                            owner.after_drop = None
                         self.close_connection = True
                         return
                     if owner.malformed:
@@ -250,10 +264,35 @@ class ClientTests(unittest.TestCase):
         self.assertFalse(self.fixture.state()['active'])
         self.assertEqual([struct.unpack('<8I', raw[:32])[3] for raw in self.fixture.packets], [30000, 0])
 
-    def test_unknown_renewal_stops_thread_no_retry_and_fresh_cas_cleanup(self):
-        keeper = self.keeper()
+    def test_unknown_accepted_renewal_is_get_reconciled_once_without_post_replay(self):
+        keeper = self.keeper(interval=0.2)
         keeper.start(BUILD, INSTANCE)
         self.fixture.drop = True
+        self.wait_for(lambda: keeper.result['reconciled_renewals'] == 1)
+        self.assertIsNone(keeper.failed)
+        self.assertEqual(len(self.fixture.packets), 2)
+        keeper.check(fresh=True)
+        self.assertGreaterEqual(keeper.result['renewals'], 1)
+        self.assertEqual(keeper.stop()['end'], 'ended')
+        self.assertEqual(len(self.fixture.packets), 3)
+        self.assertEqual(struct.unpack('<8I', self.fixture.packets[-1][:32])[2], 2)
+        events = [json.loads(line) for line in (self.folder / 'resident-keep-awake.jsonl').read_text().splitlines()]
+        kinds = [event['kind'] for event in events]
+        expected = ('lease_unconfirmed_or_rejected', 'lease_renewal_reconciliation_intent',
+                    'lease_renewal_reconciliation_observation', 'lease_renewal_receipt_adopted')
+        indexes = [kinds.index(kind) for kind in expected]
+        self.assertEqual(indexes, sorted(indexes))
+        self.assertEqual(kinds.count('lease_renewal_reconciliation_intent'), 1)
+        self.assertEqual(kinds.count('lease_renewal_reconciliation_observation'), 1)
+        adopted = events[indexes[-1]]
+        self.assertTrue(adopted['read_only_reconciliation'])
+        self.assertEqual(adopted['device_mutations'], 0)
+        self.assertFalse(adopted['replayed'])
+
+    def test_unknown_unapplied_renewal_stops_thread_no_replay_and_fresh_cas_cleanup(self):
+        keeper = self.keeper()
+        keeper.start(BUILD, INSTANCE)
+        self.fixture.drop_without_apply = True
         self.wait_for(lambda: keeper.failed is not None)
         self.assertEqual(len(self.fixture.packets), 2)
         time.sleep(0.1)
@@ -262,7 +301,112 @@ class ClientTests(unittest.TestCase):
             keeper.check()
         self.assertEqual(keeper.stop()['end'], 'ended')
         self.assertEqual(len(self.fixture.packets), 3)
-        self.assertEqual(struct.unpack('<8I', self.fixture.packets[-1][:32])[2], 2)
+        self.assertEqual(struct.unpack('<8I', self.fixture.packets[-1][:32])[2], 1)
+        self.assertEqual(keeper.result['reconciled_renewals'], 0)
+
+    def test_reconciliation_refuses_wrong_revision_owner_identity_expiry_or_extended_ceiling(self):
+        changes = {
+            'wrong_revision': lambda: setattr(self.fixture, 'revision', self.fixture.revision + 1),
+            'wrong_owner': lambda: setattr(self.fixture, 'lease', 'f' * 32),
+            'wrong_job': lambda: setattr(self.fixture, 'job', 'f' * 32),
+            'wrong_instance': lambda: setattr(self.fixture, 'instance', 'f' * 32),
+            'wrong_build': lambda: setattr(self.fixture, 'build', 'f' * 64),
+            'extended_ceiling': lambda: setattr(self.fixture, 'ceiling', self.fixture.ceiling + 1000),
+            'expired': lambda: setattr(self.fixture, 'offset', self.fixture.offset + 30001),
+            'tick_failed': lambda: setattr(self.fixture, 'tick_result', -7),
+        }
+        for mode, change in changes.items():
+            with self.subTest(mode=mode):
+                self.fixture.lease = self.fixture.job = None
+                self.fixture.deadline = self.fixture.ceiling = 0
+                self.fixture.instance, self.fixture.build, self.fixture.tick_result = INSTANCE, BUILD, 0
+                keeper = self.keeper(interval=10)
+                keeper.start(BUILD, INSTANCE)
+                writes, reads = len(self.fixture.packets), len(self.fixture.calls)
+                self.fixture.drop = True
+                self.fixture.after_drop = change
+                with self.assertRaises(KeepAwakeUnknown):
+                    keeper._send(30000)
+                self.assertEqual(len(self.fixture.packets), writes + 1)
+                self.assertEqual(self.fixture.calls[reads:], [('GET', '/keep-awake/status'),
+                                                             ('POST', '/keep-awake/lease'),
+                                                             ('GET', '/keep-awake/status')])
+                self.assertEqual(keeper.result['reconciled_renewals'], 0)
+                keeper.stop()
+
+    def test_failed_reconciliation_get_is_not_retried_and_stops_renewal(self):
+        keeper = self.keeper(interval=0.2)
+        keeper.start(BUILD, INSTANCE)
+        reads = len(self.fixture.calls)
+        self.fixture.drop = True
+        self.fixture.after_drop = lambda: setattr(self.fixture, 'drop_get', True)
+        self.wait_for(lambda: keeper.failed is not None)
+        self.assertEqual(self.fixture.calls[reads:], [('GET', '/keep-awake/status'),
+                                                     ('POST', '/keep-awake/lease'),
+                                                     ('GET', '/keep-awake/status')])
+        self.assertEqual(len(self.fixture.packets), 2)
+        self.assertEqual(keeper.result['reconciled_renewals'], 0)
+        with self.assertRaises(KeepAwakeLost):
+            keeper.check()
+        self.assertEqual(keeper.stop()['end'], 'ended')
+
+    def test_reconciliation_remaining_ttl_cannot_exceed_requested_renewal(self):
+        keeper = self.keeper(interval=10)
+        keeper.start(BUILD, INSTANCE)
+        self.fixture.drop = True
+        self.fixture.after_drop = lambda: setattr(self.fixture, 'deadline', self.fixture.now() + 10000)
+        with self.assertRaises(KeepAwakeUnknown):
+            keeper._send(5000)
+        self.assertEqual(len(self.fixture.packets), 2)
+        self.assertEqual(keeper.result['reconciled_renewals'], 0)
+
+    def test_unknown_end_never_automatically_adopts_or_reconciles(self):
+        keeper = self.keeper(interval=10)
+        keeper.start(BUILD, INSTANCE)
+        reads = len(self.fixture.calls)
+        self.fixture.drop = True
+        with self.assertRaises(KeepAwakeUnknown):
+            keeper._send(0)
+        self.assertEqual(self.fixture.calls[reads:], [('GET', '/keep-awake/status'), ('POST', '/keep-awake/lease')])
+        self.assertEqual(keeper.result['reconciled_renewals'], 0)
+        self.assertEqual(keeper.stop()['end'], 'already_inactive')
+
+    def test_stop_during_reconciliation_observation_or_adoption_fsync_prevents_adoption(self):
+        for stage in ('lease_renewal_reconciliation_observation', 'lease_renewal_receipt_adopted'):
+            with self.subTest(stage=stage):
+                self.fixture.lease = self.fixture.job = None
+                self.fixture.deadline = self.fixture.ceiling = 0
+                keeper = self.keeper(interval=10)
+                keeper.start(BUILD, INSTANCE)
+                previous = keeper.value['revision']
+                self.fixture.drop = True
+                original = keeper.record
+                def record(kind, **fields):
+                    original(kind, **fields)
+                    if kind == stage:
+                        keeper.end.set()
+                with patch.object(keeper, 'record', side_effect=record), self.assertRaises(KeepAwakeUnknown):
+                    keeper._send(30000)
+                self.assertEqual(keeper.value['revision'], previous)
+                self.assertEqual(keeper.result['reconciled_renewals'], 0)
+                self.assertEqual(keeper.stop()['end'], 'ended')
+
+    def test_reconciled_receipt_journal_failure_never_adopts_or_replays(self):
+        keeper = self.keeper(interval=10)
+        keeper.start(BUILD, INSTANCE)
+        previous = keeper.value['revision']
+        self.fixture.drop = True
+        original = keeper.record
+        def record(kind, **fields):
+            if kind == 'lease_renewal_receipt_adopted':
+                raise OSError('fixture journal commit failure')
+            return original(kind, **fields)
+        with patch.object(keeper, 'record', side_effect=record), self.assertRaises(KeepAwakeUnknown):
+            keeper._send(30000)
+        self.assertEqual(keeper.value['revision'], previous)
+        self.assertEqual(keeper.result['reconciled_renewals'], 0)
+        self.assertEqual(len(self.fixture.packets), 2)
+        self.assertEqual(keeper.stop()['end'], 'ended')
 
     def test_request_phase_and_underlying_type_preserve_get_and_post_exception_semantics(self):
         for method in ('GET', 'POST'):
@@ -322,7 +466,7 @@ class ClientTests(unittest.TestCase):
             keeper._send(30000)
         self.assertEqual(len(self.fixture.packets), 1)
         events = [json.loads(line) for line in (self.folder / 'resident-keep-awake.jsonl').read_text().splitlines()]
-        failure = events[-1]
+        failure = next(event for event in reversed(events) if event['kind'] == 'lease_unconfirmed_or_rejected')
         self.assertEqual(failure['failure_type'], 'KeepAwakeUnknown')
         self.assertEqual({key: failure[key] for key in ('method', 'phase', 'cause_type')},
                          {'method': 'POST', 'phase': 'read_body', 'cause_type': 'TimeoutError'})

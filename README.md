@@ -1,6 +1,6 @@
 # PS Vita MCP
 
-The corrected **Resident 0.1.6** [keep-awake candidate](docs/RESIDENT-KEEP-AWAKE.md) is installed after a normal boot. All four lease operations and a later three-minute online trial at one-minute standby passed through actual stdio MCP and the PC keeper. An earlier hold failed with an uncertain renewal reply and was not replayed; its cause remains unknown. Physical sleep confirmation and broader qualification remain pending. The accepted 0.1.5 is retained for rollback. The source catalog has 40 tools; leases do not change saved sleep or brightness settings.
+The **Resident 0.1.6** [keep-awake candidate](docs/RESIDENT-KEEP-AWAKE.md) with a two-second native HTTP budget is installed after a normal boot. Fresh MCP checks and an isolated 120-second hold at one-minute standby passed. Renewal during a verified slow transfer and TTL expiry after PC keeper loss also passed. The original upload reply timed out; read-only inspection later confirmed exact publication. A native preview declined before any execution. Earlier transport failures remain recorded, and **keep-awake qualification is incomplete**. The accepted 0.1.5 is retained for rollback. The source catalog has 40 tools; leases do not change saved sleep or brightness settings.
 
 **Develop and inspect PlayStation Vita homebrew through MCP on real hardware.**
 
@@ -16,21 +16,37 @@ PS Vita MCP connects a desktop MCP client to a modded Vita. Its PC bridges combi
 
 ## Status as of October 12 2026
 
-**Keep-awake qualification:** Corrected 0.1.6 passed normal boot and short
-status/begin/renew/end checks. A planned 180-second hold at the original
-one-minute standby setting stopped after about 37 seconds when a renewal POST
-reply became uncertain. Later physical wake recovered the same power instance
-with an inactive lease and `listener_lost`; the order and cause of the
-interruption and sleep remain unknown. A separate 120-second diagnostic hold
-passed 33 samples and 11 renewals with a confirmed end, under a temporary
-operator-selected 30-minute standby setting. It establishes transport continuity
-for that trial and cannot prove one-minute sleep protection. After restoring
-the original one-minute setting, a separate 180-second repeat passed 48 samples
-and 16 renewals, with no keeper errors and a confirmed end. A status-only
-observer then recorded both service ports becoming unreachable about 25 seconds
-after end; physical sleep confirmation is pending. The original failure remains
-under investigation, and a newly built native connection-budget change is not
-installed or covered by these results.
+**Keep-awake qualification:** The currently installed two-second-budget 0.1.6
+build passed normal boot and fresh 40-tool MCP status/begin/renew/end checks.
+A planned 120-second hold at one-minute standby stopped after about 40 seconds
+when a renewal response timed out. Cleanup confirmed its acceptance at the
+exact next revision and ended the same owner; no POST was resent. The native
+budget increase alone has not eliminated lost replies. A PC-only change to
+reconcile one uncertain renewal through a strictly checked GET passed all 41
+client tests, 35 native-lifecycle host tests and the actual C integration test.
+Two later holds stopped on diagnostic GET timeouts. An isolated 120-second hold
+then passed 11 renewals with no errors and a confirmed end, without extra HTTP
+polling. This proves bounded power and renewal continuity for that trial;
+production freshness checks remain unchanged.
+
+A slow 4 KiB transfer retained three renewals without keeper errors. Its upload
+reply timed out and was not replayed; later read-only stat/hash/full readback
+confirmed the exact published payload. A separate PC keeper-loss trial passed
+native 30-second TTL expiry without an end request, retaining two diagnostic
+GET timeouts. A native preview declined with one occupied app slot and zero
+device mutations; execute was not called. Physical sleep confirmation on the
+current build remains pending. The operator temporarily selected 30-minute
+standby for investigation; restoration to one minute is pending. A native
+response-budget edge is being investigated without attributing periodic delays
+to it. Live renewal reconciliation has zero adoptions and remains host-tested only.
+
+The previous 300 ms native-budget build retains a separate three-minute online
+pass at one-minute standby and operator-confirmed automatic sleep after end.
+Its earlier uncertain-renewal failure remains retained with cause and timing
+unknown. A separate 120-second hold under temporary 30-minute standby proved
+transport continuity only. These historical results do not qualify the current
+build. Physical normal sleep, manual sleep/wake, Wi-Fi interruption, native
+execution and broader transport reliability remain open hardware gates.
 [Interim evidence and pending gates](docs/RESIDENT-KEEP-AWAKE.md#interim-hardware-results).
 
 **App-making workflow:** [`make-vita-app`](skills/make-vita-app/SKILL.md) provides
@@ -78,7 +94,7 @@ The October 3 baseline is retained in [the historical record](docs/BASELINE.md).
 | Component | Role | Source / recorded runtime |
 | --- | --- | --- |
 | Vita DevLoop | Foreground Lua edit/run/observe/recover; ten MCP tools | 01.04 installed; exact runtime identity, live Lua reload/recovery and normal exit passed. Capture mapping, synthetic input and sleep/reopen remain open. |
-| [Vita Resident](docs/RESIDENT.md) | Boot-loaded status, verified package inbox and managed inspection and bounded keep-awake leases; eleven source tools | Corrected 0.1.6 installed after normal boot; four lease operations and one three-minute online trial at one-minute standby passed. Earlier uncertain renewal retained; physical sleep and remaining gates pending. Accepted 0.1.5 and earlier rollbacks retained; its native Lab qualification remains historical evidence |
+| [Vita Resident](docs/RESIDENT.md) | Boot-loaded status, verified package inbox and managed inspection and bounded keep-awake leases; eleven source tools | Two-second-budget 0.1.6 installed after normal boot; lease operations, isolated 120-second power hold, renewal during verified slow transfer and keeper-loss TTL expiry passed. Upload HTTP reply uncertain; native preview declined without execution. PC host tests passed; broader qualification incomplete. Earlier build's online/sleep passes and 0.1.5 native Lab qualification remain historical evidence; rollbacks retained |
 | [Vita Control](docs/CONTROL.md) | Background screen, managed files, app commands and bounded synthetic input; thirteen tools | 0.3.4 pairing candidate installed, ABI 2; earlier manual startup passed, automatic worker/network startup failed; recovery did not reactivate it |
 | [Vita Workbench](workbench/README.md) | Lua iteration, native lifecycle candidate, runtime preparation, input trials, metrics, staging and file recovery; sixteen tools | Developer preview; native lifecycle, script readiness and verified input readiness have separate qualification |
 | [Launch broker candidate](resident/launch_broker/README.md) | Durable fixed-title launch protocol and PC client | 0.1.4 identity/clock continuity passed with the broker disabled; earlier 0.1.3 PID correlation is historical; storage/reboot and launch-policy gates pending |

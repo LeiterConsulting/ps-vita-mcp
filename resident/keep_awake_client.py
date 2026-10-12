@@ -1,8 +1,9 @@
 """Bounded Resident work leases; no status read renews a lease or wakes a Vita.
 
 The dedicated listener keeps lease heartbeats separate from bulk file traffic.
-Every mutation uses revision CAS and is sent once. A lost response stops work;
-cleanup may only end the same owner after a fresh read, never replay a start.
+Every mutation uses revision CAS and is sent once. An uncertain renewal permits
+one exact-owner GET reconciliation; other lost effects stop work. Cleanup may
+only end the same owner after a fresh read, never replay a start.
 """
 from __future__ import annotations
 
@@ -229,6 +230,7 @@ class KeepAwakeClient:
         value = self.request('POST', body)
         if (value['instance_id'] != instance_id or value['resident_build_id'] != resident_build_id
                 or value['revision'] != revision + 1 or value['active'] != bool(ttl_ms)
+                or max_duration_ms and value['session_remaining_ms'] > max_duration_ms
                 or ttl_ms and (value['lease_id'] != lease_id or value['job_id'] != job_id
                                or value['remaining_ms'] > ttl_ms or value['tick_result'] < 0)):
             raise _annotate(KeepAwakeUnknown('Resident lease receipt differs; do not replay the mutation'),
@@ -239,8 +241,9 @@ class KeepAwakeClient:
 class ResidentKeeper:
     """A job owner with a 30-second renewable TTL and a fixed absolute ceiling.
 
-    The thread owns only the lease endpoint. Work checks fail after heartbeat
-    uncertainty, owner/instance drift, local expiry, or a dead renewal thread.
+    The thread owns only the lease endpoint. One GET may reconcile an uncertain
+    renewal at its exact accepted revision. Unresolved heartbeat uncertainty,
+    owner/instance drift, local expiry, or a dead renewal thread stops work.
     No lease is restored after process death or reboot.
     """
     def __init__(self, client, folder, job_id, *, max_duration_ms=600000, interval=10):
@@ -259,8 +262,10 @@ class ResidentKeeper:
         self.observed = None
         self.failed = None
         self.expected_build = self.expected_instance = None
+        self.session_deadline_ms = None
         self.result = {'enabled': False, 'ttl_ms': TTL_MS, 'max_duration_ms': max_duration_ms,
-                       'job_id': job_id, 'lease_id': self.lease_id, 'renewals': 0, 'errors': []}
+                       'job_id': job_id, 'lease_id': self.lease_id, 'renewals': 0,
+                       'reconciled_renewals': 0, 'errors': []}
 
     def record(self, kind, **fields):
         self.folder.mkdir(parents=True, exist_ok=True)
@@ -278,7 +283,41 @@ class ResidentKeeper:
             raise KeepAwakeLost('Resident work lease expired, failed or changed owner')
         if self.value and value['clock_ms'] < self.value['clock_ms']:
             raise KeepAwakeLost('Resident lease clock regressed')
+        if (owned and self.session_deadline_ms is not None
+                and value['clock_ms'] + value['session_remaining_ms'] > self.session_deadline_ms):
+            raise KeepAwakeLost('Resident lease absolute session deadline increased')
         return value
+
+    def _reconcile_renewal(self, previous, ttl_ms):
+        """Inspect one uncertain renewal once; no mutation is replayed or adopted broadly."""
+        if self.end.is_set() or self.session_deadline_ms is None:
+            raise KeepAwakeLost('Resident renewal reconciliation is no longer permitted')
+        self.record('lease_renewal_reconciliation_intent', expected_revision=previous['revision'] + 1,
+                    requested_ttl_ms=ttl_ms, session_deadline_ms=self.session_deadline_ms,
+                    device_mutations=0, replayed=False)
+        observed_at = time.monotonic()
+        observed = self.client.status()
+        self.record('lease_renewal_reconciliation_observation', observation=observed,
+                    device_mutations=0, replayed=False)
+        self._pin(observed)
+        if (self.end.is_set() or observed['revision'] != previous['revision'] + 1
+                or not 0 < observed['remaining_ms'] <= ttl_ms
+                or observed['clock_ms'] < previous['clock_ms']):
+            raise KeepAwakeLost('Resident renewal acceptance was not exactly confirmed')
+
+        def check_lifetime():
+            now = time.monotonic()
+            if (self.end.is_set() or now < observed_at or now < self.started
+                    or (now - observed_at) * 1000 >= observed['remaining_ms']
+                    or (now - self.started) * 1000 >= self.max_duration_ms):
+                raise KeepAwakeLost('Reconciled Resident renewal lifetime expired before adoption')
+
+        check_lifetime()
+        self.record('lease_renewal_receipt_adopted', original_revision=previous['revision'],
+                    receipt=observed, read_only_reconciliation=True, device_mutations=0, replayed=False)
+        check_lifetime()
+        self.result['reconciled_renewals'] += 1
+        return observed, observed_at
 
     def _send(self, ttl_ms, duration_ms=0):
         value = self.value
@@ -301,7 +340,16 @@ class ResidentKeeper:
             self.record('lease_unconfirmed_or_rejected', ttl_ms=ttl_ms, failure_type=type(error).__name__,
                         replayed=False, **failure_diagnostic(error, phase=phase,
                                                             method='POST' if phase.startswith('receipt_') else None))
-            raise
+            if isinstance(error, KeepAwakeUnknown) and ttl_ms and duration_ms == 0:
+                try:
+                    receipt, sent_at = self._reconcile_renewal(value, ttl_ms)
+                except Exception as reconciliation_error:
+                    self.record('lease_renewal_reconciliation_failed',
+                                failure_type=type(reconciliation_error).__name__, replayed=False,
+                                **failure_diagnostic(reconciliation_error))
+                    raise error
+            else:
+                raise
         # Native remaining_ms was sampled before the reply crossed the network.
         # Measuring from request start gives a conservative local expiry even
         # when a valid receipt was delayed or fragmented in transit.
@@ -320,6 +368,7 @@ class ResidentKeeper:
             if self.value['active']:
                 raise KeepAwakeLost('Another Resident work lease is active')
             self._send(TTL_MS, self.max_duration_ms)
+            self.session_deadline_ms = self.value['clock_ms'] + self.value['session_remaining_ms']
             self.result['enabled'] = True
             self.record('keeper_started', job_id=self.job_id, lease_id=self.lease_id)
             self.thread = threading.Thread(target=self._run, name='vita-resident-keep-awake', daemon=True)
