@@ -1,7 +1,13 @@
-# Resident 0.1.3 native qualification candidate
+# Disabled Resident launch broker qualification
 
-As of October 12, 2026, Resident 0.1.3 is installed alongside DevLoop 01.04 on the
-test Vita. The operator confirmed normal boot after activation. Read-only checks
+As of October 12, 2026, Resident 0.1.4 is installed alongside DevLoop 01.04 on the
+test Vita, with 0.1.3 and 0.1.2 retained for rollback. Its [current managed-file
+qualification](managed-files-validation.json) includes normal boot, exact
+configuration/plugin, inbox inspection and bounded DevLoop coexistence with a
+fresh 4 KiB upload and verified readbacks. Launching remains disabled and refused.
+
+The following records the earlier 0.1.3 native qualification. The operator
+confirmed normal boot after its activation. Read-only checks
 matched the proposed configuration and exact plugin, preserved the 0.1.2 rollback
 and saved administrator pairing, and verified no configuration override and both
 withdrawn experiments disabled. Immutable staging had passed with two readbacks
@@ -20,7 +26,7 @@ have no effect on the native candidate.
 [Sanitized artifact, source, host-test and staging record](resident-launch-validation.json).
 [October 12 physical-device qualification and Lua regression](resident013-device-validation.json).
 
-Three live broker samples matched the exact candidate build, retained one native
+Three historical 0.1.3 live broker samples matched the exact candidate build, retained one native
 instance and advanced native time. `enabled`, `configured_enabled` and `blocked`
 were all false. Initial inventory reported one resolved file-manager entry with
 AppId/PID/title; foreground, protected-UI and native-submission flags stayed false.
@@ -38,9 +44,7 @@ world/mode/parameters/ball/score/obstacles restored paused, and exact DevLoop
 build/PID/run retained. Lua finished inactive with the last VM retained, the
 documented native-fallback limit. The broker retained its instance and stayed
 disabled and unblocked.
-The registered desktop connection remains an older 28-tool process that rejects
-0.1.3; refreshing it from the updated PC source is still pending. A fresh stdio
-process verified the 30-tool catalog, both script tools and native 0.1.3 status.
+The registered desktop connection remains an older 28-tool process and needs refreshing from the updated PC source. Fresh stdio verified the historical 30-tool 0.1.3 catalog and now verifies all 33 tools with installed 0.1.4. Desktop discovery does not qualify native launching.
 
 ## Evidence and limits
 
@@ -62,7 +66,11 @@ prunes tombstones and accepts only its exact build/format; migration and product
 retention still need an explicit design. A complete autonomous native development
 loop remains unfinished.
 
-## Deployment and hardware sequence
+## Historical 0.1.3 deployment and remaining hardware gates
+
+This sequence records the completed 0.1.3 activation, not instructions to replace
+installed 0.1.4. Current source builds 0.1.4; preserve both rollback plugins and
+follow the [current Resident update guide](RESIDENT.md) for any new replacement.
 
 1. Preserve the working 0.1.2 plugin, exact active configuration, pairing and all
    experiment guards. Build 0.1.3 separately with `Build-Resident.ps1`.

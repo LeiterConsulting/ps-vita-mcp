@@ -1,10 +1,13 @@
 # Resident managed inbox inspection
 
-As of October 12, 2026, the source adds Resident **0.1.4** and three desktop
-inspection tools. The test Vita still runs **0.1.3**. Building or passing host
-tests does not activate this candidate or qualify its native filesystem APIs.
-The existing upload and published-file verification tools remain compatible
-with older supported Resident versions. These three tools require 0.1.4.
+As of October 12, 2026, Resident **0.1.4** is installed on the test Vita. It
+passed a user-confirmed normal boot, initial read-only inbox inspection and a
+separate DevLoop coexistence/upload check. Fresh actual stdio MCP exposes all
+33 tools and works with the native service; the registered desktop connection
+still exposes an older 28-tool process and needs refreshing. Resident 0.1.3 and
+0.1.2 rollback plugins and saved administrator pairing are preserved. The
+existing upload and published-file verification tools remain compatible with
+older supported versions; these three inspection tools require 0.1.4.
 
 This is the first implemented slice of the [file-service roadmap](FILE-SERVICE-ROADMAP.md).
 It inspects the existing inbox through Resident's background HTTP worker,
@@ -63,9 +66,11 @@ entries include `name` and `kind`, plus `bytes` for a file. Root listings expose
 only correctly named attempt directories; attempt listings expose only the
 four permitted regular files within the size limit.
 
-Pages scan at most 32 raw directory entries, excluding `.` and `..`; unsupported
-entries consume pagination positions but are filtered from the result. Offset
-is bounded to 0–1000. Follow `next_offset` rather than counting visible entries.
+Each page considers up to 32 raw directory entries after skipping the requested
+offset, excluding `.` and `..`, with one additional lookahead for `has_more`.
+Unsupported entries consume pagination positions but are filtered from the
+result. Offset is bounded to 0–1000. Follow `next_offset` rather than counting
+visible entries.
 An empty page can still have more entries. At the pagination cap,
 `has_more: true`, `limit_reached: true` and `next_offset: null` report truncation.
 Directory order is unspecified and can change between calls. A traversal over
@@ -88,7 +93,11 @@ this namespace.
 
 ## Qualification
 
-The complete 23-group host suite and native ARM artifact checks passed. The replacement and isolated known-byte fixtures are staged with two readbacks per file, with active configuration unchanged and both rollback plugins retained. A fresh 33-tool MCP process passed exact installed 0.1.3 status and explicitly refused its unsupported inspection tools. [Dated validation](managed-files-validation.json).
+The complete 23-group host suite and native ARM artifact checks passed. Separate hardware activation passed a user-confirmed normal boot and two exact plugin/configuration readbacks. Both rollback plugins, saved administrator pairing and withdrawn-experiment disable markers were preserved, with no configuration override. [Dated validation](managed-files-validation.json).
+
+Twelve initial read-only checks passed, including fresh actual 33-tool stdio MCP and direct native HTTP checks: root and fixture-attempt listing; complete hashes and reads of a 4096-byte `probe.bin`, a 97-byte `probe.bin.part` and an empty `package.vpk.part`; a 113-byte middle range and empty EOF; and malformed-query, private-leaf, out-of-range and unauthenticated refusals. This proof made no mutation requests. The range check did not claim independent whole-file verification. Resident kept one disabled, unblocked broker instance with advancing time after inspection and refusals.
+
+A separate coexistence check passed with DevLoop 01.04 open and paused. Eight samples retained exact DevLoop identity and revision while frames advanced, and Resident retained the same boot and native instance. A new 4096-byte upload passed two complete publication readbacks plus exact managed stat/hash and full-file readback. The broker remained disabled and unblocked. These checks made no Control, input, power or Lua changes.
 
 Host coverage uses the actual C HTTP service under ASan/UBSan and actual stdio
 MCP against simulated HTTP, including malformed requests, access denial,
@@ -96,12 +105,12 @@ pagination, retained files, symlinks, partial/failed reads, deadline recovery an
 strict PC response validation. The native build report binds the exact source
 fingerprint, imports and artifact hashes. Neither is hardware acceptance.
 
-Before activation, preserve the installed 0.1.3 configuration/plugin, its 0.1.2
-rollback, saved pairing and both withdrawn-experiment disable markers. Stage
-the immutable replacement and rollback, verify readbacks, then perform a
-separate manual config copy and normal boot. Do not arm either boot experiment.
-On hardware, compare listings, sizes, full hashes and binary ranges with known
-PC files; inspect a retained partial without changing it; recheck status,
-pairing and the disabled broker with DevLoop open. Storage durability across
-reboot, managed asset writes, resumable chunks, quotas, native installation and
-automatic app launching remain separate future gates.
+For future updates, preserve the installed configuration/plugin, both retained
+rollback plugins, saved pairing and withdrawn-experiment disable markers. Stage
+an immutable replacement and rollback, verify readbacks, then perform a separate
+manual config copy and normal boot. Do not arm either boot experiment. Repeated
+normal boot, storage durability across reboot, individual phone credential
+confirmation, foreground/protected-UI launch policy, managed asset writes,
+resumable chunks, quotas, native installation and automatic app launching remain
+separate gates. The passed foreground coexistence test does not attest which
+application the native launch policy can safely replace.

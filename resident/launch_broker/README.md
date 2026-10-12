@@ -1,13 +1,6 @@
 # Portable fixed-title launch broker
 
-Resident **0.1.3 is an installed, disabled native qualification candidate**,
-with 0.1.2 retained for rollback. The core, strict HTTP codec, immutable store,
-native instance identity and read-only app inventory are linked into its native
-module. Native submission is unconditionally refused; there is no enable file
-or API. The operator confirmed normal boot; read-only checks matched the exact
-plugin and proposed configuration and preserved administrator pairing and both
-experiment disable markers. Control and DevLoop were unchanged, and neither
-withdrawn boot experiment was activated.
+Resident **0.1.4 is installed with native launching disabled**, with 0.1.3 and 0.1.2 retained for rollback. The broker core, strict HTTP codec, immutable store, native instance identity and read-only app inventory were introduced in 0.1.3 and remain linked into its successor. Native submission is unconditionally refused; there is no enable file or API. Current 0.1.4 [partial hardware qualification](../../docs/managed-files-validation.json) passed normal boot, exact plugin/configuration, managed inbox inspection and bounded DevLoop coexistence with a fresh 4 KiB upload and verified readbacks. Administrator pairing and both experiment disable markers are preserved. Neither withdrawn boot experiment was activated, and these checks made no Control, input, power or Lua changes.
 
 The intended later operation is one authenticated PC request to open
 `CHRS00003` (Vita DevLoop) after Resident is already healthy. The existing Resident
@@ -23,7 +16,7 @@ before any deployment. Tests cover actual Resident HTTP and real POSIX storage,
 with a separately compiled simulated launch adapter. These are host checks,
 not native filesystem durability, foreground or boot acceptance.
 
-Initial hardware checks separately passed: three exact-build broker samples
+Historical 0.1.3 hardware checks separately passed: three exact-build broker samples
 retained one native instance with advancing time and `enabled`,
 `configured_enabled` and `blocked` all false. Inventory resolved the running file
 manager to an AppId/PID/title, with foreground/protected-UI/submission flags false.
@@ -34,13 +27,14 @@ paused DevLoop build/PID/run and revision while frames advanced; Resident retain
 its instance and advanced its clock. These samples changed no scene and do not
 attest displayed foreground or protected UI.
 
-A subsequent bounded Lua regression accepted both rate-60/rate-120 candidates,
+A subsequent historical 0.1.3 bounded Lua regression accepted both rate-60/rate-120 candidates,
 selected the faster and restored the original native world paused under the
 same DevLoop build/PID/run. Lua finished inactive with the last VM retained;
 the broker kept its instance and stayed disabled and unblocked. Fresh stdio
-verified the 30-tool catalog, both script tools and 0.1.3 status. The registered
-desktop connection remains an older 28-tool process that rejects 0.1.3 and needs
-a PC refresh. Storage durability across reboot, phone credential confirmation
+verified the historical 30-tool catalog, both script tools and 0.1.3 status. The
+current source exposes 33 tools and fresh stdio verified installed 0.1.4. The
+registered desktop connection remains an older 28-tool process and needs a PC
+refresh. Storage durability across reboot, phone credential confirmation
 and safe native launching remain open.
 
 ## Native qualification integration

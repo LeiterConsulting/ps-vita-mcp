@@ -1,12 +1,13 @@
 {
   "recorded_date": "2026-10-12",
-  "recorded_utc": "2026-10-12T17:06:16.993663+00:00",
-  "scope": "Resident 0.1.4 managed inbox inspection: host and ARM build passed; immutable update and synthetic fixtures staged; 0.1.4 activation and hardware filesystem acceptance pending",
+  "recorded_utc": "2026-10-12T17:23:04.883255+00:00",
+  "scope": "Resident 0.1.4 managed inbox inspection: host and ARM build passed; normal boot, read-only native filesystem checks and one verified 4 KiB upload alongside paused DevLoop passed; wider lifecycle, installation and launch acceptance remain open",
   "installed_baseline": {
     "version": "0.1.3",
     "build_id": "dff9ca028eff4329b8212c0222c8cc39324fff25401adc83b0ca9ec62445d3a7",
     "plugin_sha256": "12552378c0cbc6bdc8f523b5bab7882446d0bc6bdd38610da1ee9cdc17465f17",
-    "rollback_version": "0.1.2"
+    "rollback_version": "0.1.2",
+    "scope": "Pre-update working baseline retained for rollback; current installed candidate is 0.1.4"
   },
   "candidate": {
     "version": "0.1.4",
@@ -40,7 +41,7 @@
       "retrievedUtc": "2026-10-02",
       "documentation": "https://github.com/vitasdk/docker"
     },
-    "build_report_sha256": "3a3c751a6584782441fc1adebc9d947e09416733c42354e14fa5e5e4b0ab59cd",
+    "build_report_sha256": "9c3c6561748ce20df1a343f7d2954209025a29fae2bbd3cf45a6484d916bf392",
     "source_hashes": {
       "resident/bridge.py": "d53d81d3725fc6c7ff08ee78d80dcf6660efc72bfe4c194ed086bb4379d0bf34",
       "resident/build_host.sh": "58b86171710b1ba3d860e15566168892b4272b1e24645a9bde2bd1b795e6f28c",
@@ -65,7 +66,7 @@
       "resident/platform_host.c": "7c9d2f06a7cabc5da0a4720e0cbf3b23e74f1526eeb884c184af391f9496ef63",
       "resident/platform_vita.c": "4972134ed0499bf49c1df476a5e262e3aacd443bac35c30df07e381ed71fb761",
       "resident/prove_device.py": "930d5e06e7291e1de8ba5f51e8f7b879d47ca49889ac2e4e5bd1e6fd2a0f31ad",
-      "resident/README.md": "dfbbcb70703d62293278fa79ccf2527b54bb73ef0b4dcef487edf76120745a38",
+      "resident/README.md": "c989e114b8443e38a3de6c4edde1583ea94e09a352d96d0a50a6f3fa4f179cfd",
       "resident/Register-Mcp.ps1": "4aa1b69b71cb3316b4208581c80601275bed6174fba22ea560b6e4d3f675ca8e",
       "resident/service.c": "f0f52749930aacaa6b28ff258e8baa845939ec1060f12effbb0cf23c43478686",
       "resident/sha256.c": "cc9a22f6f578d9e60fbe5bf7c78eeb967c984a2f3c21faa91acd843e1dcd8da4",
@@ -95,7 +96,7 @@
       "resident/launch_broker/native.h": "df9d0145d468e2fe67d9c5445a104028b531f4f1c2d0ba4351ec381d359c4b84",
       "resident/launch_broker/native_host.c": "ba610800e98d777db899ec336885caf049155c749ed8de3da3d5dd395a826f32",
       "resident/launch_broker/native_vita.c": "9718d23c5ee6ce99181137a44afe02501f8018b5a3e6153e001ab44da5b2a7f1",
-      "resident/launch_broker/README.md": "3d6f33b35c2e8f084c96b6c770171ff07c31ab23a05a1e362f750765e0d12ce2",
+      "resident/launch_broker/README.md": "b73daf691c088bdafc6c502a040083911c2b86914897711b407da57803e30f17",
       "resident/launch_broker/service.c": "a4c05dd8c54058c70699f3741aa4667762c7a1372d3cbbb0abf379ba315b11c9",
       "resident/launch_broker/service.h": "e3b2ee556eaf5ae22809d7e6fbc9f7235c4895a9e016417fb772e3b4f2f51dc0",
       "resident/launch_broker/store.c": "88241a328e8721acc5c9f327f9b61ec4c5f95e3d3f361727452b23bfec3134c9",
@@ -134,6 +135,17 @@
       "store_format": 1,
       "store_capacity_records": 128,
       "startup_dispatch": false
+    },
+    "build_report_at_staging_sha256": "3a3c751a6584782441fc1adebc9d947e09416733c42354e14fa5e5e4b0ab59cd",
+    "documentation_metadata_refresh": {
+      "scope": "Post-activation report revalidation and documentation source-hash refresh; no native rebuild or device update",
+      "changed_report_sources": [
+        "resident/README.md",
+        "resident/launch_broker/README.md"
+      ],
+      "compiled_native_inputs_unchanged": true,
+      "installed_plugin_elf_and_velf_unchanged": true,
+      "test_log_hashes_unchanged": true
     }
   },
   "host_validation": {
@@ -265,7 +277,16 @@
       "UndefinedBehaviorSanitizer"
     ],
     "native_arm_module": "passed exact source fingerprint, expected imports, no unresolved symbols, no launch or loader imports",
-    "retained_initial_failures": "Stale version/catalog assertions corrected; initial build and CI logs remain private; final complete suite passed"
+    "retained_initial_failures": "Stale version/catalog assertions corrected; initial build and CI logs remain private; final complete suite passed",
+    "github": {
+      "run_url": "https://github.com/LeiterConsulting/ps-vita-mcp/actions/runs/38282077761",
+      "head_sha": "6a0907fadd5d1c6a4d3d4d0aff968c38d876f63e",
+      "result": "passed",
+      "groups": 23,
+      "downloaded_artifact_files_hashed": 24,
+      "local_verification_receipt_sha256": "be29976ca7dcef93184a76cde5a4e46fe64358d31aa01c0879eae18e9205cbe8",
+      "scope": "Implementation head before subsequent documentation and hardware-record update"
+    }
   },
   "pc_compatibility_on_installed_hardware": {
     "actual_stdio_tools": 33,
@@ -276,7 +297,7 @@
     "registered_desktop_connection": "older 28-tool process; refresh remains pending"
   },
   "staging": {
-    "state": "verified staged replacement; manual config copy and reboot pending",
+    "state": "Completed immutable staging before operator activation; recorded unchanged configuration fields describe that staging step",
     "replacement_files": 3,
     "readbacks_per_file": 2,
     "active_configuration_written": false,
@@ -284,10 +305,11 @@
     "saved_pairing_preserved": true,
     "working_0_1_3_and_0_1_2_rollback_verified_twice": true,
     "both_withdrawn_experiments": "disabled and unchanged",
-    "receipt_sha256": "858bedf780962724363bc65f541ec508d552e68b5fe96295bfd622f5600882cf"
+    "receipt_sha256": "858bedf780962724363bc65f541ec508d552e68b5fe96295bfd622f5600882cf",
+    "operator_activation": "Copied staged config to ur0:tai/config.txt and rebooted normally; exact active state subsequently read back twice"
   },
   "synthetic_fixture": {
-    "state": "verified fixture; read-only native inspection pending",
+    "state": "Read-only native listing, stat/hash and complete reads passed for all three synthetic files; partial range and EOF checks passed",
     "scope": "Synthetic immutable FTP fixture for read-only native inspection; not a Resident upload/publication receipt",
     "files": {
       "probe.bin": {
@@ -306,14 +328,51 @@
         "read_back_checks": 2
       }
     },
-    "receipt_sha256": "48287a4c4cf6383ce88b075f8f73d9f3e586529dd99f120b07b2e023f4c91fbf"
+    "receipt_sha256": "48287a4c4cf6383ce88b075f8f73d9f3e586529dd99f120b07b2e023f4c91fbf",
+    "native_inspection_receipt_sha256": "834bf81690568f5934e12c65d6d44a30ac8e464e65f76de872382105ee35b77d"
   },
   "hardware_0_1_4": {
-    "normal_boot": "pending",
-    "exact_active_config_and_plugin": "pending",
-    "managed_listing_stat_hash_range_and_retained_part": "pending",
-    "continued_status_pairing_and_disabled_broker": "pending",
-    "foreground_app_coexistence": "pending"
+    "normal_boot": "passed; operator confirmed normal boot without Starter",
+    "exact_active_config_and_plugin": "passed; two full readbacks each",
+    "working_rollback_plugins_saved_pairing_and_disable_markers": "preserved and verified twice",
+    "managed_listing_stat_hash_range_and_retained_part": "passed against immutable known-byte fixtures",
+    "empty_file_and_empty_eof": "passed; empty full file independently hashed, EOF range does not claim full-file hash",
+    "invalid_attempt_query_private_leaf_beyond_eof_and_unauthenticated_requests": "refused; continued native status and disabled broker passed",
+    "initial_read_only_checks": 12,
+    "initial_recorded_utc": "2026-10-12T17:09:44.453100+00:00",
+    "initial_mutation_requests": 0,
+    "initial_receipt_sha256": "834bf81690568f5934e12c65d6d44a30ac8e464e65f76de872382105ee35b77d",
+    "actual_stdio_tools": 33,
+    "foreground_app_coexistence": {
+      "result": "passed",
+      "app": "Vita DevLoop",
+      "version": "01.04",
+      "recorded_utc": "2026-10-12T17:13:40.837980+00:00",
+      "build_id": "c7d4a08d3c42025803ded7146b86a68c415ce157d6199978506af3b79a15b5f7",
+      "samples": 8,
+      "native_inventory_pid_matched_app_status": true,
+      "same_app_run_revision_and_paused_state": true,
+      "app_frames_advanced": true,
+      "same_resident_boot_and_broker_instance": true,
+      "launch_broker_enabled": false,
+      "launch_broker_blocked": false,
+      "scene_input_and_power_mutations": 0,
+      "receipt_sha256": "610705a778109609f60865ba2def98057706b9d985ef6e56bc624b2ce945a4a8",
+      "qualification_limit": "Bounded foreground coexistence observation, not native foreground or protected-UI launch policy qualification"
+    },
+    "background_upload": {
+      "result": "passed",
+      "submissions": 1,
+      "automatic_retries": 0,
+      "bytes": 4096,
+      "sha256": "c8f5d0341d54d951a71b136e6e2afcb14d11ed8489a7ae126a8fee0df6ecf193",
+      "complete_publication_readbacks": 2,
+      "new_managed_stat_and_full_read": "exact bytes and independently verified full-file hash",
+      "receipt_sha256": "610705a778109609f60865ba2def98057706b9d985ef6e56bc624b2ce945a4a8",
+      "installation_or_launch_attempted": false
+    },
+    "phone_confirmation": "Not tested on 0.1.4; saved pairing bytes preserved, host authority tests are separate",
+    "repeated_boot_and_storage_durability": "Not qualified by this bounded run"
   },
   "remaining_gates": [
     "Native filesystem path-replacement behavior differs from secure POSIX descriptor traversal",
@@ -331,5 +390,17 @@
     "private phone source and signing/build/handoff artifacts",
     "raw device journals",
     "binaries"
-  ]
+  ],
+  "installed_candidate": {
+    "version": "0.1.4",
+    "build_id": "722762a1424cbad96feda3561c6d24d783a2b99fa5539fac7aa80347d32e1813",
+    "plugin_sha256": "1cdbb89d86249e6b2ee1e2e20f8fe73101f19183770d0cdde1e9deb962b415b7",
+    "normal_boot_confirmed_by_operator": true,
+    "exact_active_configuration_and_plugin": "two matching readbacks each after activation",
+    "control_starter_run_this_boot": false,
+    "retained_rollback_versions": [
+      "0.1.3",
+      "0.1.2"
+    ]
+  }
 }

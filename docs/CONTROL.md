@@ -11,9 +11,9 @@ Control 0.3.4 consists of a matched kernel helper and an authenticated user serv
 | Control | 17867 | Same Resident token | Starter loaded pair, until normal reboot |
 | File manager FTP | Displayed by file manager | Separate FTP settings | User explicitly enabled it |
 
-The combined desktop server is `resident/bridge.py`. Its four Resident and thirteen Control tools remain available, with eleven additional [Workbench tools](../workbench/README.md) for 28 total. Tokens are read on the PC; the loopback preview page receives no token.
+The combined desktop server is `resident/bridge.py`. It exposes seven Resident, thirteen Control and thirteen [Workbench tools](../workbench/README.md), for 33 total. Resident 0.1.4 managed inspection has [separate hardware evidence](managed-files-validation.json); those results do not qualify Control input, capture or lifecycle behavior. Tokens are read on the PC; the loopback preview page receives no token.
 
-The manual Starter path remains available. A separate [default-disabled one-shot startup experiment](../resident/autostart/README.md) defers the matched pair's loading until LiveArea readiness; native boot/network and repeated-boot acceptance remain open. The full Control pair must not be added directly to tai boot configuration.
+The manual Starter path remains available after a confirmed normal boot and inspected native state. The separate [one-shot startup experiment](../resident/autostart/README.md) and boot diagnostic are withdrawn after boot failures and must stay disabled. The full Control pair must not be added directly to tai boot configuration. [Recovery and remaining startup gates](AUTONOMOUS-DEVLOOP.md).
 
 ## Tool reference
 
