@@ -9,14 +9,17 @@ Hardware passes cover fresh MCP lease operations, an isolated 120-second hold
 at one-minute standby, renewal during a verified slow 4 KiB transfer, native
 30-second expiry after PC keeper loss and one controlled lost-renewal reply
 reconciled without replay. A separate launch-only probe passed self-test and
-acknowledged graceful exit; later read-only checks confirmed closure.
+acknowledged graceful exit; later read-only checks confirmed closure. A separate
+90-second hold ended cleanly, followed by operator-confirmed normal automatic sleep.
 
 Intermittent HTTP timeouts remain a blocker: the launch-only job's original
 result is unconfirmed, and current-build installation/redeployment and an
 uninterrupted keeper-protected native cycle remain unqualified. The earlier
-install rejection's exact runtime cause is unknown. Physical normal sleep,
-manual sleep/wake and Wi-Fi interruption remain pending, along with restoration
-of the operator's temporary 30-minute standby setting to one minute.
+install rejection's exact runtime cause is unknown. Physical sleep after TTL
+expiry, full suspension and lease cancellation, and real Wi-Fi interruption remain
+pending. Power-button/display sleep and wake worked while renewal continued;
+full suspension was not established. One-minute standby is restored, and automatic
+sleep after explicit end passed separately.
 [Detailed evidence and pending gates](../docs/RESIDENT-KEEP-AWAKE.md) and
 [dated validation record](../docs/resident-keep-awake-validation.json).
 

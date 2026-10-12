@@ -26,7 +26,8 @@ successful individual credential confirmation remains pending.
 MCP catalog and status/begin/renew/end checks. Bounded hardware passes cover an
 isolated 120-second hold at one-minute standby, renewal during a verified slow
 4 KiB transfer, native 30-second expiry after PC keeper loss, and one controlled
-accepted-renewal reply drop reconciled without replay. All 41 PC client tests,
+accepted-renewal reply drop reconciled without replay. A separate 90-second hold
+ended cleanly and the operator confirmed normal automatic sleep afterward. All 41 PC client tests,
 41 native-lifecycle host tests and the actual C integration test passed.
 
 **Remaining blockers:** Intermittent HTTP timeouts still interrupt production
@@ -34,9 +35,11 @@ freshness checks. A launch-only probe passed self-test and acknowledged exit,
 with later absence confirmed, but its original result remains unconfirmed.
 Current-build installation/redeployment and an uninterrupted keeper-protected
 native cycle are unqualified; the earlier install rejection's exact cause is
-unknown. Physical normal sleep, manual sleep/wake and Wi-Fi loss remain pending.
-The operator's temporary 30-minute standby setting still needs restoring to one
-minute. Controlled reply loss does not qualify physical Wi-Fi interruption.
+unknown. Physical sleep after TTL expiry, full suspension and lease cancellation,
+and real Wi-Fi loss remain pending. Power-button/display sleep and wake worked
+while the keeper continued renewing; that observation does not establish full
+suspension. One-minute standby is restored, and automatic sleep after explicit
+end passed separately.
 [Detailed trials and pending gates](docs/RESIDENT-KEEP-AWAKE.md#interim-hardware-results)
 and [dated validation record](docs/resident-keep-awake-validation.json).
 

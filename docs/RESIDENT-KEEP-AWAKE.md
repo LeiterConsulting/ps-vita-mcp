@@ -145,12 +145,36 @@ with the keeper reporting `not_started`; no launch or evaluation occurred. This
 is a separate unstarted trial, not a successful repeat of the earlier probe.
 Local receipt: `evidence/workbench/native-launch-only-20261012T220725Z-a8fa3025/report.json`.
 
-After end, both ports had connection timeouts. Physical confirmation of sleep
-on the current build is pending; the operator has been asked to wake the Vita.
-Network unavailability alone does not establish sleep. The operator temporarily
-selected 30-minute standby at about 21:47:43 UTC for further investigation;
-restoring the original one-minute setting is pending. Earlier one-minute trial
-records retain their original setting.
+Earlier post-end connection timeouts had no physical sleep confirmation for
+those trials; network unavailability alone did not establish sleep. The operator
+temporarily selected 30-minute standby for investigation and has now restored
+the original one-minute setting.
+
+A separate current-build **90-second hold passed** at the restored one-minute
+setting: eight renewals, zero reconciliations, no keeper errors and confirmed
+explicit end at 22:20:15 UTC. A subsequent GET-only observer requested 95 seconds
+without renewing and recorded eight paired-port timeout observations. The
+operator then directly confirmed, “Yes—it entered normal sleep,” and physically
+woke the Vita to LiveArea. The subsequent lease begin confirmed the same Resident
+build and power-worker instance. This qualifies normal automatic sleep after
+explicit lease end on the current build. Physical sleep after TTL expiry,
+full suspension and lease cancellation, and real Wi-Fi loss remain separate gates.
+
+Local receipts:
+`evidence/resident/keep-awake-hold-20261012T221842Z/proof.json`,
+`evidence/resident/keep-awake-observe-20261012T222042Z/proof.json`, and
+`evidence/resident/keep-awake-physical-sleep-20261012T222403Z/proof.json`.
+The public [validation record](resident-keep-awake-validation.json) retains the
+exact result, scope and receipt hashes.
+
+A subsequent **90-second keeper-continuity trial passed**: seven renewals,
+zero reconciliations, no errors and confirmed end at 22:26:42 UTC. During the
+trial, the operator pressed Power, waited about ten seconds, then woke the Vita
+with PS/Power and reported normal behavior. This is partial physical
+button/display sleep-and-wake evidence. The keeper continued renewing, so full
+suspension and lease cancellation during full suspension were not established.
+Local receipt: `evidence/resident/keep-awake-hold-20261012T222511Z/proof.json`.
+Real Wi-Fi-loss qualification remains pending.
 
 Code review identified a response-budget edge: a lease POST can commit near the
 end of its two-second connection budget, leaving no time to write its response
@@ -196,13 +220,18 @@ an uninterrupted keeper-protected native cycle. The launch-only runtime proof
 and later absence observations do not qualify installation or redeployment. Cross-build ownership
 adoption is queued future work, with pinned prior evidence and a distinct receipt;
 it is not implemented and current permissions are unchanged.
-Restore the original standby setting and qualify physical normal sleep after
-end/expiry, manual sleep/wake and Wi-Fi loss. Verified slow-transfer renewal and
-keeper-loss TTL expiry are completed evidence tiers; retained transport failures
+The original standby setting is restored and normal automatic sleep after
+explicit end is passed. Physical sleep after TTL expiry, full suspension and
+lease cancellation, and real Wi-Fi loss still need qualification. Verified slow-transfer renewal and
+keeper-loss native TTL expiry are completed evidence tiers; retained transport failures
 remain evidence to investigate. CI at commit `5f18a25` passed with 32 hashed
 artifact files; that result predates the subsequent PC reconciliation change.
 Source commit `c7671385dc1b0c312c98f6d23715051e42c21856` is pushed with CI run
 `38313311499` passed; it predates the new rejection-diagnostics patch.
+CI run `38315537719` at commit
+`74bbbc1317da279689ebdd27ba7498c48c5ed411` passed all 31 groups, with 32 artifact
+files hash-verified. Later documentation and source-manifest refreshes require
+separate exact-head validation.
 
 ## Ownership and expiry
 
@@ -220,8 +249,9 @@ at boot. Read-only status does not renew it.
 
 The worker cancels protection on TTL or session expiry, network loss, a failed
 power tick, clock regression or a worker gap over five seconds. The gap check is
-a conservative interruption check; manual sleep/wake needs hardware
-qualification. A lost mutation reply is never automatically replayed. Cleanup
+a conservative interruption check. Power-button/display sleep and wake were
+observed while renewal continued; full suspension and cancellation during it
+still need hardware qualification. A lost mutation reply is never automatically replayed. Cleanup
 may read the current status and end that same confirmed owner with its new
 revision, or leave it to expire.
 

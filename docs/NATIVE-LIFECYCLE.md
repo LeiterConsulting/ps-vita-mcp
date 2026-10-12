@@ -79,7 +79,15 @@ Separately, one controlled live proxy fault passed exact-owner reconciliation
 of an accepted renewal whose reply was deliberately dropped, with three total
 POSTs (start, renewal, end), tick progress and confirmed end without replay.
 That proof qualifies lease reply-loss handling only; it does not qualify native
-installation or physical Wi-Fi interruption.
+installation or physical Wi-Fi interruption. A separate current-build 90-second
+hold at restored one-minute standby ended cleanly, followed by operator-confirmed
+normal automatic sleep. That passes sleep after explicit lease end; physical
+sleep after TTL expiry, full suspension and lease cancellation, and real Wi-Fi
+loss remain separate. A later 90-second continuity trial passed seven renewals
+and confirmed end while Power-button/display sleep and wake worked normally.
+Renewal continued, so full suspension and cancellation during it were not
+established. These observations do not alter the native installation or cycle
+limitations above.
 
 Explicit cross-build ownership adoption is queued future work. It must pin
 the old Resident build, verified install receipt, immutable stage and hashes;

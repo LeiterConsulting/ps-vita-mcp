@@ -6,8 +6,8 @@
   "native_build": "passed",
   "device_update": "two-second-budget candidate installed; operator confirmed normal boot and LiveArea at one-minute standby; exact identity passed",
   "live_keep_awake": "short MCP operations, isolated 120-second power hold, renewal during a verified 35-second transfer, keeper-loss native TTL expiry and one controlled accepted-renewal reply-loss reconciliation passed; separate native launch/self-test/acknowledged exit and later GET-only absence observed, but that job remained unconfirmed after a keeper freshness timeout; second probe stopped before lease or native mutation; broader HTTP reliability, uninterrupted native cycle, installation and physical qualification incomplete",
-  "live_expiry_and_normal_sleep": "native 30-second TTL expiry after PC keeper loss passed on current build; physical normal sleep remains pending; earlier explicit-end sleep was operator-confirmed on previous d8ca build only",
-  "physical_manual_sleep_wake": "pending",
+  "live_expiry_and_normal_sleep": "native 30-second TTL expiry after PC keeper loss passed; current-build normal automatic sleep after explicit end passed by 90-second renewed hold, confirmed end, GET-only observer and direct operator confirmation; physical sleep after TTL expiry remains pending",
+  "physical_manual_sleep_wake": "partial: operator-reported Power-button/display sleep and wake worked while keeper continued renewing; full suspension and cancellation during full suspension not established",
   "physical_wifi_loss": "pending",
   "sleep_settings_changed": true,
   "iphone_code_published": false,
@@ -57,9 +57,9 @@
     "script-session-catalog-tests.log": "f0077490ff3dd6696ceda0e188e419cbbea81c997dbeba7a171a9736318a6990"
   },
   "operator_standby_minutes": 1,
-  "operator_current_standby_minutes": 30,
-  "operator_standby_restore_pending": true,
-  "sleep_settings_change_scope": "operator used temporary 30-minute standby for diagnostics, restored one minute for the recorded hold/slow-transfer/death trials, then temporarily selected 30 minutes again at about 21:47:43 UTC; restoration pending",
+  "operator_current_standby_minutes": 1,
+  "operator_standby_restore_pending": false,
+  "sleep_settings_change_scope": "operator temporarily selected 30-minute standby for diagnostics and has restored the original one-minute setting; the current-build 90-second hold and explicit-end automatic-sleep confirmation used one minute; no lease changed saved settings",
   "sleep_settings_changed_by_service": false,
   "short_live_mcp_trial": {
     "result": "passed",
@@ -148,15 +148,14 @@
     "resident_build_id": "ed4abe7bbf3f5cb6f52899d4bcace5483dd2fd19b193e7e6034fb1338ffd04d4",
     "evidence_tier": "historical previous 300 ms native-budget build; does not qualify current build"
   },
-  "first_priority": "instrument transport phases and response-budget edge; qualify an uninterrupted keeper-protected native cycle; design explicit pinned cross-build ownership adoption before qualifying installation/redeployment; restore one-minute standby and confirm physical sleep/manual sleep-wake/Wi-Fi behavior; controlled reply-loss reconciliation is passed separately",
+  "first_priority": "instrument transport phases and response-budget edge; qualify an uninterrupted keeper-protected native cycle; design explicit pinned cross-build ownership adoption before qualifying installation/redeployment; confirm physical sleep after TTL expiry, full suspension and lease cancellation, and real Wi-Fi loss; explicit-end automatic sleep and original standby restoration passed separately",
   "pending_hardware_gates": [
     "diagnostic GET transport reliability and production freshness checks remain unqualified",
     "uninterrupted keeper-protected native cycle: launch-only self-test/acknowledged exit and later absence observed, but original job remained unconfirmed after final freshness GET timeout",
     "native installation and redeployment under current Resident build: verified staging passed, install request rejected with exact runtime reason unavailable",
     "explicit cross-build ownership adoption is future work only; current permissions unchanged",
-    "restore temporary 30-minute standby to original one-minute setting",
-    "physical normal-sleep confirmation after explicit end and TTL expiry on current build",
-    "physical manual sleep/wake",
+    "physical normal sleep after native TTL expiry on current build; explicit-end automatic sleep passed separately",
+    "physical full suspension and lease cancellation during full suspension; button/display sleep-wake observed while renewal continued",
     "physical Wi-Fi interruption and recovery"
   ],
   "first_candidate": {
@@ -359,7 +358,7 @@
   },
   "after_latest_end": {
     "service_ports": "both connection timeouts after end",
-    "physical_full_sleep_confirmation": "pending; operator asked to wake Vita",
+    "physical_full_sleep_confirmation": "not confirmed for this earlier trial; later current-build 90-second explicit-end trial passed separately",
     "qualification_scope": "network observation only; does not establish sleep"
   },
   "native_response_budget_edge": {
@@ -368,7 +367,7 @@
     "observed_periodic_delay_cause": "not established",
     "next_step": "phase instrumentation; do not attribute hardware periodic delays to this edge without evidence"
   },
-  "operator_current_standby_changed_utc_approx": "2026-10-12T21:47:43+00:00",
+  "operator_current_standby_changed_utc_approx": "restored to one minute before 2026-10-12T22:18:42+00:00 hold",
   "keeper_process_loss_ttl_expiry": {
     "result": "passed",
     "started_utc": "2026-10-12T21:47:02.688712+00:00",
@@ -610,5 +609,61 @@
     "historical_runtime_rejection_reason_recovered": false,
     "evidence_visibility": "private structured no-mutation record retained by root; no public private-evidence link",
     "qualification_scope": "no new installation or runtime-rejection acceptance; exact historical cause remains unknown"
+  },
+  "current_build_explicit_end_automatic_sleep": {
+    "result": "passed",
+    "resident_build_id": "47ece86ad3b5258b6a52b4aaffefb8046e5af48c69f49a763001bf36bd815240",
+    "power_instance_id": "955b387f8dd6800315e7678941f513b0",
+    "operator_standby_minutes": 1,
+    "operator_setting_restored": true,
+    "hold_duration_s": 90,
+    "hold_samples": 30,
+    "hold_renewals": 8,
+    "hold_reconciled_renewals": 0,
+    "hold_errors": [],
+    "hold_end": "ended",
+    "hold_finished_utc": "2026-10-12T22:20:15.766484+00:00",
+    "hold_local_receipt": "evidence/resident/keep-awake-hold-20261012T221842Z/proof.json",
+    "hold_receipt_sha256": "42c1a57b86d1b4fc93671788edc626902052cb6efca15df8a2cf02138a3f7647",
+    "observer_requested_duration_s": 95,
+    "observer_renewals": 0,
+    "observer_online_samples": 0,
+    "observer_paired_port_timeouts": 8,
+    "observer_local_receipt": "evidence/resident/keep-awake-observe-20261012T222042Z/proof.json",
+    "observer_receipt_sha256": "05b88decd9bf40c44d8c9c8a3a300818abdcf0a3cb24c1c7f5c62937c5fea87d",
+    "operator_confirmation": "Yes\u2014it entered normal sleep; left untouched until physical-state reply",
+    "operator_confirmation_source": "direct response in this chat after lease release and read-only observer",
+    "operator_subsequent_physical_wake": "confirmed LiveArea ready",
+    "post_wake_identity": "same Resident build and power-worker instance confirmed by subsequent lease begin; reported by root after the combined receipt was recorded",
+    "combined_local_receipt": "evidence/resident/keep-awake-physical-sleep-20261012T222403Z/proof.json",
+    "combined_receipt_sha256": "892f027dd1421cb3a23e15a9c07e58561e96b3a697ff7d3a43015782ad5a46f5",
+    "qualification_scope": "current-build normal automatic sleep after explicit end passed; physical sleep after TTL expiry, full suspension and lease cancellation, and real Wi-Fi loss remain separate; no full fresh configured interval from release is established"
+  },
+  "ci_source_with_rejection_diagnostics": {
+    "commit": "74bbbc1317da279689ebdd27ba7498c48c5ed411",
+    "run": 38315537719,
+    "result": "passed",
+    "host_groups": 31,
+    "artifact_files_hash_verified": 32,
+    "scope": "exact committed source with diagnostics; later documentation/source-manifest refresh requires separate exact-head CI"
+  },
+  "power_button_display_sleep_wake_observation": {
+    "result": "partial physical observation; keeper-continuity trial passed",
+    "hold_duration_s": 90,
+    "hold_samples": 29,
+    "keeper_renewals": 7,
+    "keeper_reconciled_renewals": 0,
+    "keeper_errors": [],
+    "keeper_end": "ended",
+    "started_utc": "2026-10-12T22:25:11.559233+00:00",
+    "finished_utc": "2026-10-12T22:26:42.563129+00:00",
+    "operator_action": "pressed Power, waited approximately ten seconds, woke using PS/Power",
+    "operator_report": "button/display sleep and wake worked normally",
+    "keeper_continued_renewing": true,
+    "full_suspension_established": false,
+    "lease_cancellation_during_full_suspension_established": false,
+    "local_receipt": "evidence/resident/keep-awake-hold-20261012T222511Z/proof.json",
+    "receipt_sha256": "aca28c2f9ad55ee2306bae16305d3b351dfce8cc435481df83d5b9807efa5102",
+    "qualification_scope": "partial Power-button/display sleep-wake observation plus 90-second keeper continuity; full suspension and lease cancellation during it not established; real Wi-Fi-loss test remains pending"
   }
 }
