@@ -17,6 +17,7 @@ import uuid
 
 from .native_package import PROJECT, TITLE, canonical, json_object, load_candidate, sha
 from resident.lifecycle_client import LifecycleClient, LifecycleTransport, LifecycleRejected, hex_pin
+from resident.keep_awake_client import KeepAwakeClient, ResidentKeeper
 from .runner import Journal, ROOT, WORKDIR, utc
 from .session import exclusive
 
@@ -26,15 +27,17 @@ LIMITS = {'cycles': 3, 'measurement_s': [0.25, 10], 'timeout_s': [10, 180],
           'file_bytes': 8 * 1024 * 1024, 'total_bytes': 16 * 1024 * 1024}
 LIMITATIONS = ['Only the dedicated VMCP00001 lab can be installed or launched.',
               'Conservative idle-shell policy; displayed foreground and protected UI are not attested.',
-              'No Control/kernel loading, input, capture, power or boot-configuration changes; installer owns its temporary Promoter module.',
+              'No Control/kernel loading, input, capture or boot-configuration changes; installer owns its temporary Promoter module.',
+              'Resident 0.1.6 requires a bounded keep-awake lease during execution; legacy 0.1.5 has no automatic power protection. Saved sleep and brightness settings stay unchanged.',
               'No package uninstall, data migration, arbitrary app replacement or automatic rollback.',
               'SDK submission, installed-file hashes and live runtime acceptance are separate evidence.',
               'Unknown native effects or ownership drift stop all further mutations without replay.']
 
 
 class Stopped(RuntimeError):
-    def __init__(self, code):
+    def __init__(self, code, *, native_rejection=None):
         self.code = code
+        self.native_rejection = native_rejection
         super().__init__(code)
 
 
@@ -117,8 +120,21 @@ class _Job:
         self.runtime = None
         self.running_state = None
         self.deadline = time.monotonic() + plan['timeout_s']
+        self.keeper = None
+        self.pending_native = None
+
+    def keep_awake(self, *, fresh=False):
+        if self.keeper is not None:
+            try:
+                self.keeper.check(fresh=fresh)
+            except Exception as error:
+                if self.pending_native or self.runtime is not None and self.running_state is None:
+                    self.uncertain = True
+                    raise Unconfirmed('resident_keep_awake_lost_during_native_effect') from error
+                raise Stopped('resident_keep_awake_no_longer_confirmed') from error
 
     def status(self, idle=False):
+        self.keep_awake()
         self.c.check_endpoint()
         value = _status(self.c.status(), self.plan, idle=idle)
         if value['clock_ms'] < self.last_clock:
@@ -133,6 +149,7 @@ class _Job:
 
     def mutate(self, operation, fields, call, reconcile):
         self.c.check_endpoint()
+        self.keep_awake(fresh=True)
         self.event('mutation_intent', {'operation': operation, **fields})
         if operation in ('launch', 'graceful_exit'):
             # Submission is not runtime presence or absence. Keep a tri-state
@@ -150,8 +167,11 @@ class _Job:
             self.event('read_only_reconciliation', {'operation': operation, 'receipt': result,
                                                     'replayed': False})
             self.uncertain = False
-        except LifecycleRejected:
-            raise Stopped(operation + '_rejected') from None
+        except LifecycleRejected as error:
+            rejection = dict(error.diagnostic)
+            self.event('mutation_rejected', {'operation': operation, 'native_rejection': rejection,
+                                             'replayed': False})
+            raise Stopped(operation + '_rejected', native_rejection=rejection) from None
         except Exception:
             self.uncertain = True
             raise Unconfirmed(operation + '_invalid_or_uncommitted_receipt') from None
@@ -214,10 +234,21 @@ class _Job:
                                lambda: self.c.operation(manifest['attempt'], operation, request),
                                lambda: self.c.inspect_operation(request['attempt'], request,
                                                                  manifest['attempt'], operation))
+        if observed['state'] in ('queued', 'dispatch_intent', 'running') or operation == 'launch':
+            self.pending_native = operation
         expected = 'installed_verified' if operation == 'install' else 'submitted'
         while True:
             self.c.check_endpoint()
+            try:
+                self.keep_awake()
+            except Stopped as error:
+                if observed['state'] in ('queued', 'dispatch_intent', 'running'):
+                    self.uncertain = True
+                    raise Unconfirmed(operation + '_pending_when_keep_awake_lost') from error
+                raise
             if observed['state'] == expected:
+                if operation == 'install':
+                    self.pending_native = None
                 self.event('native_operation_verified', {'operation': operation, 'receipt': observed})
                 return observed
             if observed['state'] in ('unknown', 'native_rejected', 'refused', 'expired'):
@@ -254,6 +285,7 @@ class _Job:
         # cleanup; changed identity, malformed telemetry and unknown native
         # effects never authorize cleanup into another process.
         self.runtime = state
+        self.pending_native = None
         self.running_state = True
         if check_selftest and not state['selftest_passed']:
             raise Stopped('native_lab_selftest_failed')
@@ -315,6 +347,7 @@ class _Job:
                 samples += 1
                 if samples >= 2:
                     self.runtime = None
+                    self.pending_native = None
                     self.running_state = False
                     self.event('runtime_absent_observed', {'samples': samples, 'policy': status['guard']['policy'],
                                                           'foreground_verified': False, 'protected_ui_verified': False})
@@ -356,7 +389,22 @@ def execute(plan, plan_sha256, *, client=None, root=WORKDIR):
         job = _Job(client or LifecycleClient(), journal, plan, files)
         started = time.monotonic()
         try:
-            job.status(idle=True)
+            identity = job.status(idle=True)
+            advertised = identity.get('keep_awake_protocol') is not None or identity.get('keep_awake_port') is not None
+            required = identity.get('resident_version') is not None and identity['resident_version'] != '0.1.5'
+            if advertised or required:
+                if (type(identity.get('keep_awake_protocol')) is not int or identity['keep_awake_protocol'] != 1
+                        or type(identity.get('keep_awake_port')) is not int or identity['keep_awake_port'] != 17869):
+                    raise Stopped('resident_keep_awake_capability_missing_or_invalid')
+                job.keeper = ResidentKeeper(KeepAwakeClient(job.c.provider), journal.folder, plan['job_id'],
+                                            max_duration_ms=1800000)
+                # The dedicated lease worker has its own boot/session instance,
+                # separately pinned from the native lifecycle broker instance.
+                job.keeper.start(plan['resident_build_id'])
+                job.keep_awake(fresh=True)
+                journal.report['keep_awake'] = dict(job.keeper.result)
+            else:
+                journal.report['keep_awake'] = {'enabled': False, 'reason': 'legacy Resident has no lease capability'}
             manifest, digest = job.stage()
             prior_run = None
             for index in range(plan['cycles']):
@@ -394,7 +442,15 @@ def execute(plan, plan_sha256, *, client=None, root=WORKDIR):
                                   native_lab_left_running=None if job.uncertain else job.running_state,
                                   last_verified_runtime=job.runtime,
                                   further_mutations='stopped; failed candidate is not automatically redeployed')
+            if isinstance(error, Stopped) and error.native_rejection is not None:
+                journal.report['native_rejection'] = dict(error.native_rejection)
         finally:
+            if job.keeper is not None:
+                journal.report['keep_awake'] = job.keeper.stop()
+                if (journal.report['result'] == 'passed'
+                        and journal.report['keep_awake'].get('end') not in ('ended', 'already_inactive')):
+                    journal.report.update(result='unconfirmed', failure_code='resident_keep_awake_end_unconfirmed',
+                                          further_mutations='stopped; work completed but lease release requires inspection or expiry')
             journal.report['mutation_submissions'] = sum(event['kind'] == 'mutation_intent' for event in journal.report['events'])
             journal.report['elapsed_s'] = round(time.monotonic() - started, 3)
             journal.report['finished_utc'] = utc()
@@ -512,7 +568,7 @@ def register(mcp, read_annotations, write_annotations):
 
     @mcp.tool(annotations=write_annotations)
     def vita_workbench_native_execute(plan: dict, plan_sha256: str) -> dict:
-        """Execute a fresh preview exactly once: stage eight fixed hash-pinned files, install/verify, launch/observe exact build/PID/run, evaluate selftest and exit/redeploy the dedicated lab. Pins Resident's build/instance, journals before each write and retains artifacts/receipts. Lost replies reconcile the original attempt with GET only; unresolved effects stop without replay or automatic rollback. Does not change accepted apps, Control, boot configuration, input, capture or power. Conservative idle-shell policy does not attest protected UI. Polling 10..180s plus socket deadlines."""
+        """Execute a fresh preview exactly once: stage eight fixed hash-pinned files, install/verify, launch/observe exact build/PID/run, evaluate selftest and exit/redeploy the dedicated lab. Pins Resident's build/instance, journals before each write and retains artifacts/receipts. Resident 0.1.6 requires an automatically renewed, bounded keep-awake lease and ends it on completion/failure; legacy 0.1.5 has no lease protection. Saved sleep/brightness settings stay unchanged. Lost replies reconcile the original attempt with GET only; unresolved effects stop without replay or automatic rollback. Does not change accepted apps, Control, boot configuration, input or capture. Conservative idle-shell policy does not attest protected UI. Polling 10..180s plus socket deadlines."""
         return execute(plan, plan_sha256)
 
     @mcp.tool(annotations=read_annotations)

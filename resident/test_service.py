@@ -70,6 +70,8 @@ class ServiceTests(unittest.TestCase):
         self.assertGreater(after['heartbeat'], before['heartbeat'])
         self.assertEqual(after['battery_percent'], 73)  # Explicitly synthetic host sample.
         self.assertFalse(after['keep_awake'])
+        self.assertEqual(after['keep_awake_start_result'], 0)
+        self.assertEqual(after['keep_awake_port'], 17869)
 
     def test_binary_upload_hash_storage_readback_and_download(self):
         for size in [1, 55, 56, 63, 64, 65, 4095, 16385, 131071, 8 * 1024 * 1024]:

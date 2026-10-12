@@ -1,10 +1,34 @@
 # Background status and verified uploads
 
-The corrected Vita Resident 0.1.5 is currently boot-loaded as a separate SceShell user plugin on the test Vita after a confirmed normal boot and exact device-binary verification. Its fresh native instance is unblocked, reports the installer ready and leaves Promoter unloaded; five fixed-Lab install/launch/evaluate/graceful-exit cycles across two native builds passed on hardware; same-build journal durability passed after a normal reboot without replay. The earlier unknown promotion receipt is retained without replay. [Current incident](NATIVE-LIFECYCLE.md#october-12-native-promotion-incident). The following 0.1.4 results are historical rollback evidence. It exposes device status, a bounded upload inbox, managed inbox inspection and the native individual-pairing authority. The desktop MCP server is `resident/bridge.py`; the native service uses port **17866**. The operator confirmed normal boot after activation. Two exact plugin/configuration readbacks preserved the 0.1.3 and 0.1.2 rollback plugins and saved administrator pairing, with no overriding configuration and both withdrawn experiments disabled. Twelve initial read-only checks passed, including fresh 33-tool stdio MCP, known-byte file inspection and direct native refusal paths. Resident retained one disabled, unblocked broker instance with advancing time. A separate DevLoop coexistence check passed eight stable-identity observations with advancing frames, plus a new 4096-byte upload, two complete publication readbacks and exact managed stat/readback, retaining Resident's boot and native instance. Repeated boot, storage durability and phone credential confirmation remain pending. [Managed-file qualification](managed-files-validation.json).
+**Resident 0.1.6 is installed after a confirmed normal boot; qualification is
+incomplete.** The SceShell user plugin provides background status, a bounded
+upload inbox and managed-file inspection on port **17866**. The PC MCP bridge is
+`resident/bridge.py`. Its separate port **17869** serves bounded keep-awake leases
+without changing saved sleep or brightness settings.
 
-The earlier 0.1.2 pairing trial passed startup and native pairing-window exchange, including physical code display and graceful timeout. Those historical results do not qualify successful individual credential confirmation on 0.1.4; that remains pending. [Pairing contract and device gates](PAIRING.md).
+Hardware passes cover fresh MCP lease operations, an isolated 120-second hold
+at one-minute standby, renewal during a verified slow 4 KiB transfer, native
+30-second expiry after PC keeper loss and one controlled lost-renewal reply
+reconciled without replay. A launch-only probe passed self-test and acknowledged
+exit, with later absence confirmed. A separate 90-second hold ended cleanly,
+followed by operator-confirmed normal automatic sleep.
 
-The earlier 0.1.1 development prototype passed status and storage checks on one homebrew-enabled Vita running firmware 3.65, including a 4 KiB probe and a 1.2 MB package with the file manager in the foreground. Those results do not qualify the new pairing authority. Gameplay coexistence, sustained transfer load and sleep/wake recovery still need separate checks. [Historical scope and identities](resident-inspector-prototype-validation.json).
+Intermittent HTTP timeouts still interrupt freshness checks, and the launch-only
+job's original result remains unconfirmed. Current-build installation/redeployment
+and an uninterrupted keeper-protected native cycle remain unqualified; the
+historical install rejection's exact cause is unknown. Physical sleep after TTL
+expiry, full suspension and lease cancellation, and real Wi-Fi interruption remain
+pending. Power-button/display sleep and wake worked while renewal continued;
+full suspension was not established. One-minute standby is restored, and automatic
+sleep after explicit end passed separately.
+[Exact installed identity, detailed trials and pending gates](RESIDENT-KEEP-AWAKE.md)
+and [dated validation record](resident-keep-awake-validation.json).
+
+Accepted 0.1.5 and earlier rollback plugins are retained. The five 0.1.5 native
+cycles across two builds and same-build reboot durability remain historical
+baseline evidence. [Native lifecycle qualification](NATIVE-LIFECYCLE.md),
+[managed-file qualification](managed-files-validation.json) and
+[pairing gates](PAIRING.md) retain their separate acceptance records.
 
 ## Build
 
@@ -15,9 +39,9 @@ From the repository root, with Docker Desktop running:
 .\Build-Resident.ps1
 ```
 
-Current source builds the corrected Resident 0.1.5 [native lifecycle candidate](NATIVE-LIFECYCLE.md), now running after normal-boot and exact-binary verification; five fixed-Lab install/launch/evaluate/graceful-exit cycles across two native builds passed on hardware, with same-build normal-reboot journal durability passed without replay, and accepted 0.1.4 is retained for rollback. The candidate adds owned Lifecycle Lab installation and fixed-title launching. The legacy DevLoop launch broker remains disabled. The historical 0.1.4 normal-boot and read-only inspection results above do not qualify the new build. The build runs the actual C HTTP/storage service under sanitizers with host adapters, MCP stdio fixtures, first-install FTP fixtures and update fixtures. It validates the ARM module's identity, imports, lifecycle, unresolved symbols and source fingerprint. Outputs are `dist/resident/vita_resident.suprx` and `dist/resident/build-report.json`. Building does not contact the Vita.
+The accepted predecessor is the corrected Resident 0.1.5 [native lifecycle candidate](NATIVE-LIFECYCLE.md), retained after normal-boot and exact-binary verification; five fixed-Lab install/launch/evaluate/graceful-exit cycles across two native builds passed on hardware, with same-build normal-reboot journal durability passed without replay, and accepted 0.1.4 is retained for rollback. The candidate adds owned Lifecycle Lab installation and fixed-title launching. The legacy DevLoop launch broker remains disabled. The historical 0.1.4 normal-boot and read-only inspection results above do not qualify the new build. The build runs the actual C HTTP/storage service under sanitizers with host adapters, MCP stdio fixtures, first-install FTP fixtures and update fixtures. It validates the ARM module's identity, imports, lifecycle, unresolved symbols and source fingerprint. Outputs are `dist/resident/vita_resident.suprx` and `dist/resident/build-report.json`. Building does not contact the Vita.
 
-The combined public source bridge exposes seven Resident tools, thirteen [Control tools](CONTROL.md) and sixteen [Workbench tools](../workbench/README.md), for 36 total. Three native lifecycle tools require Resident 0.1.5 and target only the dedicated `VMCP00001` lab; retained 0.1.4 does not implement that namespace. Script-preparation/session tools run on the PC through the existing foreground DevLoop API; they do not add native capabilities to installed Resident. Three inspection tools introduced in 0.1.4 are documented in [Managed files](MANAGED-FILES.md): `vita_resident_list_inbox`, `vita_resident_file_info` and `vita_resident_read_file`. They inspect permitted inbox attempts and retained parts without changing files. Older supported versions, including the 0.1.3 rollback, do not implement them. The original Resident subset retains these four operations:
+The combined public source bridge exposes eleven Resident tools, thirteen [Control tools](CONTROL.md) and sixteen [Workbench tools](../workbench/README.md), for 40 total. Three native lifecycle tools require Resident 0.1.5 and target only the dedicated `VMCP00001` lab; retained 0.1.4 does not implement that namespace. Script-preparation/session tools run on the PC through the existing foreground DevLoop API; they do not add native capabilities to installed Resident. Three inspection tools introduced in 0.1.4 are documented in [Managed files](MANAGED-FILES.md): `vita_resident_list_inbox`, `vita_resident_file_info` and `vita_resident_read_file`. They inspect permitted inbox attempts and retained parts without changing files. Older supported versions, including the 0.1.3 rollback, do not implement them. The original Resident subset retains these four operations:
 
 | Tool | Operation |
 | --- | --- |

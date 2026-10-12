@@ -116,7 +116,7 @@ class LaunchServiceTests(unittest.TestCase):
             self.assertFalse(value[field])
         self.assertEqual(self.records(), [])
         self.assertFalse((self.root / 'fixture-launch-called').exists())
-        self.assertEqual(self.call('GET', '/status')[1]['version'], '0.1.5')
+        self.assertEqual(self.call('GET', '/status')[1]['version'], '0.1.6')
 
     def test_disabled_valid_offer_does_not_claim_or_launch(self):
         self.start()

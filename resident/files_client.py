@@ -72,8 +72,8 @@ def _identity(value, operation, attempt, extra):
 class ManagedInboxClient:
     def __init__(self, requester, status):
         self.requester = requester
-        if status()['version'] not in ('0.1.4', '0.1.5'):
-            raise RuntimeError('Resident managed inbox inspection requires service 0.1.4 or 0.1.5')
+        if status()['version'] not in ('0.1.4', '0.1.5', '0.1.6'):
+            raise RuntimeError('Resident managed inbox inspection requires service 0.1.4 or newer')
 
     def list(self, attempt, offset):
         path = '/storage/list' + ('' if attempt is None else '/' + attempt)

@@ -114,7 +114,7 @@ Register two stdio servers using absolute paths from this checkout:
 }
 ```
 
-DevLoop exposes ten tools and resources. The combined Resident source bridge exposes **36 tools: seven Resident, thirteen Control and sixteen Workbench**. Its three [native lifecycle candidate tools](NATIVE-LIFECYCLE.md) require Resident 0.1.5 and the dedicated lab; the accepted 0.1.4 service does not implement that namespace. Control uses the existing Resident token and port **17867**; Resident uses **17866**; foreground DevLoop uses **17865**; Lifecycle Lab uses **17868**. The desktop process speaks MCP; the Vita services speak authenticated HTTP.
+DevLoop exposes ten tools and resources. The combined Resident source bridge exposes **40 tools: eleven Resident, thirteen Control and sixteen Workbench**. Its three [native lifecycle candidate tools](NATIVE-LIFECYCLE.md) require Resident 0.1.5 and the dedicated lab; the accepted 0.1.4 service does not implement that namespace. Control uses the existing Resident token and port **17867**; Resident uses **17866**; foreground DevLoop uses **17865**; Lifecycle Lab uses **17868**; Resident 0.1.6 keep-awake uses **17869** ([lease guide](RESIDENT-KEEP-AWAKE.md)). The desktop process speaks MCP; the Vita services speak authenticated HTTP.
 
 Restart/refresh this client's existing MCP connection after updating the bridge. A long-lived old bridge rejected Control 0.2.2 as an unexpected identity until it was restarted. Restart the **PC connection**, not the loaded Vita modules. The supplied `resident/Register-Mcp.ps1` is an optional Codex CLI registration helper; other clients can use the JSON above.
 

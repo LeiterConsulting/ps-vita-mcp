@@ -2,6 +2,7 @@
 #include "platform.h"
 #include "native_install/platform.h"
 #include "files_platform.h"
+#include "keep_awake/power_platform.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -57,4 +58,4 @@ int r_close_file(int fd) { int result=close(fd); return fault("close")?-1:result
 int r_file_size(const char *path,uint64_t *size) { struct stat s; if(stat(mapped(path),&s)<0||!S_ISREG(s.st_mode)) return -1; *size=(uint64_t)s.st_size; return 0; }
 int r_rename(const char *from,const char *to) { if(fault("rename")) return -1; char a[2048]; snprintf(a,sizeof(a),"%s",mapped(from)); const char *b=mapped(to); struct stat s; if(stat(b,&s)==0) return -1; return rename(a,b); }
 static void stop(int signal_number) { (void)signal_number; active=0; }
-int main(int argc,char **argv) { if(argc!=4) return 2; snprintf(root,sizeof(root),"%s",argv[1]);rf_host_root(root);nip_host_root(root); port=(unsigned)strtoul(argv[2],0,10); signal(SIGTERM,stop); signal(SIGINT,stop); r_service(argv[3]); return 0; }
+int main(int argc,char **argv) { if(argc!=4) return 2; snprintf(root,sizeof(root),"%s",argv[1]);rf_host_root(root);nip_host_root(root); port=(unsigned)strtoul(argv[2],0,10); const char *power_port=getenv("VITA_RESIDENT_KEEP_AWAKE_TEST_PORT");rkap_host_config(power_port?(unsigned)strtoul(power_port,0,10):0,root); signal(SIGTERM,stop); signal(SIGINT,stop); r_service(argv[3]); return 0; }

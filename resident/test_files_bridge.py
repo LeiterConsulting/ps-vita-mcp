@@ -134,13 +134,13 @@ async def main():
                     await session.initialize()
                     tools = (await session.list_tools()).tools
                     names = ('vita_resident_list_inbox', 'vita_resident_file_info', 'vita_resident_read_file')
-                    assert len(tools) == 36 and all(name in {tool.name for tool in tools} for name in names)
+                    assert len(tools) == 40 and all(name in {tool.name for tool in tools} for name in names)
                     for tool in tools:
                         if tool.name in names:
                             assert tool.annotations.readOnlyHint is True
                             assert tool.annotations.destructiveHint is False
                             assert tool.annotations.idempotentHint is True
-                    checks.append('36-tools-and-readonly-inbox-annotations-through-stdio')
+                    checks.append('40-tools-and-readonly-inbox-annotations-through-stdio')
 
                     async def ok(name, args):
                         result = await session.call_tool(name, args)

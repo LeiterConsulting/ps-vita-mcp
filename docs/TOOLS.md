@@ -1,8 +1,10 @@
 # MCP tool surface
 
-The foreground DevLoop bridge in `bridge/server.py` exposes these ten tools through MCP stdio. The separate combined Resident bridge exposes [seven Resident](RESIDENT.md), [thirteen Control](CONTROL.md) and [sixteen Workbench tools](../workbench/README.md), for 36 total. Three native lifecycle tools require the Resident 0.1.5 candidate and dedicated Lifecycle Lab; five native Lab cycles across two builds passed; same-build journal durability passed after a normal reboot without replay. Workbench includes Control-free preparation and multi-candidate Lua sessions on already open DevLoop 01.04. Follow [complete baseline setup](GETTING-STARTED.md), [autonomous preparation](AUTONOMOUS-DEVLOOP.md) or [DevLoop-only pairing](SETUP.md). Clients can discover exact argument schemas through MCP `tools/list`.
+The foreground DevLoop bridge in `bridge/server.py` exposes these ten tools through MCP stdio. The separate combined Resident bridge exposes [eleven Resident](RESIDENT.md), [thirteen Control](CONTROL.md) and [sixteen Workbench tools](../workbench/README.md), for 40 total. Three native lifecycle tools require the Resident 0.1.5 candidate and dedicated Lifecycle Lab; five native Lab cycles across two builds passed; same-build journal durability passed after a normal reboot without replay. Workbench includes Control-free preparation and multi-candidate Lua sessions on already open DevLoop 01.04. Follow [complete baseline setup](GETTING-STARTED.md), [autonomous preparation](AUTONOMOUS-DEVLOOP.md) or [DevLoop-only pairing](SETUP.md). Clients can discover exact argument schemas through MCP `tools/list`.
 
-The refreshed registered PC Resident MCP exposed all 36 tools and passed direct status, an unexecuted native preview and GET-only reconciliation of the completed post-reboot job. [Registered-client qualification](NATIVE-LIFECYCLE.md#registered-mcp-readiness-pass).
+The earlier refreshed registered PC Resident MCP exposed all 36 tools and passed direct status, an unexecuted native preview and GET-only reconciliation of the completed post-reboot job. [Registered-client qualification](NATIVE-LIFECYCLE.md#registered-mcp-readiness-pass).
+
+Resident 0.1.6 adds four [bounded keep-awake tools](RESIDENT-KEEP-AWAKE.md): status, begin, renew and end. Native jobs acquire/release leases automatically; status and preview never renew. Other workflows use explicit tools or the PC command wrapper. Live qualification is recorded separately.
 
 | Tool | Effect |
 | --- | --- |

@@ -2,6 +2,8 @@
 set -eu
 mkdir -p build/resident
 sh resident/build_host.sh --launch-fixture
+sh resident/keep_awake/test_host.sh
+python3 resident/test_keep_awake_integration.py
 python3 resident/test_service.py
 python3 resident/test_files_service.py
 python3 resident/test_launch_service.py

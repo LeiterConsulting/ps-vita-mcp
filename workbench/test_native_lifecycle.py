@@ -24,7 +24,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from workbench.native_package import FILES, PROJECT, TITLE, canonical, load_candidate, make_head, sha, validate_head
-from resident.lifecycle_client import LifecycleClient, LifecycleTransport
+from resident.lifecycle_client import LifecycleClient, LifecycleRejected, LifecycleTransport, REJECTION_REASONS
 from workbench.native_lifecycle import preview, execute, reconcile
 
 TOKEN, BUILD, INSTANCE, LAB_BUILD = 'd' * 32, 'a' * 64, 'b' * 32, 'c' * 64
@@ -94,6 +94,7 @@ class Fixture:
         self.dropped = set()
         self.idle = True
         self.checksum = 42
+        self.rejection = None
 
     def guard(self):
         return {'ready': self.idle and not self.running, 'result': 0, 'enumeration_result': 0,
@@ -134,14 +135,14 @@ class Fixture:
             def log_message(self, *args):
                 pass
 
-            def reply(self, value, code=200, drop=''):
+            def reply(self, value, code=200, drop='', content_type='application/json'):
                 if drop and owner.mode == drop and drop not in owner.dropped:
                     owner.dropped.add(drop)
                     self.close_connection = True
                     return
-                data = canonical(value)
+                data = value if isinstance(value, bytes) else canonical(value)
                 self.send_response(code)
-                self.send_header('Content-Type', 'application/json')
+                self.send_header('Content-Type', content_type)
                 self.send_header('Content-Length', str(len(data)))
                 self.end_headers()
                 self.wfile.write(data)
@@ -150,6 +151,12 @@ class Fixture:
                 owner.calls.append((self.command, self.path))
                 if self.headers.get('Authorization') != 'Bearer ' + TOKEN:
                     self.reply({'error': TOKEN}, 403)
+                    return False
+                rejected = owner.rejection
+                if (rejected is not None and self.command == rejected['method']
+                        and self.path.endswith(rejected['path_suffix'])):
+                    self.reply(rejected['body'], rejected['status'],
+                               content_type=rejected.get('content_type', 'application/json'))
                     return False
                 return True
 
@@ -295,6 +302,220 @@ class NativeLifecycleTests(unittest.TestCase):
         self.assertTrue(value['ready'])
         self.assertEqual(value['plan_sha256'], sha(canonical(value['plan'])))
         self.assertEqual(self.writes(), [])
+
+    def reject(self, body, status=409, *, method='GET', path='/native-lifecycle/status',
+               content_type='application/json'):
+        self.fixture.rejection = {'method': method, 'path_suffix': path, 'body': body,
+                                  'status': status, 'content_type': content_type}
+
+    def test_native_rejection_retains_only_fixed_protocol_status_reason_and_category(self):
+        for reason, (status, category) in REJECTION_REASONS.items():
+            with self.subTest(reason=reason):
+                self.reject({'app': 'Vita Native Lifecycle', 'protocol': 1, 'error': reason}, status)
+                with self.assertRaises(LifecycleRejected) as raised:
+                    self.client.status()
+                error = raised.exception
+                self.assertEqual((error.status, error.reason, error.category), (status, reason, category))
+                self.assertEqual(error.diagnostic, {'http_status': status, 'reason': reason, 'category': category})
+                self.assertNotIn(TOKEN, str(error))
+        self.assertEqual(self.writes(), [])
+
+    def test_foreign_invalid_unknown_and_mismatched_rejections_never_reflect_remote_content(self):
+        valid = {'app': 'Vita Native Lifecycle', 'protocol': 1, 'error': 'installed_title_not_verified_owned'}
+        bodies = [valid | {'app': 'Foreign ' + TOKEN}, valid | {'protocol': True}, valid | {'protocol': '1'},
+                  valid | {'protocol': 2}, valid | {'error': TOKEN}, valid | {'error': {'secret': TOKEN}},
+                  valid | {'error': ['secret', TOKEN]}, valid | {'credential': TOKEN},
+                  {'error': 'Bearer ' + TOKEN}, ['secret', TOKEN], ('invalid ' + TOKEN).encode(),
+                  ('{"app":"Vita Native Lifecycle","protocol":1,"error":"installed_title_not_verified_owned",'
+                   '"error":"' + TOKEN + '"}').encode()]
+        for body in bodies:
+            with self.subTest(body_type=type(body).__name__):
+                self.reject(body)
+                with self.assertRaises(LifecycleRejected) as raised:
+                    self.client.status()
+                error = raised.exception
+                self.assertEqual(error.diagnostic, {'http_status': 409, 'reason': None,
+                                                    'category': 'unrecognized_rejection'})
+                self.assertNotIn(TOKEN, str(error))
+                self.assertNotIn(TOKEN, repr(error.diagnostic))
+        self.reject(valid, 400)
+        with self.assertRaises(LifecycleRejected) as raised:
+            self.client.status()
+        self.assertEqual(raised.exception.diagnostic, {'http_status': 400, 'reason': None,
+                                                      'category': 'unrecognized_rejection'})
+        self.assertEqual(self.writes(), [])
+
+    def test_oversized_and_wrong_content_type_rejections_remain_invalid_without_remote_text(self):
+        for body, content_type in (({'error': TOKEN * 600}, 'application/json'),
+                                   ({'error': TOKEN}, 'text/plain')):
+            with self.subTest(content_type=content_type):
+                self.reject(body, content_type=content_type)
+                with self.assertRaisesRegex(RuntimeError, 'Invalid native lifecycle response bounds or content type') as raised:
+                    self.client.status()
+                self.assertNotIsInstance(raised.exception, LifecycleRejected)
+                self.assertNotIn(TOKEN, str(raised.exception))
+        self.assertEqual(self.writes(), [])
+
+    def test_lifecycle_error_identity_on_lab_or_inventory_is_not_adopted(self):
+        body = {'app': 'Vita Native Lifecycle', 'protocol': 1, 'error': 'installed_title_not_verified_owned'}
+        original = __import__('http.client', fromlist=['HTTPConnection']).HTTPConnection
+        for path, lab in (('/devloop-launch/inventory', False), ('/status', True),
+                          ('/native-lifecycle/status', True)):
+            with self.subTest(path=path, lab=lab):
+                self.reject(body, path=path)
+                client = LifecycleClient(lambda: dict(self.endpoint))
+                with patch('resident.lifecycle_client.http.client.HTTPConnection',
+                           side_effect=lambda host, port, **kwargs: original(host, self.server.server_port, **kwargs)):
+                    with self.assertRaises(LifecycleRejected) as raised:
+                        client.request('GET', path, lab=lab)
+                self.assertIsNone(raised.exception.reason)
+                self.assertEqual(raised.exception.category, 'unrecognized_rejection')
+
+    def test_install_rejection_report_and_journal_retain_safe_diagnostics_after_eight_verified_files(self):
+        reason = 'installed_title_not_verified_owned'
+        self.reject({'app': 'Vita Native Lifecycle', 'protocol': 1, 'error': reason},
+                    method='POST', path='/install')
+        result = self.run_job()
+        diagnostic = {'http_status': 409, 'reason': reason, 'category': 'installed_ownership'}
+        self.assertEqual(result['failure_code'], 'install_rejected')
+        self.assertEqual(result['result'], 'blocked')
+        self.assertEqual(result['native_rejection'], diagnostic)
+        self.assertEqual(len(self.fixture.files), 8)
+        self.assertTrue(self.fixture.staged()['complete'])
+        self.assertEqual(sum(path.endswith('/install') for method, path in self.writes()), 1)
+        self.assertFalse(any(path.endswith(('/launch', '/exit')) for method, path in self.writes()))
+        self.assertEqual(self.fixture.operations, {})
+        folder = Path(result['evidence_directory'])
+        events = [json.loads(line) for line in (folder / 'journal.jsonl').read_text().splitlines()]
+        rejected = [event for event in events if event['kind'] == 'mutation_rejected']
+        self.assertEqual(len(rejected), 1)
+        self.assertEqual(rejected[0]['operation'], 'install')
+        self.assertEqual(rejected[0]['native_rejection'], diagnostic)
+        self.assertIs(rejected[0]['replayed'], False)
+        self.assertEqual(json.loads((folder / 'report.json').read_text())['native_rejection'], diagnostic)
+        self.assertNotIn(TOKEN, (folder / 'journal.jsonl').read_text())
+
+    def test_unknown_install_rejection_and_oversized_reply_do_not_leak_remote_body_or_retry(self):
+        for body, expected_code in (({'app': 'Vita Native Lifecycle', 'protocol': 1, 'error': TOKEN},
+                                     'install_rejected'), ({'error': TOKEN * 600}, 'install_invalid_or_uncommitted_receipt')):
+            with self.subTest(expected_code=expected_code):
+                self.fixture.files.clear()
+                self.fixture.calls.clear()
+                self.reject(body, method='POST', path='/install')
+                result = self.run_job()
+                self.assertEqual(result['failure_code'], expected_code)
+                if expected_code == 'install_rejected':
+                    self.assertEqual(result['native_rejection'], {'http_status': 409, 'reason': None,
+                                                                  'category': 'unrecognized_rejection'})
+                else:
+                    self.assertEqual(result['result'], 'unconfirmed')
+                    self.assertNotIn('native_rejection', result)
+                self.assertEqual(sum(path.endswith('/install') for method, path in self.writes()), 1)
+                self.assertFalse(any(path.endswith(('/launch', '/exit')) for method, path in self.writes()))
+                folder = Path(result['evidence_directory'])
+                self.assertNotIn(TOKEN, (folder / 'journal.jsonl').read_text())
+                self.assertNotIn(TOKEN, (folder / 'report.json').read_text())
+
+    def power_identity(self, **overrides):
+        original = self.fixture.status
+        def status():
+            value = original()
+            value.update(resident_version='0.1.6', keep_awake_protocol=1, keep_awake_port=17869)
+            value.update(overrides)
+            return value
+        return patch.object(self.fixture, 'status', side_effect=status)
+
+    def fake_keeper(self, *, fail_start=False, fail_fresh=None, fail_pending=False,
+                    fail_after_exit=False, end='ended'):
+        owner = self
+        class Keeper:
+            def __init__(self, *args, **kwargs):
+                self.result = {'enabled': False, 'renewals': 0, 'errors': []}
+                self.checks = self.fresh = self.stops = 0
+                owner.power_keeper = self
+            def start(self, *pins):
+                # The lease worker's own instance is independent from the
+                # native lifecycle instance. Only the shared build is passed.
+                owner.assertEqual(pins, (BUILD,))
+                owner.assertEqual(owner.writes(), [])
+                if fail_start:
+                    raise RuntimeError('fixture lease unavailable')
+                self.result['enabled'] = True
+            def check(self, *, fresh=False):
+                self.checks += 1
+                self.fresh += int(fresh)
+                if fresh and self.fresh == fail_fresh:
+                    raise RuntimeError('fixture heartbeat lost')
+                if fail_pending and any(value['state'] in ('queued', 'dispatch_intent', 'running')
+                                        for value in owner.fixture.operations.values()):
+                    raise RuntimeError('fixture heartbeat lost during native dispatch')
+                if fail_after_exit and ('POST', '/exit') in owner.fixture.calls:
+                    raise RuntimeError('fixture heartbeat lost before native exit absence was confirmed')
+            def stop(self):
+                self.stops += 1
+                self.result['end'] = end
+                return self.result
+        return patch('workbench.native_lifecycle.ResidentKeeper', Keeper)
+
+    def test_resident016_requires_owned_lease_before_native_writes_and_ends_after_work(self):
+        with self.power_identity(), self.fake_keeper():
+            result = self.run_job()
+        self.assertEqual(result['result'], 'passed')
+        self.assertTrue(result['keep_awake']['enabled'])
+        self.assertEqual(result['keep_awake']['end'], 'ended')
+        self.assertEqual(self.power_keeper.stops, 1)
+        self.assertEqual(self.power_keeper.fresh, len(self.writes()) + 1)
+
+    def test_resident016_missing_lease_capability_refuses_without_native_writes(self):
+        with self.power_identity(keep_awake_protocol=None), self.fake_keeper():
+            result = self.run_job()
+        self.assertEqual(result['result'], 'blocked')
+        self.assertEqual(result['failure_code'], 'resident_keep_awake_capability_missing_or_invalid')
+        self.assertEqual(self.writes(), [])
+        self.assertFalse(hasattr(self, 'power_keeper'))
+
+    def test_lease_start_failure_stops_native_effects_and_always_attempts_owned_end(self):
+        with self.power_identity(), self.fake_keeper(fail_start=True):
+            result = self.run_job()
+        self.assertEqual(result['result'], 'blocked')
+        self.assertEqual(self.writes(), [])
+        self.assertEqual(self.power_keeper.stops, 1)
+
+    def test_lease_health_checkpoint_stops_before_next_native_effect(self):
+        with self.power_identity(), self.fake_keeper(fail_fresh=3):
+            result = self.run_job()
+        self.assertEqual(result['result'], 'blocked')
+        self.assertEqual(result['failure_code'], 'resident_keep_awake_no_longer_confirmed')
+        self.assertEqual(len(self.writes()), 1)
+        self.assertEqual(self.writes()[0], ('POST', '/native-lifecycle/stage'))
+        self.assertEqual(self.power_keeper.stops, 1)
+
+    def test_lease_release_uncertainty_is_reported_separately_from_completed_native_cycle(self):
+        with self.power_identity(), self.fake_keeper(end='unconfirmed; fixture'):
+            result = self.run_job()
+        self.assertEqual(result['result'], 'unconfirmed')
+        self.assertEqual(result['failure_code'], 'resident_keep_awake_end_unconfirmed')
+        self.assertEqual(result['cycles'][0]['result'], 'passed')
+        self.assertFalse(self.fixture.running)
+
+    def test_lease_loss_during_async_native_install_retains_unknown_effect_without_replay(self):
+        with self.power_identity(), self.fake_keeper(fail_pending=True):
+            result = self.run_job('pending_install')
+        self.assertEqual(result['result'], 'unconfirmed')
+        self.assertEqual(result['failure_code'], 'install_pending_when_keep_awake_lost')
+        self.assertIsNone(result['native_lab_left_running'])
+        self.assertEqual(len([path for method, path in self.writes() if path.endswith('/install')]), 1)
+        self.assertFalse(any(path.endswith('/launch') or path == '/exit' for method, path in self.writes()))
+        self.assertEqual(self.power_keeper.stops, 1)
+
+    def test_lease_loss_after_exit_ack_before_absence_is_unconfirmed_without_replay(self):
+        with self.power_identity(), self.fake_keeper(fail_after_exit=True):
+            result = self.run_job()
+        self.assertEqual(result['result'], 'unconfirmed')
+        self.assertEqual(result['failure_code'], 'resident_keep_awake_lost_during_native_effect')
+        self.assertIsNone(result['native_lab_left_running'])
+        self.assertEqual(len([path for method, path in self.writes() if path == '/exit']), 1)
+        self.assertEqual(self.power_keeper.stops, 1)
 
     def test_two_complete_cycles_install_launch_evaluate_exit_and_redeploy(self):
         result = self.run_job(cycles=2)
