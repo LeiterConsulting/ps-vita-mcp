@@ -1,6 +1,6 @@
 # Resident managed inbox inspection
 
-The corrected Resident **0.1.5** is currently boot-loaded and exact-binary verified, with a fresh unblocked, installer-ready native instance and Promoter unloaded. Four fixed-Lab install/launch/evaluate/graceful-exit cycles across two native builds passed on hardware; same-build journal durability after reboot remains pending; the earlier unknown receipt is retained without replay. [Current incident](NATIVE-LIFECYCLE.md#october-12-native-promotion-incident). The following historical Resident **0.1.4** results remain rollback evidence. It
+The corrected Resident **0.1.5** is currently boot-loaded and exact-binary verified, with a fresh unblocked, installer-ready native instance and Promoter unloaded. Five fixed-Lab install/launch/evaluate/graceful-exit cycles across two native builds passed on hardware; same-build journal durability passed after a normal reboot without replay; the earlier unknown receipt is retained without replay. [Current incident](NATIVE-LIFECYCLE.md#october-12-native-promotion-incident). The following historical Resident **0.1.4** results remain rollback evidence. It
 passed a user-confirmed normal boot, initial read-only inbox inspection and a
 separate DevLoop coexistence/upload check. The earlier October 12 fresh-stdio
 and registered MCP checks exposed the 33 tools available at that point; direct registered-tool

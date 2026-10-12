@@ -1,7 +1,7 @@
 {
   "recorded_date": "2026-10-12",
-  "recorded_utc": "2026-10-12T18:59:27.704431+00:00",
-  "scope": "Resident 0.1.5 fixed-Lab native install/launch/cooperative-exit qualified on one firmware 3.65 Vita: four cycles across two native builds; arbitrary applications and interruption testing remain separate gates.",
+  "recorded_utc": "2026-10-12T19:18:48.963414+00:00",
+  "scope": "Resident 0.1.5 fixed-Lab native install/launch/cooperative-exit qualified on one firmware 3.65 Vita: five cycles across two native builds, including redeployment after normal reboot; arbitrary applications and interruption testing remain separate gates.",
   "accepted_hardware_baseline": {
     "resident_version": "0.1.4",
     "resident_build_id": "722762a1424cbad96feda3561c6d24d783a2b99fa5539fac7aa80347d32e1813",
@@ -41,7 +41,7 @@
       "linked_allocated_section_bytes": 406164,
       "worker_stack_bytes": 65536
     },
-    "build_report_sha256": "419d0eb59a9a6e068bd4d012d421d16a3dee20a9f350be69448bcda085b804df",
+    "build_report_sha256": "e349694fca7d493ef1aeffd1e43104ded7a88df7fc34ad3485970e5cc6446162",
     "native_lifecycle": {
       "protocol": 1,
       "project": "lifecycle_lab",
@@ -96,7 +96,7 @@
       "resident/platform_host.c": "6c100d5ab7ed2bdd06bf5b5148db5075505b5a677c73d23b7787372d29d1b1ae",
       "resident/platform_vita.c": "4972134ed0499bf49c1df476a5e262e3aacd443bac35c30df07e381ed71fb761",
       "resident/prove_device.py": "930d5e06e7291e1de8ba5f51e8f7b879d47ca49889ac2e4e5bd1e6fd2a0f31ad",
-      "resident/README.md": "adae6425f58a247b2eb38277e88553a20cbc01dd243c3a7d982522efc5a45f8d",
+      "resident/README.md": "1e8a00f8896ccf9ff726095a47ca428348c83a6f046a012765a4145a50d2f2fe",
       "resident/Register-Mcp.ps1": "4aa1b69b71cb3316b4208581c80601275bed6174fba22ea560b6e4d3f675ca8e",
       "resident/service.c": "876ef46cf99c4a82dbd71254d7e700aca2a07822629d8b1ca68f60a2c25616be",
       "resident/sha256.c": "cc9a22f6f578d9e60fbe5bf7c78eeb967c984a2f3c21faa91acd843e1dcd8da4",
@@ -127,7 +127,7 @@
       "resident/launch_broker/native.h": "df9d0145d468e2fe67d9c5445a104028b531f4f1c2d0ba4351ec381d359c4b84",
       "resident/launch_broker/native_host.c": "ba610800e98d777db899ec336885caf049155c749ed8de3da3d5dd395a826f32",
       "resident/launch_broker/native_vita.c": "83e8757253b4f12a8f22b76cc0539a14c7cd719b78e59253e7c90618f6ad8a9c",
-      "resident/launch_broker/README.md": "55d137ba4861c21104d6e37af3cd10eb316b3bfe69c9b25754c8668569530bfa",
+      "resident/launch_broker/README.md": "4b6aa6187b19ed261cc31b33775b65aef9ec0e50e231a1e2bcf36b155ced97b7",
       "resident/launch_broker/service.c": "a4c05dd8c54058c70699f3741aa4667762c7a1372d3cbbb0abf379ba315b11c9",
       "resident/launch_broker/service.h": "4b5aca19c54149a9731a1aad75390c6a8ac0a00addc8f028aa6cbb4475bdbff4",
       "resident/launch_broker/store.c": "88241a328e8721acc5c9f327f9b61ec4c5f95e3d3f361727452b23bfec3134c9",
@@ -468,11 +468,12 @@
   "hardware_lifecycle": {
     "normal_boot": "passed",
     "promoter_availability_and_header_acceptance": "passed for both recorded fixed-Lab packages only",
-    "native_install_and_installed_hashes": "passed: four cycles, all eight installed hashes each cycle",
-    "fixed_title_launch_exact_runtime_inventory_and_advancing_frames": "passed: four independent runtime identities",
-    "cooperative_exit_and_verified_absence": "passed: all four cycles",
+    "native_install_and_installed_hashes": "passed: five cycles, all eight installed hashes each cycle",
+    "fixed_title_launch_exact_runtime_inventory_and_advancing_frames": "passed: five independent runtime identities",
+    "cooperative_exit_and_verified_absence": "passed: all five cycles",
     "different_native_build_redeployment": "passed: 01.00 variant 1 to 01.01 variant 2",
-    "completed_operation_normal_reboot_durability": "pending",
+    "persisted_ownership_redeployment_after_normal_reboot": "passed: fresh plan and native instance, same exact 01.01 candidate",
+    "completed_operation_normal_reboot_durability": "passed: fresh Resident instance; eight completed receipts unchanged; 24 staged file hashes verified; zero mutations",
     "interrupted_native_operation_durability": "host tested; not power-cut qualified on hardware"
   },
   "prior_hardware_attempt": {
@@ -510,7 +511,7 @@
       "vita_workbench_native_execute",
       "vita_workbench_native_reconcile"
     ],
-    "registered_connection_refresh": "pending; earlier 33-tool registered proof belongs to installed 0.1.4",
+    "registered_connection_refresh": "passed: 36 tools; direct Resident status, fixed-Lab preview and completed-job reconciliation",
     "fresh_stdio_hardware_catalog_tools": 36
   },
   "github_ci": {
@@ -1145,6 +1146,292 @@
       "execution_record_sha256": "b68f4521a64caab98831e3c4160ab19cf1e96031c8f5f20a3f558eb0ffb04558",
       "read_only_reconciliation_record_sha256": "0171aa0491645bbce653433db8f0cfc9e0fff286b1bd507890cdfc137eb6fba1",
       "reconciliation_mutations": 0
+    },
+    {
+      "job_id": "9ade8e32b2ee460aa1c00db718ebf21b",
+      "plan_sha256": "151d10c3d48743493b201300550818c679396166b45584c0f178eca1896f4ee7",
+      "result": "passed",
+      "candidate": {
+        "project": "lifecycle_lab",
+        "title_id": "VMCP00001",
+        "version": "01.01",
+        "native_build_id": "b52ad43ee9846c5f1698b1a5dfb048959cb782638589a0e36234925091d170d6",
+        "package_sha256": "f08486b610756ac19b74470a2fcfe611afb90e9ffc0756e5e5edce7c1c31347d",
+        "package_bytes": 127750,
+        "build_report_sha256": "d6d0b764bf581a218823f47a612ac465eb033c64b640974c75511b6bccac4134",
+        "files": [
+          {
+            "bytes": 209976,
+            "sha256": "f14db51691fa60cf0e7838a0e8e3145332ae7e8e41e231b80c57e53ce0b0549b"
+          },
+          {
+            "bytes": 912,
+            "sha256": "e9d1f74414bcdf6d3138309d538b5de09bb190b6407b6da686166378271bb813"
+          },
+          {
+            "bytes": 1237,
+            "sha256": "408aece2b08bec33a716abd6d9e5d0e2c76eefc78e62f4b782a6de27317b24e7"
+          },
+          {
+            "bytes": 5032,
+            "sha256": "47c24f8dcfd286d3bbd19a2e1007938535024df472be582ca58a20ded3c33770"
+          },
+          {
+            "bytes": 1991,
+            "sha256": "854b904216238a2677fbd76081243d2bf955aa366f5f8ba5216373f79e47b79c"
+          },
+          {
+            "bytes": 233,
+            "sha256": "a9403498431b773a9fb2b592be5d9e2ca31173b27bda23a61aa77c195b511400"
+          },
+          {
+            "bytes": 1073,
+            "sha256": "a138eb48dfefebc27f8cc65d54a54afad9b64ea2e7155a43218b0a8ca060d016"
+          },
+          {
+            "bytes": 1072,
+            "sha256": "13972964849dc9bcd559bfbeb52761cf5a87a632ffc0bf39bffb283e91b0edeb"
+          }
+        ]
+      },
+      "resident_build_id": "67d04a52b80660628907321d34825f4ce7d77a5ccf4354a478d4e3ae5d72a637",
+      "instance_id": "abe54b2644227704aa00976a0ba4ad12",
+      "cycles": [
+        {
+          "index": 0,
+          "result": "passed",
+          "install_receipt": {
+            "app": "Vita Native Lifecycle",
+            "protocol": 1,
+            "attempt": "a22d607e3c92483ebef13f0fb31cbd46",
+            "stage_attempt": "4022213b2b7f4d04be6e2ddcd964f994",
+            "operation": "install",
+            "manifest_sha256": "89a83c41a1b83706b68e91c63b6af03d87623e0995faac28e21786e20678f148",
+            "resident_build_id": "67d04a52b80660628907321d34825f4ce7d77a5ccf4354a478d4e3ae5d72a637",
+            "instance_id": "abe54b2644227704aa00976a0ba4ad12",
+            "issued_ms": 210084,
+            "expires_ms": 240084,
+            "state": "installed_verified",
+            "dispatch_count": 1,
+            "native_invoked": true,
+            "native_result": 0,
+            "operation_result": 0,
+            "cleanup_result": 0,
+            "installed_verified": true,
+            "may_have_effects": true
+          },
+          "launch_receipt": {
+            "app": "Vita Native Lifecycle",
+            "protocol": 1,
+            "attempt": "77101deac40a409e86119b8fff13a710",
+            "stage_attempt": "4022213b2b7f4d04be6e2ddcd964f994",
+            "operation": "launch",
+            "manifest_sha256": "89a83c41a1b83706b68e91c63b6af03d87623e0995faac28e21786e20678f148",
+            "resident_build_id": "67d04a52b80660628907321d34825f4ce7d77a5ccf4354a478d4e3ae5d72a637",
+            "instance_id": "abe54b2644227704aa00976a0ba4ad12",
+            "issued_ms": 225282,
+            "expires_ms": 255282,
+            "state": "submitted",
+            "dispatch_count": 1,
+            "native_invoked": true,
+            "native_result": 0,
+            "operation_result": 0,
+            "cleanup_result": 0,
+            "installed_verified": false,
+            "may_have_effects": true
+          },
+          "evaluation": {
+            "samples": 4,
+            "selftest_passed": true,
+            "checksum": 2727420034,
+            "first_frame": 190,
+            "last_frame": 255,
+            "runtime_identity": {
+              "title_id": "VMCP00001",
+              "version": "01.01",
+              "native_build_id": "b52ad43ee9846c5f1698b1a5dfb048959cb782638589a0e36234925091d170d6",
+              "pid": 1057979,
+              "run": "35c6a6506628e4121ec3a1220becf184",
+              "revision": 1
+            }
+          },
+          "exit_receipt": {
+            "app": "Vita Native Lifecycle Lab",
+            "protocol": 1,
+            "title_id": "VMCP00001",
+            "version": "01.01",
+            "native_build_id": "b52ad43ee9846c5f1698b1a5dfb048959cb782638589a0e36234925091d170d6",
+            "pid": 1057979,
+            "run": "35c6a6506628e4121ec3a1220becf184",
+            "revision": 2,
+            "frame": 273,
+            "sampled_ms": 233071,
+            "paused": true,
+            "selftest_passed": true,
+            "checksum": 2727420034,
+            "variant": 2,
+            "exiting": true,
+            "exit_expected_revision": 1,
+            "exit_response_complete": false,
+            "exit_response": "acknowledged"
+          }
+        }
+      ],
+      "mutation_submissions": 12,
+      "elapsed_s": 53.576,
+      "native_lab_left_running": false,
+      "execution_record_sha256": "219322092ec01e549bfc9d295221847a7778da1e95fe8065d8884076ca50ce57",
+      "read_only_reconciliation_record_sha256": "793e4bfd6a4564d7bc879c7aa1413947bba77efe4a29e3a0fa66549e45f94426",
+      "reconciliation_mutations": 0
     }
-  ]
+  ],
+  "normal_reboot_durability": {
+    "recorded_utc": "2026-10-12T19:07:46.545458+00:00",
+    "normal_boot_operator_confirmed": true,
+    "starter_run": false,
+    "ftp_running": false,
+    "remote_writes": 0,
+    "previous_instance_id": "9204e9d29165a6240627fd0b670e273c",
+    "native_status_samples": [
+      {
+        "app": "Vita Native Lifecycle",
+        "protocol": 1,
+        "resident_build_id": "67d04a52b80660628907321d34825f4ce7d77a5ccf4354a478d4e3ae5d72a637",
+        "instance_id": "abe54b2644227704aa00976a0ba4ad12",
+        "project": "lifecycle_lab",
+        "title_id": "VMCP00001",
+        "clock_ms": 87916,
+        "blocked": false,
+        "active_attempt": null,
+        "policy": "conservative_idle_only",
+        "max_file_bytes": 8388608,
+        "max_total_bytes": 16777216,
+        "installer": {
+          "paf_result": 0,
+          "promoter_result": -2141581311,
+          "ready": true
+        },
+        "guard": {
+          "app": "Vita Native Launch Policy",
+          "protocol": 1,
+          "policy": "idle_shell_only",
+          "title_id": "VMCP00001",
+          "ready": true,
+          "result": 0,
+          "enumeration_result": 0,
+          "occupied_slots": 0,
+          "state_result": 0,
+          "system_events": 0,
+          "app_events": 0,
+          "overlay": 0,
+          "state_samples_required": 2,
+          "snapshot_atomic": false,
+          "foreground_verified": false,
+          "protected_ui_verified": false,
+          "native_submission_enabled": true
+        }
+      },
+      {
+        "app": "Vita Native Lifecycle",
+        "protocol": 1,
+        "resident_build_id": "67d04a52b80660628907321d34825f4ce7d77a5ccf4354a478d4e3ae5d72a637",
+        "instance_id": "abe54b2644227704aa00976a0ba4ad12",
+        "project": "lifecycle_lab",
+        "title_id": "VMCP00001",
+        "clock_ms": 87942,
+        "blocked": false,
+        "active_attempt": null,
+        "policy": "conservative_idle_only",
+        "max_file_bytes": 8388608,
+        "max_total_bytes": 16777216,
+        "installer": {
+          "paf_result": 0,
+          "promoter_result": -2141581311,
+          "ready": true
+        },
+        "guard": {
+          "app": "Vita Native Launch Policy",
+          "protocol": 1,
+          "policy": "idle_shell_only",
+          "title_id": "VMCP00001",
+          "ready": true,
+          "result": 0,
+          "enumeration_result": 0,
+          "occupied_slots": 0,
+          "state_result": 0,
+          "system_events": 0,
+          "app_events": 0,
+          "overlay": 0,
+          "state_samples_required": 2,
+          "snapshot_atomic": false,
+          "foreground_verified": false,
+          "protected_ui_verified": false,
+          "native_submission_enabled": true
+        }
+      }
+    ],
+    "jobs": [
+      {
+        "job_id": "c19998a46eef42d5a41181ec3cb6c169",
+        "retained_operation_receipts": 2,
+        "all_receipts_unchanged": true,
+        "all_stage_files_verified": true,
+        "device_mutations": 0,
+        "record_sha256": "d9d97e92d8169ebb835701e582b6e80a9bf9e06418e86f310806971bd4448b6c"
+      },
+      {
+        "job_id": "2355d5a553134dc486ed678353589b99",
+        "retained_operation_receipts": 4,
+        "all_receipts_unchanged": true,
+        "all_stage_files_verified": true,
+        "device_mutations": 0,
+        "record_sha256": "f75f5dc3f12bdef255e612dbaac4ed39dd1d62a234bcc055461704d7c894415c"
+      },
+      {
+        "job_id": "75f2783d37fc402ea85b40f392b231f2",
+        "retained_operation_receipts": 2,
+        "all_receipts_unchanged": true,
+        "all_stage_files_verified": true,
+        "device_mutations": 0,
+        "record_sha256": "78ce67c702d99f1cec5c3fb8bfe6d5cd99d6565736e6ee7127d97b4aa144e514"
+      }
+    ],
+    "retained_receipts": 8,
+    "scope": "Same Resident binary reboot; completed native attempts and staged files survive; read-only checks establish no redispatch in retained receipts, not power-cut recovery acceptance."
+  },
+  "read_only_probe_observations": [
+    {
+      "kind": "combined post-boot readiness assertion",
+      "result": "inconclusive",
+      "initial_samples_preserved": false,
+      "device_mutations": 0,
+      "recovery": "separately saved ready status and full captured normal-reboot proof passed"
+    },
+    {
+      "kind": "post-boot native preview",
+      "result": "transport timeout before a plan or mutation",
+      "device_mutations": 0,
+      "error_record_sha256": "a4c326e1125efacdfd257227ad24bb187ad747d2b1f91f7cf4ac357db616ff2d",
+      "recovery": "read-only status rechecked; a new plan later executed once and passed; no effect replay"
+    }
+  ],
+  "registered_mcp": {
+    "tools": 36,
+    "status_received_utc": "2026-10-12T19:12:20.465737+00:00",
+    "resident_version": "0.1.5",
+    "resident_build_id": "67d04a52b80660628907321d34825f4ce7d77a5ccf4354a478d4e3ae5d72a637",
+    "native_instance_id": "abe54b2644227704aa00976a0ba4ad12",
+    "preview_ready": true,
+    "preview_executed": false,
+    "reconciled_job": "9ade8e32b2ee460aa1c00db718ebf21b",
+    "original_result": "passed",
+    "retained_receipts": 2,
+    "stage_complete": true,
+    "device_mutations": 0,
+    "proof_sha256": "96cabaab88f7a7521ce23a24605fab4b7710f62c0ca44d929752954506994fce"
+  },
+  "evidence_tiers": {
+    "package_reports": "Immutable build reports intentionally do not grant device acceptance. The hardware_jobs and normal_reboot_durability fields record the later observations bound to those artifacts.",
+    "mcp_transport": "Five mutating hardware cycles use fresh actual stdio MCP; the restarted registered connection separately passed status, preview and GET-only reconciliation."
+  }
 }

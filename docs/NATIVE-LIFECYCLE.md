@@ -3,16 +3,18 @@
 Status date: October 12 2026. The corrected Resident 0.1.5 is now boot-loaded
 and its exact device binary is verified after a user-confirmed normal boot.
 Its fresh native instance is unblocked and reports the installer ready, with
-Promoter unloaded. Four fixed-Lab install/launch/evaluate/graceful-exit cycles
-across two native builds passed on hardware, including repeated reinstall and
-a changed-build redeploy, with successful read-only reconciliation. Same-build
-journal durability after reboot remains pending. Accepted Resident 0.1.4 is
-retained for rollback; DevLoop 01.04 remains installed. Host simulations and an
-ARM build do not establish Vita acceptance.
+Promoter unloaded. Five fixed-Lab install/launch/evaluate/graceful-exit cycles
+across two native builds passed on hardware, including repeated reinstall,
+a changed-build redeploy and redeployment after reboot. All four execution jobs
+passed read-only reconciliation. Same-build journal durability also passed after
+a normal reboot, with GET-only verification and no replay. Accepted Resident
+0.1.4 is retained for rollback; DevLoop 01.04 remains installed. Host simulations
+and an ARM build do not establish Vita acceptance.
 
 The [dated validation record](native-lifecycle-validation.json) pins the exact
 source, Resident plugin, lab package and 27 passing host groups. It records
-staging, the four passed native cycles across two builds and the remaining hardware gates separately.
+staging, the five passed native cycles across two builds and the remaining
+hardware gates separately.
 
 This path removes routine file-manager installation and manual app opening
 for an explicitly owned test title. Resident receives a normalized homebrew
@@ -52,8 +54,8 @@ in staging and metadata. The operator confirmed normal boot, and the exact
 device binary matches build
 `67d04a52b80660628907321d34825f4ce7d77a5ccf4354a478d4e3ae5d72a637`,
 plugin SHA-256 `33c3ef76d746da8e3a0e853b2b6afb5634d138971a782dfc0c516c14cc3d2c97`.
-Its fresh native instance `9204e9d29165a6240627fd0b670e273c` is unblocked and
-reports the installer ready, with Promoter unloaded. Twenty-two retained files
+At that activation, native instance `9204e9d29165a6240627fd0b670e273c` was
+unblocked and reported the installer ready, with Promoter unloaded. Twenty-two retained files
 passed two readbacks, including the original unknown receipt. Pairing,
 rollback plugins and withdrawn-experiment disable markers remain preserved.
 The corrected full 27-group host suite passed independently.
@@ -115,13 +117,71 @@ VPK SHA-256 `f08486b610756ac19b74470a2fcfe611afb90e9ffc0756e5e5edce7c1c31347d`
 frames advanced from 24 to 97 and self-test passed. The job took 33.395 seconds
 on the test connection and finished with the Lab absent.
 
-These four cycles across two native builds qualify install, launch, evaluation,
+At this point, four cycles across two native builds had qualified install, launch, evaluation,
 cooperative exit and redeploy for the dedicated owned Lab under this exact
-Resident build. A normal reboot with unchanged configuration is the next
-same-build journal-durability check; no result is claimed yet. Arbitrary apps,
-DevLoop generalization, automatic Control bootstrap, interrupted native
-operations or power cuts, broader devices and full autonomous platform
-operation remain unqualified.
+Resident build.
+
+### Same-build normal-reboot durability pass
+
+The operator then confirmed a normal reboot without holding L, with the same
+configuration and both FTP/file manager and Starter closed. GET-only checks
+verified the same Resident build under fresh native instance
+`abe54b2644227704aa00976a0ba4ad12`. It was ready and unblocked with Promoter
+unloaded and no running apps. All eight retained install/launch receipts were
+unchanged, each with `dispatch_count: 1`; all 24 stage-file hashes matched.
+The proof performed zero device mutations and found no effect replay. The
+original first-build unknown receipt remains retained and has not been retried.
+
+The first combined readiness assertion was inconclusive because its initial
+samples were not retained. A subsequent separately saved ready status and the
+full captured durability proof passed. These are distinct observations; the
+inconclusive assertion is preserved. The GET-only reboot proof itself added no
+install/launch cycle; a subsequent fresh execution is recorded below.
+
+A subsequent GET-only preview timed out before producing a plan or any device
+mutation. Its error was retained; two later read-only status observations
+reported ready under the same instance. A fresh preview was then used for one
+new execution, which passed as the fifth cycle below.
+These transport observations do not establish the timeout's cause.
+
+This qualifies a normal reboot after completed work for the same exact build.
+It does not qualify an interrupted native operation or power cut. Arbitrary
+apps, DevLoop generalization, automatic Control bootstrap, broader devices,
+long unattended operation and a complete autonomous platform session remain
+unqualified.
+
+### Redeployment after reboot
+
+A fresh hash-bound execution after that reboot passed installation and launch
+of the same Lab 01.01 variant 2 build
+`b52ad43ee9846c5f1698b1a5dfb048959cb782638589a0e36234925091d170d6`.
+Job `9ade8e32b2ee460aa1c00db718ebf21b` ran under native instance
+`abe54b2644227704aa00976a0ba4ad12`, proving that persisted ownership accepted
+redeployment after a normal reboot. Install/launch native, operation and cleanup
+results were zero, with each operation dispatched once. Runtime PID `1057979`
+and run `35c6a6506628e4121ec3a1220becf184` matched the exact candidate;
+frames advanced from 190 to 255, and the deterministic self-test passed with
+checksum `2727420034`. Cooperative exit and two independent absence observations
+passed, leaving `native_lab_left_running: false`. The job took 53.576 seconds;
+its separate read-only reconciliation passed with zero device mutations.
+
+The qualified total is **five native cycles across two builds and four jobs**.
+The single-cycle jobs observed 33.395–53.576 seconds; the two-cycle job took
+90.317 seconds. These measurements describe this test connection and are not a
+performance guarantee. Interrupted-native and power-cut recovery, arbitrary
+titles, general DevLoop installation and automatic Control startup remain
+unqualified.
+
+### Registered MCP readiness pass
+
+After the PC Resident MCP was restarted, its actual registered catalog exposed
+all **36 tools**: seven Resident, thirteen Control and sixteen Workbench. Direct
+registered calls passed exact Resident 0.1.5 status, an unexecuted native preview
+under the same post-reboot instance for the exact variant 2 candidate, and
+GET-only reconciliation of the completed post-reboot job. Reconciliation found
+two retained receipts and a complete stage, with zero device mutations. These
+read-only registered-client checks are separate from the five mutating cycles
+run through fresh stdio sessions; the preview plan was not executed.
 
 ## Native boundary
 
@@ -228,6 +288,7 @@ After a normal boot, first inspect module availability, native identity and
 the retained store. Close other apps and leave LiveArea open for the native
 lab trial. Qualify initial installation, fixed-title launch, exact runtime
 observation, graceful exit and verified absence, then a second installation
-and launch with a different build. Reboot durability, interrupted operations
+and launch with a different build. The exact same-build normal-reboot proof
+and post-reboot redeployment passed above; interrupted operations, power cuts
 and longer repeated cycles need separate evidence. Generalizing this adapter
 to DevLoop or other project titles follows those lab results.

@@ -4,7 +4,7 @@ The corrected Resident **0.1.5 is currently boot-loaded** after a confirmed norm
 
 This legacy DevLoop broker remains disabled in the Resident 0.1.5 source; the
 separate [native lifecycle candidate](../../docs/NATIVE-LIFECYCLE.md) targets only
-the owned Lifecycle Lab, with four native Lab cycles across two builds passed and same-build journal durability after reboot pending.
+the owned Lifecycle Lab, with five native Lab cycles across two builds passed and same-build normal-reboot journal durability passed without replay.
 
 The intended later legacy-broker operation is one authenticated PC request to open
 `CHRS00003` (Vita DevLoop) after Resident is already healthy. The existing Resident

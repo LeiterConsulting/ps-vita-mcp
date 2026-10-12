@@ -3,7 +3,7 @@
 The corrected Resident 0.1.5 is now boot-loaded alongside DevLoop 01.04 after a
 confirmed normal boot and exact device-binary verification. Its separate native
 lifecycle instance is fresh, unblocked and installer-ready with Promoter unloaded.
-Four fixed-Lab install/launch/evaluate/graceful-exit cycles across two native builds passed on hardware; same-build journal durability after reboot remains pending; the earlier unknown receipt is retained
+Five fixed-Lab install/launch/evaluate/graceful-exit cycles across two native builds passed on hardware; same-build journal durability passed after a normal reboot without replay; the earlier unknown receipt is retained
 without replay. [Current incident](NATIVE-LIFECYCLE.md#october-12-native-promotion-incident).
 Resident 0.1.4, 0.1.3 and 0.1.2 are retained for rollback. Historical 0.1.4 [managed-file
 qualification](managed-files-validation.json) includes normal boot, exact
