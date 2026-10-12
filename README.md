@@ -1,6 +1,6 @@
 # PS Vita MCP
 
-Resident **0.1.6** adds a bounded [keep-awake lease](docs/RESIDENT-KEEP-AWAKE.md) candidate for development work. Native jobs acquire and release it automatically when available; a separate renewal endpoint prevents bulk uploads from blocking the heartbeat. The source catalog now has 40 tools. Hardware qualification is pending; the accepted 0.1.5 remains installed and retained for rollback. Leases preserve saved sleep and brightness settings.
+The corrected **Resident 0.1.6** [keep-awake candidate](docs/RESIDENT-KEEP-AWAKE.md) is installed after a normal boot. All four lease operations and a later three-minute online trial at one-minute standby passed through actual stdio MCP and the PC keeper. An earlier hold failed with an uncertain renewal reply and was not replayed; its cause remains unknown. Physical sleep confirmation and broader qualification remain pending. The accepted 0.1.5 is retained for rollback. The source catalog has 40 tools; leases do not change saved sleep or brightness settings.
 
 **Develop and inspect PlayStation Vita homebrew through MCP on real hardware.**
 
@@ -12,9 +12,26 @@ PS Vita MCP connects a desktop MCP client to a modded Vita. Its PC bridges combi
 
 *Original DevLoop 01.02 framebuffer capture. [Gallery and provenance](docs/SCREENSHOTS.md).*
 
-**Pairing candidate:** [six-digit Companion pairing](docs/PAIRING.md) adds individual inspection credentials, physical approval and durable 90-day inactivity expiry. The earlier Resident 0.1.2 / Control 0.3.4 / Starter 01.06 pairing trial passed normal startup, physical code display and graceful challenge timeout. The corrected Resident 0.1.5 is now running after a confirmed normal boot, with 0.1.4, 0.1.3 and 0.1.2 retained for rollback. Five fixed-Lab native cycles across two builds passed; same-build normal-reboot journal durability also passed without replay; individual credential confirmation and the wider device gates remain open. [Historical candidate checks and remaining gates](docs/PAIRING-DEVICE-TESTS.md).
+**Pairing candidate:** [six-digit Companion pairing](docs/PAIRING.md) adds individual inspection credentials, physical approval and durable 90-day inactivity expiry. The earlier Resident 0.1.2 / Control 0.3.4 / Starter 01.06 pairing trial passed normal startup, physical code display and graceful challenge timeout. Corrected Resident 0.1.5 previously passed normal boot, five fixed-Lab native cycles across two builds and same-build normal-reboot journal durability without replay. The corrected 0.1.6 keep-awake candidate is now installed; 0.1.5 and earlier rollbacks are retained. Individual credential confirmation and the wider device gates remain open. [Historical candidate checks and remaining gates](docs/PAIRING-DEVICE-TESTS.md).
 
 ## Status as of October 12 2026
+
+**Keep-awake qualification:** Corrected 0.1.6 passed normal boot and short
+status/begin/renew/end checks. A planned 180-second hold at the original
+one-minute standby setting stopped after about 37 seconds when a renewal POST
+reply became uncertain. Later physical wake recovered the same power instance
+with an inactive lease and `listener_lost`; the order and cause of the
+interruption and sleep remain unknown. A separate 120-second diagnostic hold
+passed 33 samples and 11 renewals with a confirmed end, under a temporary
+operator-selected 30-minute standby setting. It establishes transport continuity
+for that trial and cannot prove one-minute sleep protection. After restoring
+the original one-minute setting, a separate 180-second repeat passed 48 samples
+and 16 renewals, with no keeper errors and a confirmed end. A status-only
+observer then recorded both service ports becoming unreachable about 25 seconds
+after end; physical sleep confirmation is pending. The original failure remains
+under investigation, and a newly built native connection-budget change is not
+installed or covered by these results.
+[Interim evidence and pending gates](docs/RESIDENT-KEEP-AWAKE.md#interim-hardware-results).
 
 **App-making workflow:** [`make-vita-app`](skills/make-vita-app/SKILL.md) provides
 planning, port assessment, Lua project generation and a separate native
@@ -33,9 +50,9 @@ Lifecycle Lab (`VMCP00001`). Three new PC tools preview an exact package,
 execute a journaled install → launch → evaluate → graceful exit cycle, and
 inspect an interrupted job without replaying mutations. Repeated cycles can
 redeploy the owned package. [Architecture, limits and qualification](docs/NATIVE-LIFECYCLE.md).
-The corrected Resident 0.1.5 is now boot-loaded after a confirmed normal boot
-and exact device-binary verification. Its fresh native instance is unblocked,
-reports the installer ready and leaves Promoter unloaded. **Five fixed-Lab native
+The corrected Resident 0.1.5 previously passed normal boot and exact
+device-binary verification. Its native instance was unblocked, reported the
+installer ready and left Promoter unloaded. **Five fixed-Lab native
 install → launch → evaluate → graceful exit cycles across two builds passed.**
 Four initial cycles proved repeated reinstall and changed-build redeployment.
 A normal reboot then preserved eight prior receipts and 24 staged-file hashes,
@@ -61,7 +78,7 @@ The October 3 baseline is retained in [the historical record](docs/BASELINE.md).
 | Component | Role | Source / recorded runtime |
 | --- | --- | --- |
 | Vita DevLoop | Foreground Lua edit/run/observe/recover; ten MCP tools | 01.04 installed; exact runtime identity, live Lua reload/recovery and normal exit passed. Capture mapping, synthetic input and sleep/reopen remain open. |
-| [Vita Resident](docs/RESIDENT.md) | Boot-loaded status, verified package inbox and managed inspection and bounded keep-awake leases; eleven source tools | Corrected 0.1.5 boot-loaded and exact binary verified; installer ready and unblocked; five native Lab cycles across two builds passed; same-build normal-reboot journal durability passed without replay. Accepted 0.1.4/.3/.2 rollback retained |
+| [Vita Resident](docs/RESIDENT.md) | Boot-loaded status, verified package inbox and managed inspection and bounded keep-awake leases; eleven source tools | Corrected 0.1.6 installed after normal boot; four lease operations and one three-minute online trial at one-minute standby passed. Earlier uncertain renewal retained; physical sleep and remaining gates pending. Accepted 0.1.5 and earlier rollbacks retained; its native Lab qualification remains historical evidence |
 | [Vita Control](docs/CONTROL.md) | Background screen, managed files, app commands and bounded synthetic input; thirteen tools | 0.3.4 pairing candidate installed, ABI 2; earlier manual startup passed, automatic worker/network startup failed; recovery did not reactivate it |
 | [Vita Workbench](workbench/README.md) | Lua iteration, native lifecycle candidate, runtime preparation, input trials, metrics, staging and file recovery; sixteen tools | Developer preview; native lifecycle, script readiness and verified input readiness have separate qualification |
 | [Launch broker candidate](resident/launch_broker/README.md) | Durable fixed-title launch protocol and PC client | 0.1.4 identity/clock continuity passed with the broker disabled; earlier 0.1.3 PID correlation is historical; storage/reboot and launch-policy gates pending |

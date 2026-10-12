@@ -19,7 +19,8 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from resident.keep_awake_client import (APP, PORT, KeepAwakeClient, KeepAwakeLost, KeepAwakeRejected,
-                                       KeepAwakeUnknown, ResidentKeeper, pack, register, run_command, validate)
+                                       KeepAwakeUnknown, ResidentKeeper, failure_diagnostic,
+                                       pack, register, run_command, validate)
 
 TOKEN, BUILD, INSTANCE, LEASE, JOB = 'a' * 32, 'b' * 64, 'c' * 32, 'd' * 32, 'e' * 32
 
@@ -38,6 +39,7 @@ class Fixture:
         self.drop = False
         self.malformed = False
         self.tick_result = 0
+        self.drip = ''
         self.lock = threading.RLock()
         self.reason = 'boot'
 
@@ -69,11 +71,32 @@ class Fixture:
 
             def reply(self, value, code=200):
                 raw = json.dumps(value, separators=(',', ':')).encode()
+                if owner.drip == 'headers':
+                    headers = (f'HTTP/1.1 {code} OK\r\nContent-Type: application/json\r\n'
+                               f'Content-Length: {len(raw)}\r\nConnection: close\r\n\r\n').encode()
+                    try:
+                        for byte in headers:
+                            self.wfile.write(bytes((byte,)))
+                            self.wfile.flush()
+                            time.sleep(0.03)
+                        self.wfile.write(raw)
+                    except OSError:
+                        pass
+                    return
                 self.send_response(code)
                 self.send_header('Content-Type', 'application/json')
                 self.send_header('Content-Length', str(len(raw)))
                 self.end_headers()
-                self.wfile.write(raw)
+                if owner.drip == 'body':
+                    try:
+                        for byte in raw:
+                            self.wfile.write(bytes((byte,)))
+                            self.wfile.flush()
+                            time.sleep(0.03)
+                    except OSError:
+                        pass
+                else:
+                    self.wfile.write(raw)
 
             def auth(self):
                 owner.calls.append((self.command, self.path))
@@ -170,6 +193,13 @@ class ClientTests(unittest.TestCase):
                 self.client.mutate(revision, ttl, duration, INSTANCE, LEASE, JOB, BUILD)
         self.assertEqual(self.fixture.calls, [])
 
+    def test_default_http_timeout_is_five_seconds_and_larger_or_invalid_bounds_reject(self):
+        self.assertEqual(KeepAwakeClient(lambda: dict(self.config)).timeout, 5)
+        for timeout in (0, -1, 5.01, True, float('nan'), float('inf'), '5'):
+            with self.subTest(timeout=timeout), self.assertRaises(ValueError):
+                KeepAwakeClient(lambda: dict(self.config), timeout=timeout)
+        self.assertEqual(self.fixture.calls, [])
+
     def test_status_does_not_renew_or_mutate(self):
         self.begin()
         deadline, ceiling, revision = self.fixture.deadline, self.fixture.ceiling, self.fixture.revision
@@ -234,6 +264,97 @@ class ClientTests(unittest.TestCase):
         self.assertEqual(len(self.fixture.packets), 3)
         self.assertEqual(struct.unpack('<8I', self.fixture.packets[-1][:32])[2], 2)
 
+    def test_request_phase_and_underlying_type_preserve_get_and_post_exception_semantics(self):
+        for method in ('GET', 'POST'):
+            for phase in ('send_request', 'read_headers', 'read_body'):
+                connection = unittest.mock.Mock()
+                response = connection.getresponse.return_value
+                response.status = 200
+                response.getheader.return_value = 'application/json'
+                response.read.return_value = json.dumps(self.fixture.state()).encode()
+                failure = TimeoutError('private endpoint and token ' + TOKEN)
+                target = {'send_request': connection.request, 'read_headers': connection.getresponse,
+                          'read_body': response.read}[phase]
+                target.side_effect = failure
+                expected = KeepAwakeUnknown if method == 'POST' else TimeoutError
+                with self.subTest(method=method, phase=phase):
+                    with patch('http.client.HTTPConnection', return_value=connection):
+                        with self.assertRaises(expected) as caught:
+                            self.client.request(method, b'x' if method == 'POST' else None)
+                    self.assertEqual(failure_diagnostic(caught.exception),
+                                     {'method': method, 'phase': phase, 'cause_type': 'TimeoutError'})
+                    if method == 'GET':
+                        self.assertIs(caught.exception, failure)
+                    else:
+                        self.assertIs(caught.exception.__cause__, failure)
+                    self.assertNotIn(TOKEN, json.dumps(failure_diagnostic(caught.exception)))
+                    self.assertEqual(connection.request.call_count, 1)
+                    connection.close.assert_called_once()
+
+    def test_failed_preflight_get_journals_diagnostic_and_does_not_post(self):
+        keeper = self.keeper(interval=10)
+        keeper.start(BUILD, INSTANCE)
+        connection = unittest.mock.Mock()
+        connection.getresponse.side_effect = TimeoutError('fixture secret ' + TOKEN)
+        with patch('http.client.HTTPConnection', return_value=connection), self.assertRaises(TimeoutError):
+            keeper._send(30000)
+        self.assertEqual(len(self.fixture.packets), 1)
+        events = [json.loads(line) for line in (self.folder / 'resident-keep-awake.jsonl').read_text().splitlines()]
+        failure = events[-1]
+        self.assertEqual(failure['kind'], 'lease_unconfirmed_or_rejected')
+        self.assertEqual({key: failure[key] for key in ('method', 'phase', 'cause_type')},
+                         {'method': 'GET', 'phase': 'read_headers', 'cause_type': 'TimeoutError'})
+        self.assertFalse(failure['replayed'])
+        self.assertNotIn(TOKEN, json.dumps(events))
+
+    def test_post_read_failure_journals_unknown_reply_without_replay(self):
+        keeper = self.keeper(interval=10)
+        keeper.start(BUILD, INSTANCE)
+        original = self.client.request
+        connection = unittest.mock.Mock()
+        connection.getresponse.return_value.read.side_effect = TimeoutError('fixture secret ' + TOKEN)
+        def request(method, body=None):
+            if method == 'GET':
+                return original(method, body)
+            with patch('http.client.HTTPConnection', return_value=connection):
+                return original(method, body)
+        with patch.object(self.client, 'request', side_effect=request), self.assertRaises(KeepAwakeUnknown):
+            keeper._send(30000)
+        self.assertEqual(len(self.fixture.packets), 1)
+        events = [json.loads(line) for line in (self.folder / 'resident-keep-awake.jsonl').read_text().splitlines()]
+        failure = events[-1]
+        self.assertEqual(failure['failure_type'], 'KeepAwakeUnknown')
+        self.assertEqual({key: failure[key] for key in ('method', 'phase', 'cause_type')},
+                         {'method': 'POST', 'phase': 'read_body', 'cause_type': 'TimeoutError'})
+        self.assertFalse(failure['replayed'])
+        self.assertNotIn(TOKEN, json.dumps(events))
+        self.assertEqual(connection.request.call_count, 1)
+
+    def test_cleanup_get_timeout_is_retained_without_exposing_error_text(self):
+        keeper = self.keeper(interval=10)
+        keeper.start(BUILD, INSTANCE)
+        connection = unittest.mock.Mock()
+        connection.getresponse.side_effect = TimeoutError('fixture secret ' + TOKEN)
+        with patch('http.client.HTTPConnection', return_value=connection):
+            result = keeper.stop()
+        self.assertIn('unconfirmed', result['end'])
+        self.assertEqual(result['last_error'],
+                         {'method': 'GET', 'phase': 'read_headers', 'cause_type': 'TimeoutError'})
+        events = [json.loads(line) for line in (self.folder / 'resident-keep-awake.jsonl').read_text().splitlines()]
+        self.assertEqual(events[-1]['kind'], 'lease_cleanup_unconfirmed')
+        self.assertNotIn(TOKEN, json.dumps(events))
+        self.assertEqual(len(self.fixture.packets), 1)
+
+    def test_configuration_drift_diagnostic_and_arbitrary_extra_fields_are_sanitized(self):
+        self.config['host'] = '127.0.0.2'
+        with self.assertRaises(KeepAwakeLost) as caught:
+            self.client.status()
+        self.assertEqual(failure_diagnostic(caught.exception),
+                         {'method': 'GET', 'phase': 'configuration_check', 'cause_type': 'KeepAwakeLost'})
+        caught.exception.lease_diagnostic['extra'] = TOKEN
+        self.assertNotIn(TOKEN, json.dumps(failure_diagnostic(caught.exception)))
+        self.assertEqual(self.fixture.calls, [])
+
     def test_invalid_accepted_reply_is_unknown_not_success_or_replayed(self):
         self.fixture.malformed = True
         with self.assertRaises(KeepAwakeUnknown):
@@ -278,6 +399,59 @@ class ClientTests(unittest.TestCase):
             keeper._send(30000)
         self.assertEqual(len(self.fixture.packets), 1)
         self.assertEqual(keeper.stop()['end'], 'ended')
+
+    def test_stop_during_preflight_get_cancels_before_renewal_post(self):
+        keeper = self.keeper(interval=10)
+        keeper.start(BUILD, INSTANCE)
+        original = self.client.status
+        def status():
+            value = original()
+            keeper.end.set()
+            return value
+        with patch.object(self.client, 'status', side_effect=status), self.assertRaises(KeepAwakeLost) as caught:
+            keeper._send(30000)
+        self.assertEqual(failure_diagnostic(caught.exception),
+                         {'method': 'POST', 'phase': 'before_submission', 'cause_type': 'KeepAwakeLost'})
+        self.assertEqual(len(self.fixture.packets), 1)
+        self.assertEqual(keeper.stop()['end'], 'ended')
+
+    def test_absolute_deadline_interrupts_drip_fed_headers_and_body_without_replay(self):
+        for method in ('GET', 'POST'):
+            for phase, drip in (('read_headers', 'headers'), ('read_body', 'body')):
+                with self.fixture.lock:
+                    self.fixture.drip = drip
+                    self.fixture.lease = self.fixture.job = None
+                    self.fixture.deadline = self.fixture.ceiling = 0
+                writes = len(self.fixture.packets)
+                raw = pack(self.fixture.revision, 30000, 60000, INSTANCE, LEASE, JOB) if method == 'POST' else None
+                started = time.monotonic()
+                with self.subTest(method=method, drip=drip):
+                    with self.assertRaises(KeepAwakeUnknown if method == 'POST' else TimeoutError) as caught:
+                        self.client.request(method, raw)
+                    self.assertLess(time.monotonic() - started, 0.8)
+                    self.assertEqual(failure_diagnostic(caught.exception),
+                                     {'method': method, 'phase': phase, 'cause_type': 'TimeoutError'})
+                    self.assertEqual(len(self.fixture.packets), writes + int(method == 'POST'))
+        with self.fixture.lock:
+            self.fixture.drip = ''
+
+    def test_valid_reply_finishing_after_deadline_is_not_accepted(self):
+        connection = unittest.mock.Mock()
+        response = connection.getresponse.return_value
+        response.status = 200
+        response.getheader.return_value = 'application/json'
+        response.read.return_value = json.dumps(self.fixture.state()).encode()
+        original = validate
+        def delayed(value):
+            time.sleep(0.12)
+            return original(value)
+        client = KeepAwakeClient(lambda: dict(self.config), timeout=0.05)
+        with patch('http.client.HTTPConnection', return_value=connection), \
+                patch('resident.keep_awake_client.validate', side_effect=delayed):
+            with self.assertRaises(TimeoutError):
+                client.status()
+        connection.sock.shutdown.assert_called_once_with(socket.SHUT_RDWR)
+        connection.request.assert_called_once()
 
     def test_expiry_after_client_loss_and_read_only_observation_never_restarts(self):
         keeper = self.keeper(interval=10)

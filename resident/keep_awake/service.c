@@ -3,7 +3,9 @@
 #include "power_platform.h"
 #include "../platform.h"
 #define RKA_HEADER_MAX 1536u
-#define RKA_CLIENT_MS 300u
+/* Wi-Fi power saving and retransmits can exceed a 300 ms request budget.
+   Every wait still runs step(), and stopping interrupts the 10 ms polling. */
+#define RKA_CLIENT_MS 2000u
 static RKAState state;
 static char administrator[33];
 static int worker_running,lease_active,worker_started;

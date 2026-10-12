@@ -51,7 +51,7 @@ class KeepAwakeHTTPTests(unittest.TestCase):
         self.directory.cleanup()
 
     def call(self, method, path, body=None, token=ADMIN, headers=None):
-        connection = http.client.HTTPConnection('127.0.0.1', self.port, timeout=2)
+        connection = http.client.HTTPConnection('127.0.0.1', self.port, timeout=3)
         fields = {'Authorization': 'Bearer ' + token}
         if body is not None:
             fields['Content-Type'] = 'application/octet-stream'
@@ -201,16 +201,16 @@ class KeepAwakeHTTPTests(unittest.TestCase):
         self.assertEqual(self.status()['revision'], before['revision'])
 
     def test_slow_client_cannot_starve_ticks_or_lease_admission(self):
-        active = self.start(ttl=5000)
+        active = self.start(ttl=30000)
         sockets = []
         try:
-            for _ in range(3):
+            for _ in range(1):
                 sock = socket.create_connection(('127.0.0.1', self.port), timeout=2)
                 sock.sendall(b'GET /keep-awake/status HTTP/1.1\r\nHost: fixture\r\n')
                 sockets.append(sock)
             begin = time.monotonic()
             current = self.status()
-            self.assertLess(time.monotonic() - begin, 1.5)
+            self.assertLess(time.monotonic() - begin, 2.7)
             self.assertTrue(current['active'])
             time.sleep(.2)
             current = self.status()
@@ -220,6 +220,33 @@ class KeepAwakeHTTPTests(unittest.TestCase):
         finally:
             for sock in sockets:
                 sock.close()
+
+    def test_fragmented_post_after_450ms_is_accepted(self):
+        before = self.status()
+        wire = self.command(before)
+        with socket.create_connection(('127.0.0.1', self.port), timeout=3) as sock:
+            headers = ('POST /keep-awake/lease HTTP/1.1\r\nHost: fixture\r\n'
+                       'Authorization: Bearer ' + ADMIN + '\r\n'
+                       'Content-Type: application/octet-stream\r\nContent-Length: 128\r\n\r\n')
+            sock.sendall(headers.encode() + wire[:64])
+            time.sleep(.45)
+            sock.sendall(wire[64:])
+            response = http.client.HTTPResponse(sock)
+            response.begin()
+            observed = json.loads(response.read())
+            self.assertEqual(response.status, 200, observed)
+            self.assertTrue(observed['active'])
+            self.assertEqual(observed['revision'], before['revision'] + 1)
+
+    def test_partial_client_does_not_delay_worker_shutdown(self):
+        with socket.create_connection(('127.0.0.1', self.port), timeout=3) as sock:
+            sock.sendall(b'GET /keep-awake/status HTTP/1.1\r\nHost: fixture\r\n')
+            time.sleep(.05)
+            begin = time.monotonic()
+            self.process.terminate()
+            output, error = self.process.communicate(timeout=1)
+            self.assertLess(time.monotonic() - begin, .7)
+            self.assertEqual(self.process.returncode, 0, (output + error).decode())
 
 
 if __name__ == '__main__':

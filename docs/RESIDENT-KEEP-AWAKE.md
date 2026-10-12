@@ -1,16 +1,66 @@
 # Resident keep-awake lease
 
-As of October 12, 2026, Resident **0.1.6 is a qualification candidate**.
-The installed, accepted 0.1.5 remains the rollback. Build and host tests do not
-establish that the Vita stays online or returns to sleep; live results are
-recorded separately in `resident-keep-awake-validation.json`.
+As of October 12, 2026, the corrected **Resident 0.1.6 qualification candidate is
+installed after a confirmed normal boot**. Its plugin SHA-256 is
+`d8ca07cfb6ef6e367ed792b08f4bfe134053e609dfeb10a20c8845aff508c45a`
+and its Resident build ID is
+`ed4abe7bbf3f5cb6f52899d4bcace5483dd2fd19b193e7e6034fb1338ffd04d4`.
+The accepted 0.1.5 is retained for rollback. One bounded three-minute online
+trial has passed; physical sleep confirmation and broader qualification remain
+pending. [The dated evidence record](resident-keep-awake-validation.json)
+keeps host, packaging, API and physical results separate.
 
-The lease keeps an already awake Vita available while a bounded development
+The lease is designed to keep an already awake Vita available while a bounded development
 job runs. When the job finishes, loses its connection or stops renewing, Resident
-stops refreshing the automatic suspend timer. The Vita can then sleep after its
-normal configured idle interval. The previous timer remainder is not restored.
+stops refreshing the automatic suspend timer and allows the Vita's normal idle
+policy to act. The timing depends on existing system timers; a full configured
+interval starting at lease release has not been established.
 No saved sleep setting, brightness, input state or boot configuration is changed
 by a lease. An already suspended Vita still needs a physical wake.
+
+## Interim hardware results
+
+Fresh actual stdio MCP exposed all 40 tools and passed the four keep-awake
+operations: status, begin, renew and end. The short trial started from an
+inactive lease, observed successful ticks, ended the exact owner and observed
+no tick growth afterward.
+
+The subsequent planned 180-second hold with the operator's original
+one-minute standby setting **failed after about 37 seconds**. A renewal POST
+had an uncertain reply; the keeper stopped and did not replay it. The operator
+later confirmed that the Vita had fully slept, but the time of sleep is unknown.
+After a physical wake, readback retained the same power-worker instance and
+showed revision 7, an inactive lease, 53 ticks, last tick at clock 163057 ms and
+reason `listener_lost`. These observations do not establish whether sleep,
+listener loss or the renewal interruption happened first, or why they happened.
+
+A separate 120-second diagnostic hold **passed** with standby temporarily set
+to 30 minutes by the operator: 33 samples, 11 renewals, no keeper errors and a
+confirmed explicit end. This establishes transport and renewal continuity for
+that trial; it cannot prove protection beyond the original one-minute standby
+timeout.
+
+After the operator restored the original one-minute standby setting, a separate
+180-second repeat passed: 48 samples, 16 renewals, no keeper errors and a
+confirmed end. That trial used the same installed native build with updated
+five-second PC timeout and diagnostics. It establishes bounded remote
+availability beyond the saved standby timeout for that trial. It does not
+identify the cause of the first uncertain renewal or qualify the next native
+candidate.
+
+A subsequent 95-second status-only observer did not renew a lease. It recorded
+both service ports becoming unreachable about 25 seconds after the confirmed
+end, followed by seven paired-port timeout observations. Physical confirmation
+of full sleep is pending; network unavailability alone does not establish it.
+The normal timer behavior after release remains unqualified.
+
+The first uncertain renewal remains a retained failure to investigate. A slow
+production-TTL upload, controlled expiry/end followed by confirmed normal sleep,
+keeper process loss, manual sleep/wake, Wi-Fi loss and native lifecycle
+execution with the new lease remain open hardware gates. A two-second native
+connection-budget candidate has built successfully but is not installed. The
+PC five-second absolute HTTP deadline passed 34 host tests and the actual C
+integration rerun. Neither change inherits the installed build's trial results.
 
 ## Ownership and expiry
 
@@ -59,7 +109,9 @@ To protect a silent host build or another bounded command, from the checkout:
 Replace the command after `--` with the build command. The wrapper requires the
 Vita awake, pins its endpoint, journals requests and receipts, and ends the lease
 when the command exits. The command is stopped if lease confirmation is lost or
-the overall deadline expires. For long sessions start a new bounded job after
+the overall deadline expires, including its owned compiler child processes.
+Docker-daemon container jobs are outside that host process tree and require
+their own execution bound. For long sessions start a new bounded job after
 the previous job has ended, rather than extending its original deadline.
 
 ## MCP tools
@@ -82,8 +134,12 @@ wrapper for work that may remain silent for more than thirty seconds.
 
 A separate, bounded HTTP worker serves `GET /keep-awake/status` and
 `POST /keep-awake/lease`. Bulk transfers on port 17866 cannot queue ahead of
-lease renewals. Each lease connection has a 300 ms total budget, and the worker
-checks policy while handling network I/O. Once per second, an active lease calls
+lease renewals. Current candidate source gives each lease connection a two-second
+total budget, with a five-second absolute PC HTTP deadline; the worker checks policy
+while handling network I/O. The installed build identified above still uses
+the earlier 300 ms native budget. The two-second candidate has passed its build
+and host checks and needs separate activation and hardware qualification.
+Once per second, an active lease calls
 `sceKernelPowerTick(SCE_KERNEL_POWER_TICK_DISABLE_AUTO_SUSPEND)`.
 It does not acquire a persistent power lock or refresh OLED dim/off timers.
 The display may dim or turn off while the service remains online.

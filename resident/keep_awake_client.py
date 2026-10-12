@@ -11,6 +11,8 @@ import http.client
 import json
 import os
 from pathlib import Path
+import re
+import socket
 import struct
 import threading
 import time
@@ -38,6 +40,33 @@ class KeepAwakeUnknown(RuntimeError):
 
 class KeepAwakeLost(RuntimeError):
     pass
+
+
+_PHASES = frozenset(('configuration_check', 'connection_setup', 'send_request', 'read_headers',
+                     'read_body', 'validate_reply', 'receipt_check', 'owner_check',
+                     'before_submission', 'receipt_journal', 'local_lease_check', 'cleanup_status'))
+
+
+def failure_diagnostic(error, *, phase='local_lease_check', method=None):
+    """Return bounded type/phase labels only, never exception messages or endpoints."""
+    observed = getattr(error, 'lease_diagnostic', None)
+    if (isinstance(observed, dict) and observed.get('method') in (None, 'GET', 'POST')
+            and observed.get('phase') in _PHASES
+            and isinstance(observed.get('cause_type'), str)
+            and re.fullmatch('[A-Za-z_][A-Za-z0-9_]{0,79}', observed['cause_type'])):
+        return {key: observed[key] for key in ('method', 'phase', 'cause_type')}
+    cause = error.__cause__ or error
+    name = type(cause).__name__
+    return {'method': method if method in ('GET', 'POST') else None,
+            'phase': phase if phase in _PHASES else 'local_lease_check',
+            'cause_type': name if re.fullmatch('[A-Za-z_][A-Za-z0-9_]{0,79}', name) else 'Exception'}
+
+
+def _annotate(error, method, phase, cause=None):
+    name = type(cause if cause is not None else error).__name__
+    error.lease_diagnostic = {'method': method, 'phase': phase,
+                              'cause_type': name if re.fullmatch('[A-Za-z_][A-Za-z0-9_]{0,79}', name) else 'Exception'}
+    return error
 
 
 def pack(revision, ttl_ms, max_duration_ms, instance_id, lease_id, job_id):
@@ -81,65 +110,129 @@ def validate(value):
 
 
 class KeepAwakeClient:
-    def __init__(self, provider=configuration, *, port=PORT, timeout=2):
+    def __init__(self, provider=configuration, *, port=PORT, timeout=5):
         self.provider = provider
         self.endpoint = dict(provider())
         self.port = port
         self.timeout = timeout
         if type(port) is not int or not 1 <= port <= 65535:
             raise ValueError('Invalid lease listener port')
+        if type(timeout) not in (int, float) or not 0 < timeout <= 5:
+            raise ValueError('Resident lease HTTP timeout must be positive and at most five seconds')
 
     def check_endpoint(self):
         if self.provider() != self.endpoint:
             raise KeepAwakeLost('Resident endpoint configuration changed')
 
     def request(self, method, body=None):
-        self.check_endpoint()
-        connection = http.client.HTTPConnection(self.endpoint['host'], self.port, timeout=self.timeout)
-        path = '/keep-awake/status' if method == 'GET' else '/keep-awake/lease'
         try:
+            self.check_endpoint()
+        except Exception as error:
+            _annotate(error, method, 'configuration_check')
+            raise
+        try:
+            connection = http.client.HTTPConnection(self.endpoint['host'], self.port, timeout=self.timeout)
+        except Exception as error:
+            _annotate(error, method, 'connection_setup')
+            raise
+        path = '/keep-awake/status' if method == 'GET' else '/keep-awake/lease'
+        phase = 'send_request'
+        deadline = time.monotonic() + self.timeout
+        expired = threading.Event()
+        connected_socket = [None]
+
+        def interrupt():
+            expired.set()
+            # HTTPConnection detaches .sock for a Connection: close response.
+            # Keep the connected transport so blocked header/body reads still
+            # receive shutdown at the absolute deadline.
+            transport = connected_socket[0]
+            if transport is not None:
+                try:
+                    transport.shutdown(socket.SHUT_RDWR)
+                except OSError:
+                    pass
+
+        def check_deadline():
+            if expired.is_set() or time.monotonic() >= deadline:
+                raise TimeoutError('Resident lease absolute HTTP deadline expired')
+
+        watchdog = threading.Timer(self.timeout, interrupt)
+        watchdog.daemon = True
+        watchdog.start()
+        response = None
+        try:
+            connection.connect()
+            connected_socket[0] = connection.sock
+            check_deadline()
             connection.request(method, path, body, {'Authorization': 'Bearer ' + self.endpoint['token'],
                                                    'Content-Type': 'application/octet-stream', 'Connection': 'close'})
+            check_deadline()
+            phase = 'read_headers'
             response = connection.getresponse()
+            check_deadline()
+            phase = 'read_body'
             raw = response.read(8193)
+            check_deadline()
+            phase = 'validate_reply'
             if response.status != 200:
                 raise KeepAwakeRejected(response.status)
             if (len(raw) > 8192 or response.getheader('Content-Type', '').split(';')[0] != 'application/json'):
                 raise RuntimeError('Invalid lease response bounds or content type')
             value = validate(json_object(raw))
+            phase = 'configuration_check'
             self.check_endpoint()
+            check_deadline()
             return value
-        except KeepAwakeRejected:
+        except KeepAwakeRejected as error:
+            _annotate(error, method, phase)
             raise
         except Exception as error:
+            if expired.is_set() and not isinstance(error, TimeoutError):
+                timeout_error = TimeoutError('Resident lease absolute HTTP deadline expired')
+                timeout_error.__cause__ = error
+                error = timeout_error
             if method == 'POST':
-                raise KeepAwakeUnknown('Resident lease reply unconfirmed; never replay the mutation') from error
-            raise
+                wrapped = KeepAwakeUnknown('Resident lease reply unconfirmed; never replay the mutation')
+                raise _annotate(wrapped, method, phase, error) from error
+            _annotate(error, method, phase)
+            raise error
         finally:
-            connection.close()
+            watchdog.cancel()
+            try:
+                if response is not None:
+                    response.close()
+            finally:
+                connection.close()
 
     def status(self):
         return self.request('GET')
 
-    def mutate(self, revision, ttl_ms, max_duration_ms, instance_id, lease_id, job_id, resident_build_id):
+    def mutate(self, revision, ttl_ms, max_duration_ms, instance_id, lease_id, job_id, resident_build_id,
+               *, cancelled=None):
         body = pack(revision, ttl_ms, max_duration_ms, instance_id, lease_id, job_id)
         if not hex_pin(resident_build_id, 64):
             raise ValueError('Pin the exact Resident build ID')
         before = self.status()
         if (before['instance_id'] != instance_id or before['resident_build_id'] != resident_build_id
                 or before['revision'] != revision):
-            raise KeepAwakeLost('Resident lease instance, build or revision changed before mutation')
+            raise _annotate(KeepAwakeLost('Resident lease instance, build or revision changed before mutation'),
+                            'GET', 'owner_check')
         if max_duration_ms:
             if before['active']:
-                raise KeepAwakeLost('Another Resident work lease is active')
+                raise _annotate(KeepAwakeLost('Another Resident work lease is active'), 'GET', 'owner_check')
         elif (not before['active'] or before['lease_id'] != lease_id or before['job_id'] != job_id):
-            raise KeepAwakeLost('Resident work lease owner changed or expired')
+            raise _annotate(KeepAwakeLost('Resident work lease owner changed or expired'), 'GET', 'owner_check')
+        if cancelled is not None and cancelled():
+            raise _annotate(KeepAwakeLost('Resident keeper stopped during lease preflight'),
+                            'POST', 'before_submission')
         value = self.request('POST', body)
         if (value['instance_id'] != instance_id or value['resident_build_id'] != resident_build_id
                 or value['revision'] != revision + 1 or value['active'] != bool(ttl_ms)
                 or ttl_ms and (value['lease_id'] != lease_id or value['job_id'] != job_id
                                or value['remaining_ms'] > ttl_ms or value['tick_result'] < 0)):
-            raise KeepAwakeUnknown('Resident lease receipt differs; do not replay the mutation')
+            raise _annotate(KeepAwakeUnknown('Resident lease receipt differs; do not replay the mutation'),
+                            'POST', 'receipt_check')
         return value
 
 
@@ -192,17 +285,22 @@ class ResidentKeeper:
         self.record('lease_intent', revision=value['revision'], ttl_ms=ttl_ms, max_duration_ms=duration_ms,
                     instance_id=self.expected_instance, resident_build_id=self.expected_build,
                     lease_id=self.lease_id, job_id=self.job_id)
+        phase = 'before_submission'
         try:
             if ttl_ms and self.end.is_set():
                 raise KeepAwakeLost('Resident keeper stopped before lease submission')
             sent_at = time.monotonic()
             receipt = self.client.mutate(value['revision'], ttl_ms, duration_ms, self.expected_instance,
-                                         self.lease_id, self.job_id, self.expected_build)
+                                         self.lease_id, self.job_id, self.expected_build,
+                                         cancelled=self.end.is_set if ttl_ms else None)
+            phase = 'receipt_check'
             self._pin(receipt, owned=bool(ttl_ms))
+            phase = 'receipt_journal'
             self.record('lease_receipt', receipt=receipt)
         except Exception as error:
             self.record('lease_unconfirmed_or_rejected', ttl_ms=ttl_ms, failure_type=type(error).__name__,
-                        replayed=False)
+                        replayed=False, **failure_diagnostic(error, phase=phase,
+                                                            method='POST' if phase.startswith('receipt_') else None))
             raise
         # Native remaining_ms was sampled before the reply crossed the network.
         # Measuring from request start gives a conservative local expiry even
@@ -238,7 +336,13 @@ class ResidentKeeper:
                 except Exception as error:
                     self.failed = type(error).__name__
                     self.result['errors'].append(self.failed)
+                    self.result['last_error'] = failure_diagnostic(error)
                     self.end.set()
+                    try:
+                        self.record('keeper_failed', failure_type=self.failed, replayed=False,
+                                    **self.result['last_error'])
+                    except Exception:
+                        pass
                     return
 
     def _check_local(self):
@@ -290,6 +394,12 @@ class ResidentKeeper:
             except Exception as error:
                 self.result['end'] = 'unconfirmed; expires within 30 seconds of last accepted renewal'
                 self.result['errors'].append(type(error).__name__)
+                self.result['last_error'] = failure_diagnostic(error, phase='cleanup_status')
+                try:
+                    self.record('lease_cleanup_unconfirmed', failure_type=type(error).__name__, replayed=False,
+                                **self.result['last_error'])
+                except Exception:
+                    pass
         return self.result
 
 
