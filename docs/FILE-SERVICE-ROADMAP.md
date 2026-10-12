@@ -9,20 +9,27 @@ limit. Lua sessions edit an open DevLoop directly and already require no FTP.
 The next file-management service should extend Resident HTTP and the existing
 MCP journals. Implementing a second FTP server would duplicate authentication,
 attempt identities and transfer verification, while leaving installation and
-app launching unresolved. This document is a plan, not implemented functionality.
+app launching unresolved. The first read-only inbox slice is installed in
+Resident 0.1.4: [managed inbox inspection](MANAGED-FILES.md). Initial normal boot,
+known-byte listing/hash/read and refusal checks passed. A separate DevLoop
+coexistence check also passed, including a new 4096-byte upload, two complete
+publication readbacks and exact managed stat/readback. The broker remained
+disabled and unblocked. Repeated boot, storage durability and phone credential
+confirmation remain unqualified; the remaining steps below are future work.
 
 ## Work needed
 
-1. Add bounded, paginated directory listing, stat/hash and read operations for
-   managed project assets, logs and revisions. Control's existing workspace
+1. Extend bounded listing, stat/hash and reads beyond the implemented inbox and
+   retained-part inspection to managed project assets, logs and revisions. Control's existing workspace
    operations provide reusable behavior, but Resident must work independently
    of Control and Starter.
 2. Add fresh revision writes and explicit hash-guarded cleanup. Confine routine
    operations to managed roots; give plugin/configuration updates their own
    narrowly scoped workflow with preserved rollback.
-3. Expose transfer-job and retained-part inspection, free-space checks and quotas.
-   Large assets need bounded resumable chunks, verified final assembly and
-   reconciliation after interruption. Qualify native sync/recovery separately.
+3. Add durable transfer-job metadata, free-space checks and quotas alongside the
+   implemented observational retained-part inspection. Large assets need bounded
+   resumable chunks, verified final assembly and reconciliation after interruption.
+   Qualify native sync/recovery separately.
 4. Implement package installation as a distinct journaled operation, binding
    package hash, title and build to installed/runtime verification and rollback.
    A successful upload is not an installed application.

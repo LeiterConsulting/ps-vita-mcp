@@ -2,6 +2,7 @@
 #include "platform.h"
 #include "sha256.h"
 #include "pairing.h"
+#include "files.h"
 #include "launch_broker/service.h"
 
 static unsigned char buffer[R_CHUNK];
@@ -169,6 +170,19 @@ static void status(int socket) {
     R_SNPRINTF(reply,sizeof(reply),"{\"app\":\"Vita Resident\",\"protocol\":1,\"version\":\"" R_VERSION "\",\"build_id\":\"%s\",\"port\":17866,\"started_ms\":%llu,\"uptime_ms\":%llu,\"heartbeat\":%llu,\"requests\":%llu,\"uploads\":%llu,\"battery_percent\":%d,\"charging\":%d,\"clocks_mhz\":[%d,%d,%d,%d],\"network_state\":%d,\"keep_awake\":false,\"max_upload_bytes\":%u,\"process\":\"SceShell user plugin\"}",R_BUILD_ID,(unsigned long long)started,(unsigned long long)(r_now()-started),(unsigned long long)heartbeat,(unsigned long long)requests,(unsigned long long)uploads,d.battery,d.charging,d.cpu,d.bus,d.gpu,d.xbar,d.network,R_MAX_FILE);
     respond(socket,200,reply);
 }
+static void storage_request(int socket,const Request *request,int admin,size_t initial_size) {
+    if(!admin) {error(socket,403,"Desktop administrator required");return;}
+    if(R_STRCMP(request->method,"GET")) {error(socket,405,"Method not supported");return;}
+    if(request->length||initial_size) {error(socket,400,"GET body is not supported");return;}
+    /* Hashing and enumeration share the worker with status/pairing; bound them. */
+    idle_deadline=total_deadline=r_now()+10000;
+    RFResult result;
+    rf_request(request->path,reply,sizeof(reply),buffer,sizeof(buffer),total_deadline,&result);
+    if(result.binary) {
+        if(response_header(socket,result.status,"application/octet-stream",(uint32_t)result.length))
+            send_all(socket,buffer,result.length);
+    } else respond(socket,result.status,reply);
+}
 static void launch_request(int socket,const Request *request,int admin,
                            const unsigned char *initial,size_t initial_size) {
     if(!admin) { error(socket,403,"Desktop administrator required");return; }
@@ -214,6 +228,11 @@ static void client(int socket,const char token[33]) {
     if(result) { error(socket,result,"Invalid request framing"); return; }
     const char *bearer=request.has_auth&&R_STRLEN(request.authorization)==39&&!R_STRNCMP(request.authorization,"Bearer ",7)?request.authorization+7:"";
     int admin=*bearer&&equal_token(bearer,token);
+    if(!R_STRCMP(request.path,"/storage")||!R_STRNCMP(request.path,"/storage/",9)) {
+        if(admin)requests++;
+        storage_request(socket,&request,admin,used-header_size);
+        return;
+    }
     if(!R_STRCMP(request.path,"/devloop-launch")||!R_STRNCMP(request.path,"/devloop-launch/",16)) {
         if(admin)requests++;
         launch_request(socket,&request,admin,(const unsigned char *)headers+header_size,used-header_size);

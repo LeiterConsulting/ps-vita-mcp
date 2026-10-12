@@ -74,14 +74,14 @@ class IntegrationTests(unittest.TestCase):
         path.write_bytes(raw)
         return path, hashlib.sha256(raw).hexdigest()
 
-    def test_catalog_30_tools_13_workbench_and_exact_session_schemas(self):
+    def test_catalog_33_tools_13_workbench_and_exact_session_schemas(self):
         async def run():
             async with self.mcp() as client:
                 tools = (await client.list_tools()).tools
-                self.assertEqual(len(tools), 30)
+                self.assertEqual(len(tools), 33)
                 self.assertEqual(sum(t.name.startswith('vita_workbench_') for t in tools), 13)
                 self.assertEqual(sum(t.name.startswith('vita_control_') for t in tools), 13)
-                self.assertEqual(sum(t.name.startswith('vita_resident_') for t in tools), 4)
+                self.assertEqual(sum(t.name.startswith('vita_resident_') for t in tools), 7)
                 session = next(t for t in tools if t.name == 'vita_workbench_script_session')
                 self.assertEqual(set(session.inputSchema['required']),
                                  {'candidates', 'expected_devloop_build', 'expected_pid', 'expected_run', 'expected_revision'})

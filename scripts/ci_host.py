@@ -29,7 +29,7 @@ def main():
                                    ('target-c', 'workbench/target/test_host.sh')]]
     checks += [(Path(script).stem + '-' + Path(script).parent.name, [sys.executable, script])
                for script in ['tests/test_bridge.py', 'tests/test_scripts_bridge.py',
-                              'resident/test_bridge.py', 'resident/control/test_bridge.py',
+                              'resident/test_bridge.py', 'resident/test_files_bridge.py', 'resident/control/test_bridge.py',
                               'resident/control/test_staging.py', 'workbench/test_mcp.py']]
     checks.append(('launch-broker-http', [sys.executable, 'tests/test_launch_broker_http.py']))
     checks.append(('script-session-http', [sys.executable, '-m', 'unittest', 'workbench.test_script_session']))

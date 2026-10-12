@@ -1,5 +1,6 @@
 #define _POSIX_C_SOURCE 200809L
 #include "platform.h"
+#include "files_platform.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -50,9 +51,9 @@ int r_directory_exists(const char *path) { struct stat s; return stat(mapped(pat
 int r_open_write(const char *path) { return open(mapped(path),O_WRONLY|O_CREAT|O_EXCL,0600); }
 int r_open_read(const char *path) { return open(mapped(path),O_RDONLY); }
 int r_write(int fd,const void *data,size_t size) { if(fault("write")) return -1; if(fault("partial-write")&&size>1) size=1; return (int)write(fd,data,size); }
-int r_read(int fd,void *data,size_t size) { if(fault("read")) return -1; int n=(int)read(fd,data,size); if(n>0&&fault("corrupt-read")) ((unsigned char *)data)[0]^=1; return n; }
+int r_read(int fd,void *data,size_t size) { if(fault("read")) return -1; if(fault("zero-read"))return 0;if(fault("partial-read")&&size>1)size=1; int n=(int)read(fd,data,size); if(n>0&&fault("corrupt-read")) ((unsigned char *)data)[0]^=1; return n; }
 int r_close_file(int fd) { int result=close(fd); return fault("close")?-1:result; }
 int r_file_size(const char *path,uint64_t *size) { struct stat s; if(stat(mapped(path),&s)<0||!S_ISREG(s.st_mode)) return -1; *size=(uint64_t)s.st_size; return 0; }
 int r_rename(const char *from,const char *to) { if(fault("rename")) return -1; char a[2048]; snprintf(a,sizeof(a),"%s",mapped(from)); const char *b=mapped(to); struct stat s; if(stat(b,&s)==0) return -1; return rename(a,b); }
 static void stop(int signal_number) { (void)signal_number; active=0; }
-int main(int argc,char **argv) { if(argc!=4) return 2; snprintf(root,sizeof(root),"%s",argv[1]); port=(unsigned)strtoul(argv[2],0,10); signal(SIGTERM,stop); signal(SIGINT,stop); r_service(argv[3]); return 0; }
+int main(int argc,char **argv) { if(argc!=4) return 2; snprintf(root,sizeof(root),"%s",argv[1]);rf_host_root(root); port=(unsigned)strtoul(argv[2],0,10); signal(SIGTERM,stop); signal(SIGINT,stop); r_service(argv[3]); return 0; }

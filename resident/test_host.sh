@@ -3,6 +3,7 @@ set -eu
 mkdir -p build/resident
 sh resident/build_host.sh --launch-fixture
 python3 resident/test_service.py
+python3 resident/test_files_service.py
 python3 resident/test_launch_service.py
 sh resident/launch_broker/test_http.sh
 sh resident/launch_broker/test_native_host.sh
