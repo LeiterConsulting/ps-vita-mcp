@@ -226,11 +226,12 @@
       ],
       "restored_native_paused": true
     },
-    "physical_acceptance": "partial: native runtime/Lua proof passed; Control capture mapping, synthetic input and lifecycle remain pending",
+    "physical_acceptance": "partial: native runtime/Lua proof and normal START+SELECT exit passed; Control capture mapping, synthetic input and sleep/reopen remain pending",
     "control_capture_pid_mapping": "pending: Control network service unavailable",
     "synthetic_workbench_input": "pending",
     "physical_input_acceptance": "pending",
-    "sleep_and_reopen": "pending"
+    "sleep_and_reopen": "pending",
+    "normal_exit": "passed: operator confirmed START+SELECT exit, then reopened FTP"
   },
   "release": {
     "public_binary_distribution": "blocked pending dependency notices and artifact-bound device gates",
@@ -268,9 +269,21 @@
     "conversion_verification": "pinned SDK repeats ELF-to-VELF-to-SELF; exact byte equality",
     "native_build": "passed; independent pinned-SDK ELF-to-SELF equality and import checks",
     "host_adapter_cases": 34,
-    "staging": "locally prepared; FTP pending; no diagnostic staged or armed on the Vita",
-    "hardware_acceptance": "pending",
-    "control_or_other_plugin_loads": "none; diagnostic cannot establish MCP readiness"
+    "staging": "passed: four files, two exact readbacks each; isolated diagnostic opt-in armed last",
+    "hardware_acceptance": "pending; staging and opt-in do not establish diagnostic execution",
+    "control_or_other_plugin_loads": "none; diagnostic cannot establish MCP readiness",
+    "staging_details": {
+      "completed_utc": "2026-10-12T03:10:57.716513+00:00",
+      "receipt_sha256": "2391f75386a21aaf3bb2e94edde9ffba50e2b81486e42c26455b6bd2e77f01d9",
+      "file_count": 4,
+      "readbacks_per_file": 2,
+      "active_config_written": false,
+      "active_config_unchanged": true,
+      "original_autostart_and_control_guards_unchanged": true,
+      "diagnostic_opt_in": "armed after other staged files; two exact readbacks",
+      "pairing_unchanged": true
+    },
+    "activation": "pending: module inactive until manual configuration copy and normal reboot"
   },
   "desktop_registration": {
     "configured_entries_verified": 2,
@@ -278,7 +291,13 @@
       "resident_combined": 28,
       "devloop": 10
     },
-    "client_ui_reload": "pending; fresh stdio inspection does not establish host UI reload"
+    "client_ui_reload": "passed: operator restarted Codex; actual host exposes 28 combined Resident tools and 10 foreground DevLoop tools",
+    "configuration_applied": "passed: both existing PC MCP entries updated and verified",
+    "actual_host_resident_status": {
+      "result": "passed: actual host vita_resident_status returned exact installed Resident identity",
+      "version": "0.1.2",
+      "build_id": "cc816e8db301e5a250ee5d19d060c1f896244c7af1f0a7333a46380f1fd4f0ef"
+    }
   },
   "current_autonomy_status": "Foreground 01.04 native identity/Lua proof passed; background Control unavailable after first armed startup, so full autonomous operation is not accepted"
 }
