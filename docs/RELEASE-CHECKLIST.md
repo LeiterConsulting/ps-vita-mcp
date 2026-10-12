@@ -13,6 +13,8 @@ Use this sequence to turn the reviewed source candidate into a supported develop
 
 ## October 11 autonomous source candidate
 
+This section preserves the historical candidate record. Both boot experiments are withdrawn from routine use after the October 12 failures; keep them disabled. Unchecked startup gates below do not authorize another boot experiment.
+
 - [x] Add the eleventh Workbench tool for one-attempt launch preparation with journaled observation and bounded power cleanup.
 - [x] Freeze effective endpoints for preparation and trials; retain original endpoint cleanup after detected configuration drift.
 - [x] Separate script readiness from native target/PID input readiness; block input-bearing profiles on legacy DevLoop before scene mutation and recheck before each input.
@@ -25,6 +27,19 @@ Use this sequence to turn the reviewed source candidate into a supported develop
 - [x] Build, stage with two readbacks and install exact DevLoop 01.04; verify stable native identity and the 55-step live Lua reload/recovery proof with original native scene restored paused.
 - [ ] Qualify DevLoop 01.04 identity against fresh Control captures before re-enabling synthetic Workbench profiles on the test device. Control is unavailable after the first armed startup.
 - [ ] Design and qualify persistent activation across repeated boots, duplicate detection, lifecycle recovery and failure handling. The one-shot helper does not satisfy this gate.
+
+## October 12 native lifecycle candidate
+
+Resident 0.1.5 implements installation and launching only for the owned Lifecycle Lab (`VMCP00001`). Its [native lifecycle qualification](NATIVE-LIFECYCLE.md) is separate from accepted Resident 0.1.4 and DevLoop 01.04; host and package checks do not establish hardware acceptance.
+
+- [x] Activate the corrected exact Resident 0.1.5 candidate through a normal boot, preserving the accepted plugin, configuration, pairing and withdrawn-experiment disable markers; verify native identity and rollback readbacks. The corrected build passed normal boot and exact device-binary verification; 22 retained files passed two readbacks. Its fresh instance is unblocked and installer-ready with Promoter unloaded. The first build's unknown promotion receipt remains retained without replay. The installation, launch, repeated same-candidate and different-build redeploy gates below passed; same-build journal durability after reboot remains open. [Exact builds and incident](NATIVE-LIFECYCLE.md#october-12-native-promotion-incident).
+- [x] Inspect installer availability and the conservative idle-shell guard before promotion or launch. Retain the explicit lack of displayed-foreground and protected-UI attestation.
+- [x] Install the exact Lab package once through Resident, verify every installed file hash and separately record SDK submission, operation result and observed completion. The controlled cycle submitted one native promotion call and returned zero native, operation and cleanup results with verification passed.
+- [x] Launch the fixed title and verify exact native build/title/PID/run identity, advancing frames, deterministic self-test and independent Resident inventory while background telemetry remains available. The single controlled cycle passed these checks and cooperative exit with two process-absence observations.
+- [x] Repeat the same exact owned Lab package through a new hash-bound plan without file-manager installation or manual app opening. A two-cycle job and read-only reconciliation passed after the initial cycle, giving three verified same-candidate cycles with distinct native PID/run identities and successful cooperative exit/process-absence checks.
+- [x] Install and launch a different Lab build through a new hash-bound plan without file-manager installation or manual app opening. Lab 01.01 variant 2 passed install, exact runtime identity, evaluation, graceful exit, process absence and read-only reconciliation, giving four verified cycles across two native builds.
+- [ ] Confirm a normal reboot with unchanged configuration preserves this same build's journals and ownership, yields a new native instance and does not replay completed operations. This check is pending.
+- [ ] Qualify lost replies, retained partial files, original-attempt GET reconciliation, once-only dispatch and receipt/ownership durability across restart. The completed single-cycle job passed zero-mutation read-only reconciliation after a retained MCP GET timeout; restart and interrupted-operation durability remain pending. Preserve uncertain outcomes without replay; generalization to DevLoop requires separate qualification.
 
 ## 1. Finish the repaired development build acceptance
 
@@ -42,7 +57,7 @@ Run the observers described in [Workbench](../workbench/README.md). Store raw ev
 ## 2. Qualify the public artifacts
 
 - [ ] Build the reviewed commit using `Build-McpBaseline.ps1`, retaining all component reports, source hashes and VPK hashes.
-- [ ] Stage exact candidates with two readbacks. Keep the old packages, active tai configuration and pairing for rollback. Installation, normal reboot and activation remain manual.
+- [ ] Stage exact candidates with two readbacks. Keep the old packages, active tai configuration and pairing for rollback. The accepted general installation path, normal reboot and plugin activation remain manual; the fixed-Lab automated installation candidate requires the separate qualification above.
 - [ ] Inspect installed Starter and Target entries against their public reports. Retire an old guard only after a confirmed normal reboot, Control absence and exact inspected identities. Never remove an active guard or load Starter twice per boot.
 - [ ] Prove the public Resident identity after its deliberate installation, then the matched public Control ABI/build through actual desktop MCP.
 - [ ] Repeat power, synthetic exclusion, Target input/expiry/focus, script-only Lua, file recovery and completed capture checks with public build pins. Input-bearing Lua profiles additionally require installed native title/PID mapping and matched fresh captures.
@@ -64,6 +79,6 @@ The [setup guide](GETTING-STARTED.md) preserves storage/plugin settings and desc
 - [ ] Require passing CI on the reviewed commit and review the source diff, privacy exclusions and dependency notices.
 - [ ] Publish a versioned source tag only after review. Attach binaries only after the package and notice gates above pass.
 - [ ] Include checksums, exact component versions/fingerprints, setup/rollback instructions and a sanitized device acceptance record bound to those artifacts.
-- [ ] Keep known limits in the release notes: trusted LAN HTTP, on-demand screenshots with outliers, bounded synthetic input, foreground Lua, manual native installation and no forced wake.
+- [ ] Keep known limits in the release notes: trusted LAN HTTP, on-demand screenshots with outliers, bounded synthetic input, foreground Lua, manual native installation for the accepted general path and no forced wake. Describe the fixed-Lab installation candidate with its exact qualification status; do not imply autonomous DevLoop installation.
 
 After preview acceptance, prioritize resumable job receipts and recovery after host interruption, measured capture improvements, and a small Lua asset/audio interface. Expand capabilities with separate measurable trials rather than treating a successful heartbeat as a complete autonomous session.

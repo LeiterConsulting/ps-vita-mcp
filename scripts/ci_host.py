@@ -26,12 +26,16 @@ def main():
                                    ('autostart-c', 'resident/autostart/test_host.sh'),
                                    ('boot-diagnostic-c', 'resident/boot_diagnostic/test_host.sh'),
                                    ('launch-broker-c', 'resident/launch_broker/test_host.sh'),
+                                   ('native-launch-c', 'resident/native_launch/test_host.sh'),
+                                   ('native-install-c', 'resident/native_install/test_host.sh'),
+                                   ('native-lab-c', 'lifecycle_lab/test_host.sh'),
                                    ('target-c', 'workbench/target/test_host.sh')]]
     checks += [(Path(script).stem + '-' + Path(script).parent.name, [sys.executable, script])
                for script in ['tests/test_bridge.py', 'tests/test_scripts_bridge.py',
                               'resident/test_bridge.py', 'resident/test_files_bridge.py', 'resident/control/test_bridge.py',
                               'resident/control/test_staging.py', 'workbench/test_mcp.py']]
     checks.append(('launch-broker-http', [sys.executable, 'tests/test_launch_broker_http.py']))
+    checks.append(('native-lifecycle-pc', [sys.executable, '-m', 'unittest', 'workbench.test_native_lifecycle']))
     checks.append(('script-session-http', [sys.executable, '-m', 'unittest', 'workbench.test_script_session']))
     checks.append(('script-session-mcp-cli', [sys.executable, '-m', 'unittest', 'workbench.test_script_session_mcp']))
     checks.append(('script-demo-real-lua', [sys.executable, 'tests/test_script_demo.py']))

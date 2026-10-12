@@ -111,6 +111,34 @@ class StageTests(unittest.TestCase):
                     stage(self.root, EXPECTED)
                 self.assertFalse(any(c in ['STOR', 'MKD', 'RNTO'] for c, p in self.ftp.commands))
 
+    def lifecycle_candidate_report(self):
+        path, report = self.file_candidate_report()
+        report['version'] = '0.1.5'
+        report['native_lifecycle'] = {
+            'protocol': 1, 'project': 'lifecycle_lab', 'title_id': 'VMCP00001',
+            'policy': 'idle_shell_only', 'file_count': 8, 'max_file_bytes': 8388608,
+            'max_total_bytes': 16777216, 'startup_dispatch': False,
+            'foreground_verified': False, 'protected_ui_verified': False}
+        return path, report
+
+    def test_native_lifecycle_candidate_stages_without_activation(self):
+        path, report = self.lifecycle_candidate_report()
+        path.write_text(json.dumps(report))
+        result = stage(self.root, EXPECTED)
+        self.assertEqual(result['version'], '0.1.5')
+        self.assert_untouched()
+
+    def test_lifecycle_widened_contract_refused_before_writes(self):
+        for key, value in [('title_id', 'CHRS00003'), ('startup_dispatch', True),
+                           ('max_total_bytes', 33554432), ('protected_ui_verified', True)]:
+            with self.subTest(key=key):
+                path, report = self.lifecycle_candidate_report()
+                report['native_lifecycle'][key] = value
+                path.write_text(json.dumps(report))
+                with self.assertRaises(ValueError):
+                    stage(self.root, EXPECTED)
+                self.assertFalse(any(c in ['STOR', 'MKD', 'RNTO'] for c, p in self.ftp.commands))
+
     def test_config_change_and_precedence_refuse_before_device_writes(self):
         for mode in ['changed', 'ux0']:
             with self.subTest(mode=mode):

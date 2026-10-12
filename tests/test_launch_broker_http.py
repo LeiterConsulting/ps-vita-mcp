@@ -206,7 +206,7 @@ class BrokerHttpTests(unittest.TestCase):
                 async with ClientSession(*streams) as client:
                     await client.initialize()
                     catalog = await client.list_tools()
-                    self.assertEqual(len(catalog.tools), 33)
+                    self.assertEqual(len(catalog.tools), 36)
                     response = await client.call_tool('vita_workbench_prepare_script_session', {
                         'expected_devloop_build': BUILD, 'allow_launch': True,
                         'expected_resident_build': 'a' * 64, 'expected_resident_instance': 'b' * 32,

@@ -1,7 +1,11 @@
 # Disabled Resident launch broker qualification
 
-As of October 12, 2026, Resident 0.1.4 is installed alongside DevLoop 01.04 on the
-test Vita, with 0.1.3 and 0.1.2 retained for rollback. Its [current managed-file
+The corrected Resident 0.1.5 is now boot-loaded alongside DevLoop 01.04 after a
+confirmed normal boot and exact device-binary verification. Its separate native
+lifecycle instance is fresh, unblocked and installer-ready with Promoter unloaded.
+Four fixed-Lab install/launch/evaluate/graceful-exit cycles across two native builds passed on hardware; same-build journal durability after reboot remains pending; the earlier unknown receipt is retained
+without replay. [Current incident](NATIVE-LIFECYCLE.md#october-12-native-promotion-incident).
+Resident 0.1.4, 0.1.3 and 0.1.2 are retained for rollback. Historical 0.1.4 [managed-file
 qualification](managed-files-validation.json) includes normal boot, exact
 configuration/plugin, inbox inspection and bounded DevLoop coexistence with a
 fresh 4 KiB upload and verified readbacks. Launching remains disabled and refused.
@@ -44,7 +48,7 @@ world/mode/parameters/ball/score/obstacles restored paused, and exact DevLoop
 build/PID/run retained. Lua finished inactive with the last VM retained, the
 documented native-fallback limit. The broker retained its instance and stayed
 disabled and unblocked.
-Fresh stdio verified the historical 30-tool 0.1.3 catalog. The registered desktop MCP connection has now been restarted and exposes all 33 tools; direct registered-tool calls verified exact installed 0.1.4 status, managed listing, file information and complete 4096-byte readback. These checks do not qualify native launching.
+Fresh stdio verified the historical 30-tool 0.1.3 catalog. The earlier October 12 registered 33-tool MCP check verified exact installed 0.1.4 status, managed listing, file information and complete 4096-byte readback. These checks do not qualify native launching.
 
 ## Evidence and limits
 
@@ -69,8 +73,10 @@ loop remains unfinished.
 ## Historical 0.1.3 deployment and remaining hardware gates
 
 This sequence records the completed 0.1.3 activation, not instructions to replace
-installed 0.1.4. Current source builds 0.1.4; preserve both rollback plugins and
-follow the [current Resident update guide](RESIDENT.md) for any new replacement.
+currently boot-loaded 0.1.5. Current source builds the corrected 0.1.5
+[native lifecycle candidate](NATIVE-LIFECYCLE.md), with hardware qualification
+pending and this legacy broker still disabled. Preserve all rollback plugins
+and follow the [current Resident update guide](RESIDENT.md) for any new replacement.
 
 1. Preserve the working 0.1.2 plugin, exact active configuration, pairing and all
    experiment guards. Build 0.1.3 separately with `Build-Resident.ps1`.

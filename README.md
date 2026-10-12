@@ -10,9 +10,29 @@ PS Vita MCP connects a desktop MCP client to a modded Vita. Its PC bridges combi
 
 *Original DevLoop 01.02 framebuffer capture. [Gallery and provenance](docs/SCREENSHOTS.md).*
 
-**Pairing candidate:** [six-digit Companion pairing](docs/PAIRING.md) adds individual inspection credentials, physical approval and durable 90-day inactivity expiry. The earlier Resident 0.1.2 / Control 0.3.4 / Starter 01.06 pairing trial passed normal startup, physical code display and graceful challenge timeout. Resident 0.1.4 is now installed, with 0.1.3 and 0.1.2 retained for rollback; individual credential confirmation and the wider device gates remain open. [Historical candidate checks and remaining gates](docs/PAIRING-DEVICE-TESTS.md).
+**Pairing candidate:** [six-digit Companion pairing](docs/PAIRING.md) adds individual inspection credentials, physical approval and durable 90-day inactivity expiry. The earlier Resident 0.1.2 / Control 0.3.4 / Starter 01.06 pairing trial passed normal startup, physical code display and graceful challenge timeout. The corrected Resident 0.1.5 is now running after a confirmed normal boot, with 0.1.4, 0.1.3 and 0.1.2 retained for rollback. Four fixed-Lab native cycles across two builds passed; journal durability after reboot, individual credential confirmation and the wider device gates remain open. [Historical candidate checks and remaining gates](docs/PAIRING-DEVICE-TESTS.md).
 
 ## Status as of October 12 2026
+
+**Native lifecycle candidate:** Resident 0.1.5 adds administrator-only staging,
+native package promotion and a fixed-title launch adapter for the new Vita
+Lifecycle Lab (`VMCP00001`). Three new PC tools preview an exact package,
+execute a journaled install → launch → evaluate → graceful exit cycle, and
+inspect an interrupted job without replaying mutations. Repeated cycles can
+redeploy the owned package. [Architecture, limits and qualification](docs/NATIVE-LIFECYCLE.md).
+The corrected Resident 0.1.5 is now boot-loaded after a confirmed normal boot
+and exact device-binary verification. Its fresh native instance is unblocked,
+reports the installer ready and leaves Promoter unloaded. Four fixed-Lab native
+install → launch → evaluate → graceful exit cycles across two builds passed,
+including repeated reinstall and a changed-build redeploy, with successful
+read-only reconciliation. Same-build journal durability after reboot remains
+pending. The corrected full 27-group host suite passed.
+The earlier build's single `0x80871012` promotion outcome remains unknown and
+retained without replay. [Exact builds, incident and next hardware gates](docs/NATIVE-LIFECYCLE.md#october-12-native-promotion-incident).
+Accepted 0.1.4 is retained for rollback; DevLoop 01.04 remains installed. The legacy DevLoop launch broker stays disabled.
+[Exact candidate hashes and validation](docs/native-lifecycle-validation.json)
+separate the 27-group host pass, ARM packaging and verified staging from the
+remaining hardware checks.
 
 The automatic-startup and isolated boot-diagnostic candidates are withdrawn from routine use after October 12 boot failures. The diagnostic activation hung at the initial product-manual screen and shut down; boot trouble persisted after restoring the pre-diagnostic configuration, which still included Autostart. Plugin-bypass boot reached the file manager. The pre-Autostart configuration was then restored with two exact readbacks and both experiments disabled, preserving pairing, logs and attempt guards. The operator confirmed a normal boot without plugin bypass; fresh read-only checks verified the recovered configuration, disable markers and exact Resident identity through the registered MCP. Recovery is verified. The root cause is unknown; neither experiment should be armed again under the current qualification.
 
@@ -24,25 +44,26 @@ Resident 0.1.3 was activated earlier and passed a user-confirmed normal boot. Re
 
 The earlier October 12 host suite passed all **22 groups**, including real Lua under sanitizers and actual MCP/CLI transport. A third live session rejected bad syntax, recovered from a controlled runtime fault, continued to a healthy candidate and restored the original scene. [Script-session evidence](docs/script-session-validation.json) records exact source hashes, corrected live passes, retained failures and remaining limits.
 
-**Resident 0.1.4 managed inbox inspection is installed** and passed a user-confirmed normal boot plus 12 initial read-only checks. Fresh stdio MCP exposed all 33 tools; native checks verified root/fixture listing, complete hashes and reads of a 4096-byte probe, a 97-byte retained part and an empty retained part, a middle range and EOF, and malformed/access/range refusals. Resident retained one disabled, unblocked broker instance with advancing time. Exact plugin/configuration readbacks preserved both rollback plugins, saved administrator pairing and experiment disable markers. A separate DevLoop coexistence check passed eight stable-identity samples with advancing frames, a new 4096-byte upload, two complete publication readbacks and exact managed stat/readback, without Control or Lua changes. Repeated boot, storage durability and phone credential confirmation remain pending. Native installation and launching remain separate. All 23 host groups and the ARM build passed independently. [Contract](docs/MANAGED-FILES.md), [dated validation](docs/managed-files-validation.json).
+**Historical Resident 0.1.4 managed inbox inspection** passed a user-confirmed normal boot plus 12 initial read-only checks. Fresh stdio MCP exposed all 33 tools; native checks verified root/fixture listing, complete hashes and reads of a 4096-byte probe, a 97-byte retained part and an empty retained part, a middle range and EOF, and malformed/access/range refusals. Resident retained one disabled, unblocked broker instance with advancing time. Exact plugin/configuration readbacks preserved both rollback plugins, saved administrator pairing and experiment disable markers. A separate DevLoop coexistence check passed eight stable-identity samples with advancing frames, a new 4096-byte upload, two complete publication readbacks and exact managed stat/readback, without Control or Lua changes. Repeated boot, storage durability and phone credential confirmation remain pending. Native installation and launching remain separate. All 23 host groups and the ARM build passed independently. [Contract](docs/MANAGED-FILES.md), [dated validation](docs/managed-files-validation.json).
 
 The October 3 baseline is retained in [the historical record](docs/BASELINE.md). [October 4 qualification](docs/QUALIFICATION.md) records the earlier Control 0.3.3 tests. [Pairing gates](docs/PAIRING-DEVICE-TESTS.md) retain the earlier 0.1.2 / 0.3.4 / 01.06 candidate and its partial results. A fresh build does not inherit another package's acceptance. This is a source developer preview; no final binary release is certified.
 
 | Component | Role | Source / recorded runtime |
 | --- | --- | --- |
 | Vita DevLoop | Foreground Lua edit/run/observe/recover; ten MCP tools | 01.04 installed; exact runtime identity, live Lua reload/recovery and normal exit passed. Capture mapping, synthetic input and sleep/reopen remain open. |
-| [Vita Resident](docs/RESIDENT.md) | Boot-loaded status, verified package inbox and managed inspection; seven tools | 0.1.4 installed; initial boot, inbox inspection and DevLoop coexistence/upload checks passed; 0.1.3 and 0.1.2 rollback retained |
+| [Vita Resident](docs/RESIDENT.md) | Boot-loaded status, verified package inbox and managed inspection; seven tools | Corrected 0.1.5 boot-loaded and exact binary verified; installer ready and unblocked; four native Lab cycles across two builds passed; same-build journal durability after reboot pending. Accepted 0.1.4/.3/.2 rollback retained |
 | [Vita Control](docs/CONTROL.md) | Background screen, managed files, app commands and bounded synthetic input; thirteen tools | 0.3.4 pairing candidate installed, ABI 2; earlier manual startup passed, automatic worker/network startup failed; recovery did not reactivate it |
-| [Vita Workbench](workbench/README.md) | Control-free script sessions, runtime preparation, Lua/input trials, metrics, capture soak, candidate staging and file recovery; thirteen tools | Developer preview; script readiness and verified input readiness are separate |
+| [Vita Workbench](workbench/README.md) | Lua iteration, native lifecycle candidate, runtime preparation, input trials, metrics, staging and file recovery; sixteen tools | Developer preview; native lifecycle, script readiness and verified input readiness have separate qualification |
 | [Launch broker candidate](resident/launch_broker/README.md) | Durable fixed-title launch protocol and PC client | 0.1.4 identity/clock continuity passed with the broker disabled; earlier 0.1.3 PID correlation is historical; storage/reboot and launch-policy gates pending |
+| [Native lifecycle candidate](docs/NATIVE-LIFECYCLE.md) | Verified owned package installation, fixed-title launch, cooperative exit and PC iteration | Corrected Resident 0.1.5 boot verified; four native Lab cycles across two builds passed; same-build journal durability after reboot pending; original unknown promotion receipt retained without replay; accepted DevLoop installation preserved |
 | Control Starter | Explicit activation after normal boot, then exits | 01.06 pairing candidate installed, title `CHRS00011`; 01.04 retained as the older rollback |
 | [Automatic startup experiment](resident/autostart/README.md) | Deferred loading of the exact matched Control pair after LiveArea readiness | 0.1.0 withdrawn from routine use; disabled historical boot passed, armed service failed; source retained for offline diagnosis |
 | [Boot resource diagnostic](resident/boot_diagnostic/README.md) | Isolated SDK mutex/thread probe without Control or network loads | 0.1.0 withdrawn after boot failure; resource trial not established, root cause unknown |
 | [Control Inspector](docs/INSPECTOR.md) | Optional read-only app/Shell diagnostic | 01.03; not required for the baseline |
 
-Resident, Control and Workbench share one **33-tool desktop MCP server**: seven Resident, thirteen Control and thirteen Workbench tools. DevLoop has its own ten-tool server. The computer speaks MCP over stdio; the Vita runs authenticated HTTP services. Restart the PC MCP connection after updating its source to discover the new tools. The existing manual Starter path keeps Control available after Starter exits, until normal reboot. DevLoop must be running for Lua operations.
+Resident, Control and Workbench source now share one **36-tool desktop MCP server**: seven Resident, thirteen Control and sixteen Workbench tools. DevLoop has its own ten-tool server. The computer speaks MCP over stdio; the Vita runs authenticated HTTP services. Restart the PC MCP connection after updating its source to discover new tools. The three native lifecycle tools require Resident 0.1.5 and the dedicated lab qualification; corrected 0.1.5 is ready for its next hardware qualification, while the original unknown attempt remains retained without replay; retained 0.1.4 does not implement that namespace. The existing manual Starter path keeps Control available after Starter exits, until normal reboot. DevLoop must be running for Lua operations.
 
-The registered desktop MCP connection has now been restarted and exposes all 33 tools. Direct registered-tool calls passed exact installed Resident 0.1.4 status, managed attempt listing, file size/SHA-256 and a complete 4096-byte read with independent full-file hash verification. DevLoop retained the same paused runtime identity and revision while frames advanced. Earlier fresh stdio checks remain separate evidence.
+The earlier October 12 registered desktop MCP check exposed all 33 tools available at that point. Direct registered-tool calls passed exact installed Resident 0.1.4 status, managed attempt listing, file size/SHA-256 and a complete 4096-byte read with independent full-file hash verification. DevLoop retained the same paused runtime identity and revision while frames advanced. Earlier fresh stdio checks remain separate evidence.
 
 `vita_workbench_prepare_script_session` observes healthy paused DevLoop 01.04 twice with an exact native build pin; `vita_workbench_script_session` uses the returned PID, run and revision to iterate scenes without Control. Neither provides screen capture, input, a remote scene lease or keep-awake. The separate Control-backed `vita_workbench_prepare_devloop` can submit one journaled launch and inspect an uncertain result without repeating it. Synthetic trials require an exact DevLoop build pin, fresh Control captures matching native `CHRS00003` title/PID and stable run/build identity. Legacy 01.02/01.03 remains script-only. The installed 01.04 still needs capture mapping and input qualification once Control is available. [Autonomous workflow and startup gates](docs/AUTONOMOUS-DEVLOOP.md).
 
@@ -73,7 +94,7 @@ cd ps-vita-mcp
 
 The build runs host C, actual MCP stdio and local FTP fixtures, then validates the ARM modules and VPKs. It never contacts the Vita. Outputs are under `dist/devloop/`, `dist/resident/`, `dist/control/` and `dist/workbench/`; reports bind exact sources and artifact hashes.
 
-Follow [the complete setup guide](docs/GETTING-STARTED.md) to install and pair the components. Native installation, boot testing and recovery remain manual. The existing path loads Control through Starter after a confirmed normal boot and inspected native state. The separate [startup experiment](resident/autostart/README.md) and boot diagnostic are retained as default-disabled source experiments for offline diagnosis; their current candidates are withdrawn from routine use. Do not activate or re-arm them. The earlier direct Control boot configuration hung and remains excluded.
+Follow [the complete setup guide](docs/GETTING-STARTED.md) to install and pair the components. The accepted DevLoop and general app installation path, boot testing and recovery remain manual. The separate [native lifecycle candidate](docs/NATIVE-LIFECYCLE.md) passed four automated cycles across two builds of the owned Lifecycle Lab; that qualification does not extend to DevLoop or arbitrary apps. The existing path loads Control through Starter after a confirmed normal boot and inspected native state. The separate [startup experiment](resident/autostart/README.md) and boot diagnostic are retained as default-disabled source experiments for offline diagnosis; their current candidates are withdrawn from routine use. Do not activate or re-arm them. The earlier direct Control boot configuration hung and remains excluded.
 
 After DevLoop pairing, an example edit can run without rebuilding the native app:
 
@@ -99,7 +120,7 @@ The [Lua interface](SCRIPTING.md) covers drawing, input observations, metrics an
 ```mermaid
 flowchart LR
     Client[MCP client] <-->|stdio| DevBridge[DevLoop bridge: 10 tools]
-    Client <-->|stdio| Background[Resident Control and Workbench: 33 tools]
+    Client <-->|stdio| Background[Resident Control and Workbench: 36 tools]
     DevBridge <-->|LAN HTTP :17865| DevLoop[Foreground Lua app]
     Background <-->|LAN HTTP :17866| Resident[Resident in SceShell]
     Background <-->|LAN HTTP :17867| Control[Control in SceShell]
@@ -120,7 +141,7 @@ flowchart LR
 - Control files are confined to fresh revisions under `ux0:data/vita-control/workspace`; transfers are at most 8 MiB. System and installed-app writes are outside this API.
 - DevLoop Lua source is at most 16 KiB, with a 1 MiB allocation budget per VM and callback instruction budgets. Drawing is limited to 256 buffered commands. Script state is in RAM; assets/audio/file APIs are future work.
 - Script sessions evaluate at most eight candidates with 120 seconds aggregate warmup/measurement, excluding requests and restoration. They use the local operation lock and revision/hash guards, without a remote scene lease. Lost mutation replies stop iteration without replay; another remote client's request race remains possible. Without qualified Control, these jobs cannot keep the screen awake, change brightness, capture the foreground or inject input.
-- Native installation, startup confirmation and reboot recovery require an operator. Both current boot experiments are withdrawn from routine use after boot failures; persistent startup and repeated-boot behavior are unqualified. Physical touch restoration, sleep/wake, independent Wi-Fi-loss recovery and additional device combinations need qualification. Pairing uses unencrypted HTTP on a trusted LAN.
+- Accepted-path native installation, startup confirmation and reboot recovery require an operator. The fixed Lifecycle Lab installation candidate still needs hardware qualification and extension to DevLoop. Both current boot experiments are withdrawn from routine use after boot failures; persistent startup and repeated-boot behavior are unqualified. Physical touch restoration, sleep/wake, independent Wi-Fi-loss recovery and additional device combinations need qualification. Pairing uses unencrypted HTTP on a trusted LAN.
 - Script readiness does not prove the foreground input target. Legacy DevLoop lacks native title/PID mapping and cannot run synthetic Workbench profiles under the current safety checks.
 
 These are current implementation limits. A heartbeat or accepted API call alone does not establish a working autonomous session. [New-device acceptance](docs/BASELINE.md#acceptance-on-a-new-device) is the gate for remaining DevLoop work.

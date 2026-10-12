@@ -13,4 +13,5 @@ cc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -g $launch_test_f
     resident/pairing_json.c resident/pairing_io.c resident/launch_broker/core.c \
     resident/launch_broker/http.c resident/launch_broker/store.c \
     resident/launch_broker/native_host.c resident/launch_broker/service.c \
+    resident/native_install/service.c resident/native_install/platform_host.c \
     -o build/resident/host-server

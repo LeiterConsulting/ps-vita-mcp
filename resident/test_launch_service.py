@@ -34,7 +34,10 @@ class LaunchServiceTests(unittest.TestCase):
         self.logs.append(log)
         self.process = subprocess.Popen(['build/resident/host-server', str(self.root), str(self.port), ADMIN],
                                         stdout=log, stderr=log)
-        for _ in range(100):
+        # Docker bind mounts on Windows can take longer than two seconds to
+        # create the initial durable stores. Bound readiness by elapsed time.
+        deadline = time.monotonic() + 10
+        while time.monotonic() < deadline:
             try:
                 if self.call('GET', '/status')[0] == 200:
                     return
@@ -113,7 +116,7 @@ class LaunchServiceTests(unittest.TestCase):
             self.assertFalse(value[field])
         self.assertEqual(self.records(), [])
         self.assertFalse((self.root / 'fixture-launch-called').exists())
-        self.assertEqual(self.call('GET', '/status')[1]['version'], '0.1.4')
+        self.assertEqual(self.call('GET', '/status')[1]['version'], '0.1.5')
 
     def test_disabled_valid_offer_does_not_claim_or_launch(self):
         self.start()

@@ -41,8 +41,9 @@ LBLaunchResult lb_native_launch(void *ctx) {
     /* The locked SDK's _sceAppMgrGetAppState describes the calling app's
        pending events/overlay, not the displayed PID. Neither that structure,
        running-app enumeration nor a PC claim proves safe foreground state.
-       Do not link sceAppMgrLaunchAppByUri/Name until an authoritative native
-       guard and protected-UI policy have separate implementation/proof. */
+       This legacy DevLoop broker remains disabled. The separate native_lab
+       adapter uses an explicitly conservative idle-shell policy and does not
+       claim authoritative foreground or protected-UI verification. */
     LBLaunchResult refused={0,LB_NATIVE_LAUNCH_UNQUALIFIED};return refused;
 }
 

@@ -8,14 +8,14 @@ limit. Lua sessions edit an open DevLoop directly and already require no FTP.
 
 The next file-management service should extend Resident HTTP and the existing
 MCP journals. Implementing a second FTP server would duplicate authentication,
-attempt identities and transfer verification, while leaving installation and
-app launching unresolved. The first read-only inbox slice is installed in
+attempt identities and transfer verification, while general installation and
+app-launch support would still require separate qualification. The first read-only inbox slice was qualified in
 Resident 0.1.4: [managed inbox inspection](MANAGED-FILES.md). Initial normal boot,
 known-byte listing/hash/read and refusal checks passed. A separate DevLoop
 coexistence check also passed, including a new 4096-byte upload, two complete
 publication readbacks and exact managed stat/readback. The broker remained
 disabled and unblocked. Repeated boot, storage durability and phone credential
-confirmation remain unqualified; the remaining steps below are future work.
+confirmation remain unqualified. The Resident 0.1.5 [native lifecycle candidate](NATIVE-LIFECYCLE.md) now implements normalized package staging, native promotion and fixed-title launching for the owned Lifecycle Lab, with four native Lab cycles across two builds passed and same-build journal durability after reboot pending. The corrected 0.1.5 is now boot-loaded and exact-binary verified under a fresh unblocked, installer-ready native instance, with Promoter unloaded; four fixed-Lab install/launch/evaluate/graceful-exit cycles across two native builds passed on hardware; same-build journal durability after reboot remains pending. The earlier unknown receipt is retained without replay. [Current incident](NATIVE-LIFECYCLE.md#october-12-native-promotion-incident). The remaining work below extends or qualifies those bounded capabilities.
 
 ## Work needed
 
@@ -30,9 +30,11 @@ confirmation remain unqualified; the remaining steps below are future work.
    implemented observational retained-part inspection. Large assets need bounded
    resumable chunks, verified final assembly and reconciliation after interruption.
    Qualify native sync/recovery separately.
-4. Implement package installation as a distinct journaled operation, binding
-   package hash, title and build to installed/runtime verification and rollback.
-   A successful upload is not an installed application.
+4. Qualify the implemented Resident 0.1.5 journaled installation and lifecycle
+   adapter on the fixed Lifecycle Lab title, then extend it deliberately to
+   DevLoop and other owned projects. Bind package hash, title and build to
+   installed/runtime verification; rollback and ownership migration need their
+   own workflows. A successful upload is not an installed application.
 5. Replace FTP-based Resident update staging with a dedicated update/proposal
    endpoint. Preserve the working plugin, pairing and exact prior configuration;
    activation and reboot need their own qualification.
@@ -49,7 +51,8 @@ without opening a third-party file manager.
 - [Control managed workspace HTTP](../resident/control/http.c) and
   [native filesystem adapter](../resident/control/platform_shell.c).
 - [Current FTP-based update staging](../resident/stage_update.py).
-- [Disabled native launch qualification candidate](RESIDENT-LAUNCH-CANDIDATE.md).
+- [Native Lifecycle Lab candidate](NATIVE-LIFECYCLE.md) and the separate
+  [disabled legacy DevLoop launch broker](RESIDENT-LAUNCH-CANDIDATE.md).
 
 Services currently use unencrypted HTTP on a trusted LAN. This roadmap does not
 make them suitable for exposure to the public internet.

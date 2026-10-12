@@ -90,7 +90,7 @@ async def main():
         checks=['checked-in-profile-and-source-hashes-match-public-helper'];reset()
         async with stdio_client(StdioServerParameters(command=sys.executable,args=[str(ROOT/'resident/bridge.py')],env=env)) as streams:
             async with ClientSession(*streams) as session:
-                await session.initialize();catalog=await session.list_tools();assert len([t for t in catalog.tools if t.name.startswith('vita_workbench_')])==13;checks.append('thirteen-workbench-tools-through-MCP')
+                await session.initialize();catalog=await session.list_tools();assert len([t for t in catalog.tools if t.name.startswith('vita_workbench_')])==16;checks.append('sixteen-workbench-tools-through-MCP')
                 prepare_args={'expected_control_build':BUILD,'expected_devloop_version':'01.02','timeout_s':2}
                 reset();assert (await session.call_tool('vita_workbench_prepare_devloop',{**prepare_args,'expected_control_build':'invalid'})).isError;assert not calls
                 checks.append('prepare-invalid-pin-refused-before-network')
