@@ -28,7 +28,7 @@ The combined public bridge exposes seven Resident tools, thirteen [Control tools
 
 Package uploads are limited to **8 MiB**. The service writes a fresh `.part`, verifies its stored hash and renames it to the final name. The bridge then performs two complete readbacks. A failed reply may leave a completed upload: verify its reported attempt before deciding what to do next. Uploads are never automatically replayed, and installation remains manual.
 
-The registered desktop connection still exposes an older 28-tool process. A fresh updated-source stdio process verified all 33 tools, exact 0.1.4 status and native inbox inspection. Refresh that registered PC connection before relying on the current catalog; this does not require reloading the Vita plugin.
+The registered desktop MCP connection has now been restarted and exposes all 33 tools. Direct registered-tool calls verified exact installed 0.1.4 status, managed attempt listing, file size/SHA-256 and a complete 4096-byte read with independent full-file hash verification. DevLoop retained the same paused runtime identity and revision while frames advanced. Earlier fresh stdio checks remain separate evidence; the PC refresh did not reload the Vita plugin.
 
 ## Control-free scripts and launch candidate
 

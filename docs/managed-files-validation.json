@@ -1,6 +1,6 @@
 {
   "recorded_date": "2026-10-12",
-  "recorded_utc": "2026-10-12T17:23:04.883255+00:00",
+  "recorded_utc": "2026-10-12T17:30:53.722944+00:00",
   "scope": "Resident 0.1.4 managed inbox inspection: host and ARM build passed; normal boot, read-only native filesystem checks and one verified 4 KiB upload alongside paused DevLoop passed; wider lifecycle, installation and launch acceptance remain open",
   "installed_baseline": {
     "version": "0.1.3",
@@ -41,7 +41,7 @@
       "retrievedUtc": "2026-10-02",
       "documentation": "https://github.com/vitasdk/docker"
     },
-    "build_report_sha256": "9c3c6561748ce20df1a343f7d2954209025a29fae2bbd3cf45a6484d916bf392",
+    "build_report_sha256": "681a33d351302bb3b70352eada2736025180772a039bcc3d253bca38c24e7767",
     "source_hashes": {
       "resident/bridge.py": "d53d81d3725fc6c7ff08ee78d80dcf6660efc72bfe4c194ed086bb4379d0bf34",
       "resident/build_host.sh": "58b86171710b1ba3d860e15566168892b4272b1e24645a9bde2bd1b795e6f28c",
@@ -66,7 +66,7 @@
       "resident/platform_host.c": "7c9d2f06a7cabc5da0a4720e0cbf3b23e74f1526eeb884c184af391f9496ef63",
       "resident/platform_vita.c": "4972134ed0499bf49c1df476a5e262e3aacd443bac35c30df07e381ed71fb761",
       "resident/prove_device.py": "930d5e06e7291e1de8ba5f51e8f7b879d47ca49889ac2e4e5bd1e6fd2a0f31ad",
-      "resident/README.md": "c989e114b8443e38a3de6c4edde1583ea94e09a352d96d0a50a6f3fa4f179cfd",
+      "resident/README.md": "b013a64787d5d1aa166567fa274e186ffcfa00f1017b421d888f4ac88d6392fb",
       "resident/Register-Mcp.ps1": "4aa1b69b71cb3316b4208581c80601275bed6174fba22ea560b6e4d3f675ca8e",
       "resident/service.c": "f0f52749930aacaa6b28ff258e8baa845939ec1060f12effbb0cf23c43478686",
       "resident/sha256.c": "cc9a22f6f578d9e60fbe5bf7c78eeb967c984a2f3c21faa91acd843e1dcd8da4",
@@ -96,7 +96,7 @@
       "resident/launch_broker/native.h": "df9d0145d468e2fe67d9c5445a104028b531f4f1c2d0ba4351ec381d359c4b84",
       "resident/launch_broker/native_host.c": "ba610800e98d777db899ec336885caf049155c749ed8de3da3d5dd395a826f32",
       "resident/launch_broker/native_vita.c": "9718d23c5ee6ce99181137a44afe02501f8018b5a3e6153e001ab44da5b2a7f1",
-      "resident/launch_broker/README.md": "b73daf691c088bdafc6c502a040083911c2b86914897711b407da57803e30f17",
+      "resident/launch_broker/README.md": "b4ac56d8ca7e708aeb09a13a1017a5cd9546b924ab4b6ce3995c3d4e6913f603",
       "resident/launch_broker/service.c": "a4c05dd8c54058c70699f3741aa4667762c7a1372d3cbbb0abf379ba315b11c9",
       "resident/launch_broker/service.h": "e3b2ee556eaf5ae22809d7e6fbc9f7235c4895a9e016417fb772e3b4f2f51dc0",
       "resident/launch_broker/store.c": "88241a328e8721acc5c9f327f9b61ec4c5f95e3d3f361727452b23bfec3134c9",
@@ -294,7 +294,7 @@
     "new_file_tool_against_0_1_3": "explicitly unsupported before storage request",
     "mutation_requests": 0,
     "receipt_sha256": "81fa577c6e0a32a220863f2ccc0d43057912730a976fe284d2caae419dbfdc35",
-    "registered_desktop_connection": "older 28-tool process; refresh remains pending"
+    "registered_desktop_connection": "The older 28-tool process was subsequently refreshed; direct registered-tool hardware checks now passed with 33 tools"
   },
   "staging": {
     "state": "Completed immutable staging before operator activation; recorded unchanged configuration fields describe that staging step",
@@ -402,5 +402,18 @@
       "0.1.3",
       "0.1.2"
     ]
+  },
+  "desktop_mcp_refresh": {
+    "state": "completed; operator restarted the local MCP connection",
+    "recorded_utc": "2026-10-12T17:29:09.775215+00:00",
+    "registered_tools": 33,
+    "transport": "Direct calls through the registered desktop MCP, separate from fresh CLI stdio acceptance",
+    "native_status": "exact 0.1.4 build and same Resident boot",
+    "managed_attempt_listing": "passed",
+    "managed_file_info": "passed; 4096 bytes and expected SHA-256",
+    "managed_complete_read": "4096 exact known bytes, independently hashed after decoding the registered MCP result",
+    "devloop": "same exact build/PID/run/revision, still paused, frames advanced",
+    "mutation_requests": 0,
+    "receipt_sha256": "0ca61bba5e362fb4f58c5a78b2b3d57f9bd885c1cc4caf57eddd87af3ffdc14a"
   }
 }

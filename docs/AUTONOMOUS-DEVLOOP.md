@@ -6,7 +6,7 @@ Development resumed on October 11 toward rapid app/game development with human i
 
 The combined PC MCP catalog has **33 tools**: seven Resident, thirteen Control and thirteen Workbench. The foreground DevLoop bridge retains its separate ten tools. Refresh the PC connection after updating source; no Vita helper reload is needed to discover desktop tools. The [PC guide](PC-SIDE.md) covers configuration and registration; the [manual setup path](GETTING-STARTED.md) remains available.
 
-The registered desktop connection is still an older 28-tool process and needs refreshing. A fresh updated-source stdio process verified all 33 tools, exact installed Resident 0.1.4 status and native managed inbox inspection. Refreshing the registered connection remains pending.
+The registered desktop MCP connection has now been restarted and exposes all 33 tools. Direct registered-tool calls passed exact installed Resident 0.1.4 status, managed attempt listing, file size/SHA-256 and a complete 4096-byte read with independent full-file hash verification. DevLoop retained the same paused runtime identity and revision with advancing frames. Earlier fresh stdio checks remain separate evidence.
 
 ## Control-free foreground iteration
 

@@ -33,8 +33,9 @@ same DevLoop build/PID/run. Lua finished inactive with the last VM retained;
 the broker kept its instance and stayed disabled and unblocked. Fresh stdio
 verified the historical 30-tool catalog, both script tools and 0.1.3 status. The
 current source exposes 33 tools and fresh stdio verified installed 0.1.4. The
-registered desktop connection remains an older 28-tool process and needs a PC
-refresh. Storage durability across reboot, phone credential confirmation
+registered desktop MCP connection has now been restarted and exposes all 33 tools.
+Direct registered-tool calls passed exact installed 0.1.4 status, managed listing,
+file information and a complete 4096-byte read with full-file hash verification. Storage durability across reboot, phone credential confirmation
 and safe native launching remain open.
 
 ## Native qualification integration

@@ -3,8 +3,10 @@
 As of October 12, 2026, Resident **0.1.4** is installed on the test Vita. It
 passed a user-confirmed normal boot, initial read-only inbox inspection and a
 separate DevLoop coexistence/upload check. Fresh actual stdio MCP exposes all
-33 tools and works with the native service; the registered desktop connection
-still exposes an older 28-tool process and needs refreshing. Resident 0.1.3 and
+33 tools and works with the native service. The registered desktop MCP connection
+has now been restarted and also exposes all 33 tools; direct registered-tool
+calls passed exact 0.1.4 status, managed attempt listing, size/SHA-256 and a
+complete 4096-byte read with independent full-file hash verification. Resident 0.1.3 and
 0.1.2 rollback plugins and saved administrator pairing are preserved. The
 existing upload and published-file verification tools remain compatible with
 older supported versions; these three inspection tools require 0.1.4.

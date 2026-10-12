@@ -44,7 +44,7 @@ world/mode/parameters/ball/score/obstacles restored paused, and exact DevLoop
 build/PID/run retained. Lua finished inactive with the last VM retained, the
 documented native-fallback limit. The broker retained its instance and stayed
 disabled and unblocked.
-The registered desktop connection remains an older 28-tool process and needs refreshing from the updated PC source. Fresh stdio verified the historical 30-tool 0.1.3 catalog and now verifies all 33 tools with installed 0.1.4. Desktop discovery does not qualify native launching.
+Fresh stdio verified the historical 30-tool 0.1.3 catalog. The registered desktop MCP connection has now been restarted and exposes all 33 tools; direct registered-tool calls verified exact installed 0.1.4 status, managed listing, file information and complete 4096-byte readback. These checks do not qualify native launching.
 
 ## Evidence and limits
 
