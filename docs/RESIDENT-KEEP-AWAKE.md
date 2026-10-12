@@ -40,11 +40,21 @@ A PC change now reconciles one uncertain renewal with a
 single read-only status request. Continuation requires the exact expected next
 revision, original owner, pinned build and power instance, and a session ceiling
 that does not extend the original deadline; it never resends the POST. All 41
-PC client tests, 35 native-lifecycle host tests and the actual C integration
-test passed. No live renewal reconciliation has been adopted; the successful
-holds reported zero reconciliations, so that path remains host-tested only.
-Live qualification remains incomplete. No native update or reboot is needed
-for that PC change.
+PC client tests and the actual C integration test passed. A fresh root rerun
+passed all 41 native-lifecycle tests in 67.202 seconds, including bounded
+rejection diagnostics. No native update or reboot is needed for that PC change.
+
+At 22:06:55 UTC, a controlled live proxy deliberately dropped exactly one
+accepted renewal reply. The keeper used one reconciliation GET to adopt the
+same owner at the exact next revision, with the original session deadline
+unchanged. Ticks advanced from 314 to 316. Exactly three POSTs were forwarded:
+start, one renewal and end. One renewal was reconciled, no mutation was replayed,
+no upstream failures were recorded, and end was confirmed. This qualifies that
+controlled reply-loss case on the real Vita, not physical Wi-Fi interruption or
+broad HTTP reliability. The private helper and original proof remain ignored;
+the retained proof SHA-256 is
+`58a2302d7ab5f79416cbaa1856c507b4e11f498eb05d5ddffee3f895963a8e1c`.
+Broader live qualification remains incomplete.
 
 Two subsequent holds remain retained failures. The first stopped after about
 11 seconds on a diagnostic GET timeout, before any renewal; cleanup confirmed
@@ -85,6 +95,55 @@ A separate native preview declined to proceed: `ready=false`, one occupied
 application slot and guard result `-12004`. It made zero device mutations and
 the execute tool was not called. This is an unstarted cycle, not a failed native
 installation or launch. The operator has been asked to close all app cards.
+
+After idle-shell readiness was established, a later native execution verified
+all eight files in stage `14ee990ff41641eda253a9cef7a4f498`. It recorded ten
+mutation submissions: create stage, eight file uploads and one install request.
+The install request was rejected, no launch followed, and the keep-awake lease
+ended with zero renewals and no keeper errors. That PC version retained only
+`install_rejected`; its exact HTTP status and rejection reason are unavailable.
+Read-only follow-up found Resident unblocked, idle-ready and without an active
+operation; GET of the original operation returned 404, with no claim observed.
+
+Source inspection confirms the existing ownership barrier: install ownership
+receipts are scoped to the Resident build and are not migrated from 0.1.5 to
+0.1.6. This is a likely explanation for the refusal, not a recovered runtime
+reason. [The lifecycle guide](NATIVE-LIFECYCLE.md#resident-016-hardware-check)
+records the constraint and proposed explicit adoption protocol.
+The PC now preserves only whitelisted rejection status/reason/category fields;
+all 41 native-lifecycle host tests passed, including six targeted real-HTTP tests.
+The fresh root rerun passed in 67.202 seconds. This does not recover the old reply.
+
+A subsequent install-diagnostic preparation stopped on its first preview GET
+with `LifecycleTransport`, before a plan claim, journal, lease start or native
+mutation. No new install was submitted, so the historical rejection's exact
+cause remains unknown. The operator-facing result is a separate unstarted
+preparation; its private no-mutation record is retained outside public evidence.
+
+
+A separate launch-only probe at 21:58:05 UTC submitted launch
+`fc9670653c214fc683bf6d3b4254687f` once and performed no installation. Runtime
+PID `996399`, run `0b8c607779092318d6c4e38485832015`, passed all 25 self-test
+samples with frames advancing from 14 to 620 and checksum `2727420034`.
+Graceful exit was acknowledged at revision 2. The final absence check could not
+pass its fresh keep-awake GET, which timed out while reading response headers.
+The original overall result remains **unconfirmed** after one renewal; immediate
+lease cleanup was also unconfirmed. No further effects were replayed.
+
+Subsequent GET-only reconciliation at 22:01:48 UTC confirmed two stable
+idle/closed-Lab observations and the same power instance inactive at revision 37
+with reason `lease_expired`. It made zero device mutations and retained the
+original job result. This establishes native launch, self-test, acknowledged
+exit and later absence. It does not establish current-build installation,
+redeployment or an uninterrupted keeper-protected native cycle.
+Local receipt: `evidence/workbench/native-launch-only-20261012T215805Z-bf7f2d34/report.json`.
+The public [validation record](resident-keep-awake-validation.json) summarizes it.
+
+A separate launch-only probe at 22:07:25 UTC stopped on a `TimeoutError` before
+starting a lease or submitting any native mutation. Its result remained blocked,
+with the keeper reporting `not_started`; no launch or evaluation occurred. This
+is a separate unstarted trial, not a successful repeat of the earlier probe.
+Local receipt: `evidence/workbench/native-launch-only-20261012T220725Z-a8fa3025/report.json`.
 
 After end, both ports had connection timeouts. Physical confirmation of sleep
 on the current build is pending; the operator has been asked to wake the Vita.
@@ -132,13 +191,18 @@ confirmed full automatic sleep and physically woke the Vita into FTP. That
 explicit-end sleep result is scoped to the previous build. It does not establish
 a full configured standby interval starting at release, or qualify TTL expiry.
 
-First, instrument the transport phases and response-budget edge, then qualify a
-native cycle with production freshness checks after the idle-shell guard is ready.
+First, instrument the transport phases and response-budget edge, then qualify
+an uninterrupted keeper-protected native cycle. The launch-only runtime proof
+and later absence observations do not qualify installation or redeployment. Cross-build ownership
+adoption is queued future work, with pinned prior evidence and a distinct receipt;
+it is not implemented and current permissions are unchanged.
 Restore the original standby setting and qualify physical normal sleep after
 end/expiry, manual sleep/wake and Wi-Fi loss. Verified slow-transfer renewal and
 keeper-loss TTL expiry are completed evidence tiers; retained transport failures
 remain evidence to investigate. CI at commit `5f18a25` passed with 32 hashed
 artifact files; that result predates the subsequent PC reconciliation change.
+Source commit `c7671385dc1b0c312c98f6d23715051e42c21856` is pushed with CI run
+`38313311499` passed; it predates the new rejection-diagnostics patch.
 
 ## Ownership and expiry
 

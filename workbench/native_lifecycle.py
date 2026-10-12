@@ -35,8 +35,9 @@ LIMITATIONS = ['Only the dedicated VMCP00001 lab can be installed or launched.',
 
 
 class Stopped(RuntimeError):
-    def __init__(self, code):
+    def __init__(self, code, *, native_rejection=None):
         self.code = code
+        self.native_rejection = native_rejection
         super().__init__(code)
 
 
@@ -166,8 +167,11 @@ class _Job:
             self.event('read_only_reconciliation', {'operation': operation, 'receipt': result,
                                                     'replayed': False})
             self.uncertain = False
-        except LifecycleRejected:
-            raise Stopped(operation + '_rejected') from None
+        except LifecycleRejected as error:
+            rejection = dict(error.diagnostic)
+            self.event('mutation_rejected', {'operation': operation, 'native_rejection': rejection,
+                                             'replayed': False})
+            raise Stopped(operation + '_rejected', native_rejection=rejection) from None
         except Exception:
             self.uncertain = True
             raise Unconfirmed(operation + '_invalid_or_uncommitted_receipt') from None
@@ -438,6 +442,8 @@ def execute(plan, plan_sha256, *, client=None, root=WORKDIR):
                                   native_lab_left_running=None if job.uncertain else job.running_state,
                                   last_verified_runtime=job.runtime,
                                   further_mutations='stopped; failed candidate is not automatically redeployed')
+            if isinstance(error, Stopped) and error.native_rejection is not None:
+                journal.report['native_rejection'] = dict(error.native_rejection)
         finally:
             if job.keeper is not None:
                 journal.report['keep_awake'] = job.keeper.stop()

@@ -1,8 +1,9 @@
 # Native installation and lifecycle
 
-Status date: October 12 2026. The corrected Resident 0.1.5 is now boot-loaded
-and its exact device binary is verified after a user-confirmed normal boot.
-Its fresh native instance is unblocked and reports the installer ready, with
+Status date: October 12 2026. Resident 0.1.6 is now installed; its partial
+hardware results are recorded below. The corrected Resident 0.1.5 previously
+passed boot loading and exact device-binary verification after a user-confirmed normal boot.
+Its fresh native instance was unblocked and reported the installer ready, with
 Promoter unloaded. Five fixed-Lab install/launch/evaluate/graceful-exit cycles
 across two native builds passed on hardware, including repeated reinstall,
 a changed-build redeploy and redeployment after reboot. All four execution jobs
@@ -23,6 +24,69 @@ The [dated validation record](native-lifecycle-validation.json) pins the exact
 source, Resident plugin, lab package and 27 passing host groups. It records
 staging, the five passed native cycles across two builds and the remaining
 hardware gates separately.
+
+## Resident 0.1.6 hardware check
+
+The current keep-awake candidate passed normal boot and bounded power tests;
+it does not inherit 0.1.5 installation acceptance. A native execution at
+21:52:59 UTC verified all eight files in stage
+`14ee990ff41641eda253a9cef7a4f498`, then stopped at `install_rejected` after ten
+mutation submissions: stage creation, eight uploads and one install request.
+No launch followed. The lease ended with zero renewals and no keeper errors.
+The client at that point discarded the rejection body and status, so the exact
+runtime reason is unknown. Follow-up GETs found the service unblocked and
+idle-ready, with no active operation; original operation
+`e9004f231a9c43869dcc6b564cab68b9` returned 404, with no claim observed.
+
+The source requires an existing title to have a verified ownership receipt for
+the current Resident build. Its 0.1.5 receipts are not silently migrated to
+0.1.6. That documented barrier is a likely explanation for this refusal;
+the runtime did not retain the exact reason. The new PC diagnostic patch keeps
+only whitelisted status/reason/category values and passed all 41 host tests,
+including six targeted real-HTTP tests. The fresh root rerun passed all 41 tests
+in 67.202 seconds.
+
+A separate launch-only probe (local receipt:
+`evidence/workbench/native-launch-only-20261012T215805Z-bf7f2d34/report.json`)
+submitted launch `fc9670653c214fc683bf6d3b4254687f` once and made no install
+submission. PID `996399`, run `0b8c607779092318d6c4e38485832015`, passed 25
+self-test samples; frames advanced from 14 to 620 with checksum `2727420034`.
+Graceful exit was acknowledged at revision 2. A final fresh keep-awake GET
+timeout left the original result **unconfirmed**, after one renewal, with
+immediate lease cleanup also unconfirmed. No mutation was replayed.
+
+Later GET-only reconciliation confirmed two stable idle/closed-Lab observations
+and an inactive native lease at revision 37, reason `lease_expired`. Those
+observations prove later absence while retaining the original unconfirmed job
+result. Launch, self-test and acknowledged exit have runtime evidence; an
+uninterrupted keeper-protected cycle, installation and redeployment under
+Resident 0.1.6 remain unqualified.
+
+A second launch-only probe (local receipt:
+`evidence/workbench/native-launch-only-20261012T220725Z-a8fa3025/report.json`)
+at 22:07:25 UTC stopped on `TimeoutError` before starting its keep-awake lease or
+submitting a native mutation. Its result remained blocked and keeper end was
+`not_started`; it does not add launch or cycle acceptance.
+
+A subsequent install-diagnostic preparation stopped on its first preview GET
+with `LifecycleTransport`, before a plan claim, journal, lease start or native
+mutation. No new install was submitted, so the historical rejection's exact
+cause remains unknown. The operator-facing result is a separate unstarted
+preparation; its private no-mutation record is retained outside public evidence.
+
+
+Separately, one controlled live proxy fault passed exact-owner reconciliation
+of an accepted renewal whose reply was deliberately dropped, with three total
+POSTs (start, renewal, end), tick progress and confirmed end without replay.
+That proof qualifies lease reply-loss handling only; it does not qualify native
+installation or physical Wi-Fi interruption.
+
+Explicit cross-build ownership adoption is queued future work. It must pin
+the old Resident build, verified install receipt, immutable stage and hashes;
+read-only validation must match all eight installed files. A distinct new
+adoption receipt must preserve the prior records and bind their evidence to
+the new build. Adoption is not implemented, and current permissions remain unchanged.
+[Keep-awake evidence and remaining gates](RESIDENT-KEEP-AWAKE.md).
 
 This path removes routine file-manager installation and manual app opening
 for an explicitly owned test title. Resident receives a normalized homebrew

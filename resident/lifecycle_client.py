@@ -10,6 +10,45 @@ from resident.launch_client import configuration
 APP = 'Vita Native Lifecycle'
 STATES = frozenset(('queued', 'dispatch_intent', 'running', 'installed_verified',
                     'submitted', 'native_rejected', 'refused', 'expired', 'unknown'))
+# Fixed protocol reasons emitted by resident/native_install/service.c. Never
+# retain arbitrary HTTP error bodies, including errors from other services.
+REJECTION_REASONS = {
+    'administrator_required': (403, 'authorization'),
+    'not_initialized': (503, 'availability'),
+    'policy_unavailable': (503, 'availability'),
+    'reply_too_large': (500, 'availability'),
+    'request_invalid': (400, 'request_validation'),
+    'method_or_body_invalid': (400, 'request_validation'),
+    'manifest_invalid': (400, 'request_validation'),
+    'path_invalid': (400, 'request_validation'),
+    'operation_invalid': (400, 'request_validation'),
+    'path_or_body_invalid': (400, 'request_validation'),
+    'upload_path_or_digest_invalid': (400, 'request_validation'),
+    'upload_path_invalid': (400, 'request_validation'),
+    'service_blocked_or_busy': (409, 'availability'),
+    'identity_mismatch': (409, 'identity'),
+    'manifest_or_stage_identity_mismatch': (409, 'identity'),
+    'upload_identity_mismatch': (409, 'identity'),
+    'request_expired': (408, 'expiry'),
+    'stage_capacity': (507, 'capacity'),
+    'attempt_capacity': (507, 'capacity'),
+    'free_space_unavailable': (507, 'capacity'),
+    'stage_exists_or_uncertain': (409, 'storage'),
+    'stage_directory_failed': (507, 'storage'),
+    'manifest_storage_uncertain': (507, 'storage'),
+    'stage_missing_or_invalid': (404, 'storage'),
+    'attempt_exists_or_uncertain': (409, 'storage'),
+    'claim_storage_uncertain': (507, 'storage'),
+    'attempt_missing_or_invalid': (404, 'storage'),
+    'file_exists_or_uncertain': (409, 'storage'),
+    'file_create_failed': (507, 'storage'),
+    'file_upload_uncertain_retained_part': (422, 'storage'),
+    'file_publication_uncertain': (507, 'storage'),
+    'native_idle_policy_refused': (409, 'idle_policy'),
+    'candidate_verification_failed': (422, 'verification'),
+    'installed_title_not_verified_owned': (409, 'installed_ownership'),
+    'installed_candidate_mismatch': (409, 'verification'),
+}
 
 
 def hex_pin(value, size):
@@ -17,9 +56,16 @@ def hex_pin(value, size):
 
 
 class LifecycleRejected(RuntimeError):
-    def __init__(self, status):
+    def __init__(self, status, reason=None):
+        if type(status) is not int or not 100 <= status <= 599:
+            raise ValueError('Invalid native lifecycle HTTP status')
         self.status = status
-        super().__init__('Native lifecycle request rejected with HTTP ' + str(status))
+        known = REJECTION_REASONS.get(reason) if isinstance(reason, str) else None
+        self.reason = reason if known is not None and known[0] == status else None
+        self.category = known[1] if self.reason is not None else 'unrecognized_rejection'
+        self.diagnostic = {'http_status': status, 'reason': self.reason, 'category': self.category}
+        super().__init__('Native lifecycle request rejected with HTTP ' + str(status)
+                         + (': ' + self.reason if self.reason is not None else ''))
 
 
 class LifecycleTransport(RuntimeError):
@@ -54,7 +100,18 @@ class LifecycleClient:
             if len(data) > 16384 or response.getheader('Content-Type', '').split(';')[0] != 'application/json':
                 raise RuntimeError('Invalid native lifecycle response bounds or content type')
             if response.status not in (200, 201, 202):
-                raise LifecycleRejected(response.status)
+                reason = None
+                try:
+                    rejected = json_object(data)
+                    if (not lab and path.startswith('/native-lifecycle/')
+                            and set(rejected) == {'app', 'protocol', 'error'} and rejected['app'] == APP
+                            and type(rejected['protocol']) is int and rejected['protocol'] == 1
+                            and isinstance(rejected['error'], str)):
+                        reason = rejected['error']
+                except (ValueError, UnicodeError, TypeError):
+                    pass
+                self.check_endpoint()
+                raise LifecycleRejected(response.status, reason)
             try:
                 value = json_object(data)
             except (ValueError, UnicodeError, TypeError):

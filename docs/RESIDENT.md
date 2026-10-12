@@ -1,12 +1,31 @@
 # Background status and verified uploads
 
-Current source builds **Resident 0.1.6**, adding a separate [bounded keep-awake lease](RESIDENT-KEEP-AWAKE.md) for active development jobs. The two-second native HTTP-budget candidate is installed after a confirmed normal boot: plugin SHA-256 `dd8da21847f5341bc70112f86176e2f864c92b10aaeb3400ec9855751a6b1ef8`, build ID `47ece86ad3b5258b6a52b4aaffefb8046e5af48c69f49a763001bf36bd815240`. Fresh actual stdio MCP passed the four lease operations, but a sustained hold stopped after an accepted renewal's reply timed out. Cleanup ended the exact owner without resending it. The PC reconciliation change passed host tests. An isolated 120-second hold passed 11 renewals without errors and confirmed end. A slow 4 KiB transfer retained three renewals; its upload reply timed out, but later read-only stat/hash/full readback confirmed exact publication without replay. PC keeper loss then passed native 30-second TTL expiry without an end request, retaining two diagnostic GET timeouts. A native preview declined with one occupied slot and zero device mutations; execute was not called. The operator temporarily selected 30-minute standby and restoration to one minute is pending. Live renewal reconciliation has zero adoptions and remains host-tested only. Production freshness checks remain unchanged and broader keep-awake qualification is incomplete. The earlier build's three-minute online pass and automatic sleep after end remain historical. Accepted 0.1.5 is retained for rollback.
+**Resident 0.1.6 is installed after a confirmed normal boot; qualification is
+incomplete.** The SceShell user plugin provides background status, a bounded
+upload inbox and managed-file inspection on port **17866**. The PC MCP bridge is
+`resident/bridge.py`. Its separate port **17869** serves bounded keep-awake leases
+without changing saved sleep or brightness settings.
 
-The corrected Vita Resident 0.1.5 previously passed boot loading as a separate SceShell user plugin, a confirmed normal boot and exact device-binary verification. Its fresh native instance was unblocked, reported the installer ready and left Promoter unloaded; five fixed-Lab install/launch/evaluate/graceful-exit cycles across two native builds passed on hardware; same-build journal durability passed after a normal reboot without replay. The earlier unknown promotion receipt is retained without replay. [Current incident](NATIVE-LIFECYCLE.md#october-12-native-promotion-incident). The following 0.1.4 results are historical rollback evidence. It exposes device status, a bounded upload inbox, managed inbox inspection and the native individual-pairing authority. The desktop MCP server is `resident/bridge.py`; the native service uses port **17866**. The operator confirmed normal boot after activation. Two exact plugin/configuration readbacks preserved the 0.1.3 and 0.1.2 rollback plugins and saved administrator pairing, with no overriding configuration and both withdrawn experiments disabled. Twelve initial read-only checks passed, including fresh 33-tool stdio MCP, known-byte file inspection and direct native refusal paths. Resident retained one disabled, unblocked broker instance with advancing time. A separate DevLoop coexistence check passed eight stable-identity observations with advancing frames, plus a new 4096-byte upload, two complete publication readbacks and exact managed stat/readback, retaining Resident's boot and native instance. Repeated boot, storage durability and phone credential confirmation remain pending. [Managed-file qualification](managed-files-validation.json).
+Hardware passes cover fresh MCP lease operations, an isolated 120-second hold
+at one-minute standby, renewal during a verified slow 4 KiB transfer, native
+30-second expiry after PC keeper loss and one controlled lost-renewal reply
+reconciled without replay. A launch-only probe passed self-test and acknowledged
+exit, with later absence confirmed.
 
-The earlier 0.1.2 pairing trial passed startup and native pairing-window exchange, including physical code display and graceful timeout. Those historical results do not qualify successful individual credential confirmation on 0.1.4; that remains pending. [Pairing contract and device gates](PAIRING.md).
+Intermittent HTTP timeouts still interrupt freshness checks, and the launch-only
+job's original result remains unconfirmed. Current-build installation/redeployment
+and an uninterrupted keeper-protected native cycle remain unqualified; the
+historical install rejection's exact cause is unknown. Physical normal sleep,
+manual sleep/wake and Wi-Fi interruption remain pending. The operator's temporary
+30-minute standby setting still needs restoring to one minute.
+[Exact installed identity, detailed trials and pending gates](RESIDENT-KEEP-AWAKE.md)
+and [dated validation record](resident-keep-awake-validation.json).
 
-The earlier 0.1.1 development prototype passed status and storage checks on one homebrew-enabled Vita running firmware 3.65, including a 4 KiB probe and a 1.2 MB package with the file manager in the foreground. Those results do not qualify the new pairing authority. Gameplay coexistence, sustained transfer load and sleep/wake recovery still need separate checks. [Historical scope and identities](resident-inspector-prototype-validation.json).
+Accepted 0.1.5 and earlier rollback plugins are retained. The five 0.1.5 native
+cycles across two builds and same-build reboot durability remain historical
+baseline evidence. [Native lifecycle qualification](NATIVE-LIFECYCLE.md),
+[managed-file qualification](managed-files-validation.json) and
+[pairing gates](PAIRING.md) retain their separate acceptance records.
 
 ## Build
 

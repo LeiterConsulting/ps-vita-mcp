@@ -1,6 +1,9 @@
 # PS Vita MCP
 
-The **Resident 0.1.6** [keep-awake candidate](docs/RESIDENT-KEEP-AWAKE.md) with a two-second native HTTP budget is installed after a normal boot. Fresh MCP checks and an isolated 120-second hold at one-minute standby passed. Renewal during a verified slow transfer and TTL expiry after PC keeper loss also passed. The original upload reply timed out; read-only inspection later confirmed exact publication. A native preview declined before any execution. Earlier transport failures remain recorded, and **keep-awake qualification is incomplete**. The accepted 0.1.5 is retained for rollback. The source catalog has 40 tools; leases do not change saved sleep or brightness settings.
+**Resident 0.1.6 is installed for qualification.** Bounded keep-awake checks
+passed on hardware; transport reliability and a complete native development
+cycle remain open. Accepted 0.1.5 is retained for rollback.
+[Current results and limits](docs/RESIDENT-KEEP-AWAKE.md).
 
 **Develop and inspect PlayStation Vita homebrew through MCP on real hardware.**
 
@@ -12,42 +15,30 @@ PS Vita MCP connects a desktop MCP client to a modded Vita. Its PC bridges combi
 
 *Original DevLoop 01.02 framebuffer capture. [Gallery and provenance](docs/SCREENSHOTS.md).*
 
-**Pairing candidate:** [six-digit Companion pairing](docs/PAIRING.md) adds individual inspection credentials, physical approval and durable 90-day inactivity expiry. The earlier Resident 0.1.2 / Control 0.3.4 / Starter 01.06 pairing trial passed normal startup, physical code display and graceful challenge timeout. Corrected Resident 0.1.5 previously passed normal boot, five fixed-Lab native cycles across two builds and same-build normal-reboot journal durability without replay. The corrected 0.1.6 keep-awake candidate is now installed; 0.1.5 and earlier rollbacks are retained. Individual credential confirmation and the wider device gates remain open. [Historical candidate checks and remaining gates](docs/PAIRING-DEVICE-TESTS.md).
+**Companion pairing:** Individual inspection credentials require physical
+six-digit approval. Native code display and graceful challenge timeout passed;
+successful individual credential confirmation remains pending.
+[Pairing contract and device gates](docs/PAIRING.md).
 
 ## Status as of October 12 2026
 
-**Keep-awake qualification:** The currently installed two-second-budget 0.1.6
-build passed normal boot and fresh 40-tool MCP status/begin/renew/end checks.
-A planned 120-second hold at one-minute standby stopped after about 40 seconds
-when a renewal response timed out. Cleanup confirmed its acceptance at the
-exact next revision and ended the same owner; no POST was resent. The native
-budget increase alone has not eliminated lost replies. A PC-only change to
-reconcile one uncertain renewal through a strictly checked GET passed all 41
-client tests, 35 native-lifecycle host tests and the actual C integration test.
-Two later holds stopped on diagnostic GET timeouts. An isolated 120-second hold
-then passed 11 renewals with no errors and a confirmed end, without extra HTTP
-polling. This proves bounded power and renewal continuity for that trial;
-production freshness checks remain unchanged.
+**Keep-awake candidate:** Resident 0.1.6 passed normal boot, the fresh 40-tool
+MCP catalog and status/begin/renew/end checks. Bounded hardware passes cover an
+isolated 120-second hold at one-minute standby, renewal during a verified slow
+4 KiB transfer, native 30-second expiry after PC keeper loss, and one controlled
+accepted-renewal reply drop reconciled without replay. All 41 PC client tests,
+41 native-lifecycle host tests and the actual C integration test passed.
 
-A slow 4 KiB transfer retained three renewals without keeper errors. Its upload
-reply timed out and was not replayed; later read-only stat/hash/full readback
-confirmed the exact published payload. A separate PC keeper-loss trial passed
-native 30-second TTL expiry without an end request, retaining two diagnostic
-GET timeouts. A native preview declined with one occupied app slot and zero
-device mutations; execute was not called. Physical sleep confirmation on the
-current build remains pending. The operator temporarily selected 30-minute
-standby for investigation; restoration to one minute is pending. A native
-response-budget edge is being investigated without attributing periodic delays
-to it. Live renewal reconciliation has zero adoptions and remains host-tested only.
-
-The previous 300 ms native-budget build retains a separate three-minute online
-pass at one-minute standby and operator-confirmed automatic sleep after end.
-Its earlier uncertain-renewal failure remains retained with cause and timing
-unknown. A separate 120-second hold under temporary 30-minute standby proved
-transport continuity only. These historical results do not qualify the current
-build. Physical normal sleep, manual sleep/wake, Wi-Fi interruption, native
-execution and broader transport reliability remain open hardware gates.
-[Interim evidence and pending gates](docs/RESIDENT-KEEP-AWAKE.md#interim-hardware-results).
+**Remaining blockers:** Intermittent HTTP timeouts still interrupt production
+freshness checks. A launch-only probe passed self-test and acknowledged exit,
+with later absence confirmed, but its original result remains unconfirmed.
+Current-build installation/redeployment and an uninterrupted keeper-protected
+native cycle are unqualified; the earlier install rejection's exact cause is
+unknown. Physical normal sleep, manual sleep/wake and Wi-Fi loss remain pending.
+The operator's temporary 30-minute standby setting still needs restoring to one
+minute. Controlled reply loss does not qualify physical Wi-Fi interruption.
+[Detailed trials and pending gates](docs/RESIDENT-KEEP-AWAKE.md#interim-hardware-results)
+and [dated validation record](docs/resident-keep-awake-validation.json).
 
 **App-making workflow:** [`make-vita-app`](skills/make-vita-app/SKILL.md) provides
 planning, port assessment, Lua project generation and a separate native
@@ -60,41 +51,37 @@ FTP, Starter, reboot and manual installation were unnecessary after waking the
 Vita. Standalone title deployment and visual/physical acceptance remain separate.
 [Install, commands and evidence](docs/MAKE-VITA-APP.md).
 
-**Native lifecycle candidate:** Resident 0.1.5 adds administrator-only staging,
-native package promotion and a fixed-title launch adapter for the new Vita
-Lifecycle Lab (`VMCP00001`). Three new PC tools preview an exact package,
-execute a journaled install → launch → evaluate → graceful exit cycle, and
-inspect an interrupted job without replaying mutations. Repeated cycles can
-redeploy the owned package. [Architecture, limits and qualification](docs/NATIVE-LIFECYCLE.md).
-The corrected Resident 0.1.5 previously passed normal boot and exact
-device-binary verification. Its native instance was unblocked, reported the
-installer ready and left Promoter unloaded. **Five fixed-Lab native
-install → launch → evaluate → graceful exit cycles across two builds passed.**
-Four initial cycles proved repeated reinstall and changed-build redeployment.
-A normal reboot then preserved eight prior receipts and 24 staged-file hashes,
-created a fresh native instance and replayed no effects; that proof used GET-only
-requests. The fifth cycle verified redeployment using persisted ownership after
-that reboot. All four execution jobs passed read-only reconciliation. The
-corrected full 27-group host suite passed.
+**Native lifecycle baseline:** Corrected Resident 0.1.5 previously passed five
+fixed-Lab install → launch → evaluate → graceful exit cycles across two builds,
+plus same-build journal durability after a normal reboot without replay.
+Those results are historical and do not qualify installation on current 0.1.6.
+Three PC tools provide exact-package preview, journaled execution and GET-only
+reconciliation for the owned `VMCP00001` development slot.
+[Architecture, ownership limits and qualification](docs/NATIVE-LIFECYCLE.md).
 
-The automatic-startup and isolated boot-diagnostic candidates are withdrawn from routine use after October 12 boot failures. The diagnostic activation hung at the initial product-manual screen and shut down; boot trouble persisted after restoring the pre-diagnostic configuration, which still included Autostart. Plugin-bypass boot reached the file manager. The pre-Autostart configuration was then restored with two exact readbacks and both experiments disabled, preserving pairing, logs and attempt guards. The operator confirmed a normal boot without plugin bypass; fresh read-only checks verified the recovered configuration, disable markers and exact Resident identity through the registered MCP. Recovery is verified. The root cause is unknown; neither experiment should be armed again under the current qualification.
+**Boot helper recovery:** Experimental Autostart and the isolated boot diagnostic
+were withdrawn after boot hangs. The pre-experiment configuration was restored,
+normal boot was confirmed and both helpers remain disabled. Their root cause is
+unknown. [Dated recovery and candidate evidence](docs/autonomous-candidate-validation.json).
 
-The October 11 native builds, 17-group host pass and normal disabled Autostart boot remain scoped historical results. The armed Autostart trial then reached native service submission, but Control's work-power worker failed and its endpoint stayed unavailable. DevLoop 01.04 separately passed installation, exact runtime identity, a 55-step live Lua reload/recovery proof and normal START+SELECT exit. Control capture mapping, synthetic input and sleep/reopen remain open. [Dated candidate evidence](docs/autonomous-candidate-validation.json) records these distinct outcomes. PC preparation and the manual Starter path remain in source; recovery did not load Control or activate another boot candidate.
+**Lua iteration:** An already open, paused DevLoop 01.04 supports bounded
+Control-free script sessions: prepare exact runtime identity, evaluate hashed
+candidates and restore the original scene. Default restoration, explicit best
+candidate retention and guarded cleanup passed on hardware. Retained ranking and
+journal failures and the separate capture/input/sleep gates are documented in
+[the script-session record](docs/script-session-validation.json).
 
-The October 12 PC source adds bounded **Control-free script sessions** for an already open, paused DevLoop 01.04. Prepare its exact native identity, supply up to eight hashed Lua candidates, measure and rank their metrics, then restore the original scene paused. The corrected two-candidate live MCP proof passed: movement rates 60 and 120, faster candidate selected, exact runtime identity retained and original scene/native world restored paused. A separate `retain_best` proof left the winner in a verified fresh paused VM; guarded cleanup then restored the original scene. The first proof's cumulative-distance ranking failed because HTTP delays produced unequal execution times; that failure is retained. Script sessions intentionally edit the running app's in-memory scene without changing installed native files or boot configuration.
-
-Resident 0.1.3 was activated earlier and passed a user-confirmed normal boot. Read-only checks matched the proposed configuration and exact plugin, preserved the 0.1.2 rollback and saved administrator pairing, and found no configuration override or rearmed boot experiment. Three broker samples retained one native instance with advancing time and `enabled`, `configured_enabled` and `blocked` all false. Initial inventory resolved the running file manager to an AppId/PID/title. With DevLoop open and paused, eight further observations retained its exact build/PID/run and revision, advanced frames and matched inventory's `CHRS00003` PID every time. Resident retained its instance and advanced its clock; foreground, protected-UI and submission flags stayed false. Fresh stdio MCP status and 4 KiB probes with two complete readbacks passed with both the file manager and DevLoop open, without restarting Resident. A further bounded two-candidate Lua regression measured rates 60/120, selected the faster candidate and restored the original native world paused with exact runtime identity; Lua finished inactive with the last VM retained. Native storage durability across reboot and phone credential confirmation remain pending. Native launching is disabled and unconditionally refused. [Historical 0.1.3 qualification](docs/resident-launch-validation.json).
-
-The earlier October 12 host suite passed all **22 groups**, including real Lua under sanitizers and actual MCP/CLI transport. A third live session rejected bad syntax, recovered from a controlled runtime fault, continued to a healthy candidate and restored the original scene. [Script-session evidence](docs/script-session-validation.json) records exact source hashes, corrected live passes, retained failures and remaining limits.
-
-**Historical Resident 0.1.4 managed inbox inspection** passed a user-confirmed normal boot plus 12 initial read-only checks. Fresh stdio MCP exposed all 33 tools; native checks verified root/fixture listing, complete hashes and reads of a 4096-byte probe, a 97-byte retained part and an empty retained part, a middle range and EOF, and malformed/access/range refusals. Resident retained one disabled, unblocked broker instance with advancing time. Exact plugin/configuration readbacks preserved both rollback plugins, saved administrator pairing and experiment disable markers. A separate DevLoop coexistence check passed eight stable-identity samples with advancing frames, a new 4096-byte upload, two complete publication readbacks and exact managed stat/readback, without Control or Lua changes. Repeated boot, storage durability and phone credential confirmation remain pending. Native installation and launching remain separate. All 23 host groups and the ARM build passed independently. [Contract](docs/MANAGED-FILES.md), [dated validation](docs/managed-files-validation.json).
-
-The October 3 baseline is retained in [the historical record](docs/BASELINE.md). [October 4 qualification](docs/QUALIFICATION.md) records the earlier Control 0.3.3 tests. [Pairing gates](docs/PAIRING-DEVICE-TESTS.md) retain the earlier 0.1.2 / 0.3.4 / 01.06 candidate and its partial results. A fresh build does not inherit another package's acceptance. This is a source developer preview; no final binary release is certified.
+Earlier [baseline](docs/BASELINE.md), [Control qualification](docs/QUALIFICATION.md),
+[Resident inventory](docs/resident-launch-validation.json),
+[managed-file checks](docs/managed-files-validation.json) and
+[pairing gates](docs/PAIRING-DEVICE-TESTS.md) retain their own version-scoped
+records. A fresh build does not inherit another package's acceptance. This is a
+source developer preview; no final binary release is certified.
 
 | Component | Role | Source / recorded runtime |
 | --- | --- | --- |
 | Vita DevLoop | Foreground Lua edit/run/observe/recover; ten MCP tools | 01.04 installed; exact runtime identity, live Lua reload/recovery and normal exit passed. Capture mapping, synthetic input and sleep/reopen remain open. |
-| [Vita Resident](docs/RESIDENT.md) | Boot-loaded status, verified package inbox and managed inspection and bounded keep-awake leases; eleven source tools | Two-second-budget 0.1.6 installed after normal boot; lease operations, isolated 120-second power hold, renewal during verified slow transfer and keeper-loss TTL expiry passed. Upload HTTP reply uncertain; native preview declined without execution. PC host tests passed; broader qualification incomplete. Earlier build's online/sleep passes and 0.1.5 native Lab qualification remain historical evidence; rollbacks retained |
+| [Vita Resident](docs/RESIDENT.md) | Boot-loaded status, verified package inbox and managed inspection and bounded keep-awake leases; eleven source tools | Two-second-budget 0.1.6 installed after normal boot; lease operations, isolated 120-second power hold, renewal during verified slow transfer and keeper-loss TTL expiry passed. Upload HTTP reply uncertain; later native staging verified, install rejected before launch; exact runtime reason unavailable. PC host tests passed; broader qualification incomplete. Earlier build's online/sleep passes and 0.1.5 native Lab qualification remain historical evidence; rollbacks retained |
 | [Vita Control](docs/CONTROL.md) | Background screen, managed files, app commands and bounded synthetic input; thirteen tools | 0.3.4 pairing candidate installed, ABI 2; earlier manual startup passed, automatic worker/network startup failed; recovery did not reactivate it |
 | [Vita Workbench](workbench/README.md) | Lua iteration, native lifecycle candidate, runtime preparation, input trials, metrics, staging and file recovery; sixteen tools | Developer preview; native lifecycle, script readiness and verified input readiness have separate qualification |
 | [Launch broker candidate](resident/launch_broker/README.md) | Durable fixed-title launch protocol and PC client | 0.1.4 identity/clock continuity passed with the broker disabled; earlier 0.1.3 PID correlation is historical; storage/reboot and launch-policy gates pending |

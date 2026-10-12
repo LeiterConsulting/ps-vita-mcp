@@ -1,20 +1,35 @@
 # Vita Resident
 
-The **Resident 0.1.6** [bounded keep-awake candidate](../docs/RESIDENT-KEEP-AWAKE.md) with a two-second native HTTP budget is installed after a confirmed normal boot. Fresh actual stdio MCP exposed all 40 tools and passed status/begin/renew/end. A planned 120-second hold at one-minute standby stopped after about 40 seconds when a renewal reply timed out; cleanup confirmed the accepted next revision and ended the exact owner without resending the POST. The PC read-only reconciliation change passed host tests. Diagnostic GET timeouts interrupted two later holds. An isolated 120-second power hold then passed 11 renewals, no errors and confirmed end, with production freshness checks unchanged. A slow 4 KiB transfer retained three renewals; its upload reply timed out, but later read-only stat/hash/full readback confirmed exact publication without replay. PC keeper loss then passed native 30-second TTL expiry without an end request, retaining two diagnostic GET timeouts. A native preview declined with one occupied slot and zero device mutations; execute was not called. The operator temporarily selected 30-minute standby and restoration to one minute is pending. Live renewal reconciliation has zero adoptions and remains host-tested only. Physical sleep confirmation on the current build remains pending. Keep-awake qualification is incomplete. The previous 300 ms native-budget build's three-minute online pass and operator-confirmed automatic sleep after end remain historical, alongside its earlier uncertain-renewal failure with unknown cause and timing. Accepted 0.1.5 is retained for rollback.
+**Resident 0.1.6 is installed after a confirmed normal boot; qualification is
+incomplete.** It adds a bounded keep-awake lease for active development jobs.
+The combined source catalog exposes 40 tools: eleven Resident, thirteen Control
+and sixteen Workbench. Leases do not change saved brightness or sleep settings.
 
-The corrected Resident 0.1.5 previously passed normal boot and exact device-binary verification. Its native instance was unblocked and installer-ready with Promoter unloaded; five fixed-Lab install/launch/evaluate/graceful-exit cycles across two native builds passed on hardware; same-build journal durability passed after a normal reboot without replay. The earlier unknown promotion receipt is retained without replay. [Current incident](../docs/NATIVE-LIFECYCLE.md#october-12-native-promotion-incident). Historical Resident 0.1.4 passed a user-confirmed normal boot plus 12 initial read-only inbox checks. Two exact plugin/configuration readbacks preserved the 0.1.3 and 0.1.2 rollback plugins, saved administrator pairing and both withdrawn-experiment disable markers. Fresh actual stdio MCP exposed all 33 tools; native root/fixture listing, known-byte file hashes/reads, range/EOF and direct refusal checks passed. Resident retained one disabled, unblocked broker instance with advancing time. The earlier October 12 registered 33-tool desktop MCP check passed direct exact 0.1.4 status, managed listing, file information and a complete 4096-byte read with full-file hash verification.
+Hardware passes cover fresh MCP lease operations, an isolated 120-second hold
+at one-minute standby, renewal during a verified slow 4 KiB transfer, native
+30-second expiry after PC keeper loss and one controlled lost-renewal reply
+reconciled without replay. A separate launch-only probe passed self-test and
+acknowledged graceful exit; later read-only checks confirmed closure.
 
-A separate 0.1.4 coexistence check passed with DevLoop 01.04 open and paused: eight stable-identity observations with advancing frames, a new 4096-byte upload, two complete publication readbacks and exact managed stat/readback. Resident kept the same boot and native instance with the broker disabled and unblocked. No Control, input, power or Lua changes were made.
+Intermittent HTTP timeouts remain a blocker: the launch-only job's original
+result is unconfirmed, and current-build installation/redeployment and an
+uninterrupted keeper-protected native cycle remain unqualified. The earlier
+install rejection's exact runtime cause is unknown. Physical normal sleep,
+manual sleep/wake and Wi-Fi interruption remain pending, along with restoration
+of the operator's temporary 30-minute standby setting to one minute.
+[Detailed evidence and pending gates](../docs/RESIDENT-KEEP-AWAKE.md) and
+[dated validation record](../docs/resident-keep-awake-validation.json).
 
-Earlier 0.1.3 checks passed normal boot, native identity/clock and file-manager inventory, plus eight DevLoop PID-correlation samples with stable exact paused runtime and advancing frames. Fresh stdio MCP status and 4 KiB probes with two readbacks passed with the file manager and DevLoop open at separate times, retaining Resident's start time. A bounded Lua regression also passed under 0.1.3: both candidates accepted at rates 60/120, faster candidate selected and original native world restored paused with exact DevLoop identity. Lua finished inactive with the last VM retained. The broker kept its instance and stayed disabled and unblocked. Those Lua results remain historical.
+Accepted 0.1.5 and earlier rollback plugins are retained. Its five fixed-Lab
+native cycles across two builds and same-build normal-reboot journal durability
+are historical baseline evidence. The native namespace stages eight fixed files,
+installs the owned Lifecycle Lab title and submits its fixed launch URI under a
+conservative idle-shell policy. It performs no installation, launch or Promoter
+initialization at boot. [Native lifecycle and ownership limits](../docs/NATIVE-LIFECYCLE.md).
 
-The earlier 0.1.2 startup and native pairing-window exchange passed; successful individual credential confirmation remains pending. The 0.1.1 storage/runtime record is also separate. Read the [pairing contract and manual gates](../docs/PAIRING.md) before deployment.
+[Managed inbox inspection](../docs/MANAGED-FILES.md) remains available: paginated listing, size/hash and bounded reads of final and retained partial files, without Control or FTP. Historical 0.1.4 inspection and upload results are recorded separately in the [managed-file validation record](../docs/managed-files-validation.json).
 
-The accepted predecessor is the corrected Resident 0.1.5 [native lifecycle candidate](../docs/NATIVE-LIFECYCLE.md), retained after normal-boot and exact-binary verification; five fixed-Lab install/launch/evaluate/graceful-exit cycles across two native builds passed on hardware, with same-build normal-reboot journal durability passed without replay, and accepted 0.1.4 is also retained for rollback. The new namespace stages eight fixed package files, promotes the owned Lifecycle Lab title and submits its fixed launch URI under a conservative idle-shell policy. It performs no installation, launch or promoter initialization at boot. Three PC tools add preview, journaled execution and read-only reconciliation; the combined source catalog has 40 tools: eleven Resident, thirteen Control and sixteen Workbench.
-
-[Managed inbox inspection](../docs/MANAGED-FILES.md) remains available: paginated listing, size/hash and bounded reads of final and retained partial files, without Control or FTP. The 0.1.4 hardware inspection and verified upload results above remain separate evidence.
-
-The [native launch qualification candidate](../docs/RESIDENT-LAUNCH-CANDIDATE.md), introduced in 0.1.3 and retained in 0.1.4, adds retained native identity, immutable attempt storage, strict administrator-only broker HTTP and read-only app inventory. Initial 0.1.4 broker flags `enabled`, `configured_enabled` and `blocked` were all false. Launch remains disabled and unconditionally refused; no new boot entry or initialization-time launch is added. Repeated boot, storage durability across reboot, phone confirmation and foreground/protected-UI launch policy remain open.
+The [native launch qualification candidate](../docs/RESIDENT-LAUNCH-CANDIDATE.md), introduced in 0.1.3 and retained in 0.1.4, adds retained native identity, immutable attempt storage, strict administrator-only broker HTTP and read-only app inventory. Initial 0.1.4 broker flags `enabled`, `configured_enabled` and `blocked` were all false. That legacy DevLoop launch broker remains disabled and unconditionally refused; the fixed-Lab lifecycle namespace is separate. No new boot entry or initialization-time launch is added. Repeated boot, storage durability across reboot, phone confirmation and foreground/protected-UI launch policy remain open.
 
 Development resumed on October 11, 2026. The existing manual Starter path remains available. The separate [automatic startup helper](autostart/README.md) and boot diagnostic were withdrawn after October 12 boot failures; retain them disabled for offline investigation. [Autonomous preparation](../docs/AUTONOMOUS-DEVLOOP.md) separates the proven bounded Lua loop from native launch, installation and physical-input gates.
 

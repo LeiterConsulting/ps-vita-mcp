@@ -2,10 +2,10 @@
   "as_of": "2026-10-12",
   "candidate_version": "0.1.6",
   "installed_version": "0.1.6 two-second native HTTP-budget candidate; qualification incomplete",
-  "host_tests": "passed: final 41 PC client tests, 35 native-lifecycle host tests and actual C integration test; hardware qualification incomplete",
+  "host_tests": "passed: final 41 PC keep-awake client tests, fresh root 41 native-lifecycle host tests including rejection diagnostics, and actual C integration test; hardware qualification incomplete",
   "native_build": "passed",
   "device_update": "two-second-budget candidate installed; operator confirmed normal boot and LiveArea at one-minute standby; exact identity passed",
-  "live_keep_awake": "short MCP operations, isolated 120-second power hold, renewal during a verified 35-second transfer and keeper-loss native TTL expiry passed; broader HTTP reliability, native execution and physical qualification incomplete",
+  "live_keep_awake": "short MCP operations, isolated 120-second power hold, renewal during a verified 35-second transfer, keeper-loss native TTL expiry and one controlled accepted-renewal reply-loss reconciliation passed; separate native launch/self-test/acknowledged exit and later GET-only absence observed, but that job remained unconfirmed after a keeper freshness timeout; second probe stopped before lease or native mutation; broader HTTP reliability, uninterrupted native cycle, installation and physical qualification incomplete",
   "live_expiry_and_normal_sleep": "native 30-second TTL expiry after PC keeper loss passed on current build; physical normal sleep remains pending; earlier explicit-end sleep was operator-confirmed on previous d8ca build only",
   "physical_manual_sleep_wake": "pending",
   "physical_wifi_loss": "pending",
@@ -31,7 +31,7 @@
       "3"
     ],
     "native-lifecycle-pc-tests.log": [
-      "35"
+      "41"
     ],
     "keep-awake-pc-tests.log": [
       "41"
@@ -50,7 +50,7 @@
     "files-mcp-tests.log": "4f93d93675505180aab06a8a16469a5ea675a8eade28c5cb4e76194a6344c75e",
     "ftp-tests.log": "c168c5c2c9ea31552c50cca87deae16d97c4bf54b0aebfa76f2e15b18e035780",
     "update-tests.log": "d457d87b61303814f011ae502dfc31b2bf0a2c7f969161f8eba4b208ecb4fc11",
-    "native-lifecycle-pc-tests.log": "e1a2cca301a3007602d7c7dffa31722b03ae4dc892ac825663a3ebe118ad8bfe",
+    "native-lifecycle-pc-tests.log": "d3ace8a32c08561870787c760f88c1fd53090a8b41bec3ef74980e860b9336c6",
     "keep-awake-pc-tests.log": "6b73bf085dd098eccd1d5b075e68639e5fb32371d091a146509d135910a78829",
     "native-build.log": "fac9fb9fbd2606285b6dc9b663b80a6e7223b9d2bc49b45c3398fc8e34eb8ac2",
     "absolute-deadline-c-integration.log": "93cd153ece233ccbe4ceac57e2bb5fc3d8e5bf9ef9daeac243d3ee4cfc7c65c9",
@@ -148,11 +148,12 @@
     "resident_build_id": "ed4abe7bbf3f5cb6f52899d4bcace5483dd2fd19b193e7e6034fb1338ffd04d4",
     "evidence_tier": "historical previous 300 ms native-budget build; does not qualify current build"
   },
-  "first_priority": "instrument transport phases and native response-budget edge; qualify native execution after idle-shell readiness, restore one-minute standby and confirm physical normal sleep after end/expiry, then manual sleep/wake and Wi-Fi interruption",
+  "first_priority": "instrument transport phases and response-budget edge; qualify an uninterrupted keeper-protected native cycle; design explicit pinned cross-build ownership adoption before qualifying installation/redeployment; restore one-minute standby and confirm physical sleep/manual sleep-wake/Wi-Fi behavior; controlled reply-loss reconciliation is passed separately",
   "pending_hardware_gates": [
     "diagnostic GET transport reliability and production freshness checks remain unqualified",
-    "live adoption of strictly bounded read-only uncertain-renewal reconciliation; zero adoptions to date",
-    "native lifecycle execution with new Resident lease and unchanged production freshness checks; preview declined with one occupied slot, execute not called",
+    "uninterrupted keeper-protected native cycle: launch-only self-test/acknowledged exit and later absence observed, but original job remained unconfirmed after final freshness GET timeout",
+    "native installation and redeployment under current Resident build: verified staging passed, install request rejected with exact runtime reason unavailable",
+    "explicit cross-build ownership adoption is future work only; current permissions unchanged",
     "restore temporary 30-minute standby to original one-minute setting",
     "physical normal-sleep confirmation after explicit end and TTL expiry on current build",
     "physical manual sleep/wake",
@@ -244,7 +245,7 @@
     }
   },
   "pc_renewal_reconciliation": {
-    "status": "implemented; final 41 PC client tests, 35 native-lifecycle host tests and actual C integration test passed; live qualification incomplete",
+    "status": "implemented; final 41 PC client tests, fresh root rerun of 41 native-lifecycle tests in 67.202s, and actual C integration test passed; controlled live reply-loss adoption passed; broader qualification incomplete",
     "native_update_required": false,
     "scope": "one GET to reconcile an uncertain RENEW only; no mutation replay",
     "acceptance_requires": [
@@ -254,7 +255,7 @@
       "session deadline does not extend the original ceiling",
       "active healthy lease with fresh sufficient time"
     ],
-    "live_acceptance": "zero live adoptions; successful trials reported zero reconciled renewals; host-tested only"
+    "live_acceptance": "one controlled live accepted-renewal reply drop reconciled with one GET and exact-owner adoption without replay; physical Wi-Fi loss and general transport reliability remain unqualified"
   },
   "ci_current_pre_reconciliation": {
     "commit": "5f18a25",
@@ -399,5 +400,215 @@
     "qualification_scope": "read-only preview refusal; no native cycle attempted",
     "operator_next_step": "close all application cards; awaiting readiness",
     "evidence": "evidence/resident/keep-awake-native-20261012T214655Z/proof.json"
+  },
+  "native_install_trial": {
+    "result": "blocked",
+    "started_utc": "2026-10-12T21:52:59.163627+00:00",
+    "finished_utc": "2026-10-12T21:53:08.474864+00:00",
+    "operator_standby_minutes_reported_by_harness": 1,
+    "operator_actual_current_standby_minutes": 30,
+    "harness_standby_label_note": "operator temporarily selected 30 minutes before this run; the harness label is not proof of the current setting",
+    "preview_ready": true,
+    "stage_attempt": "14ee990ff41641eda253a9cef7a4f498",
+    "manifest_sha256": "53023226e39ef069f84d280b470a28c758e75607c86f666e315cc3a6cd448711",
+    "staged_files": 8,
+    "all_staged_files_verified": true,
+    "mutation_submissions": 10,
+    "mutation_submission_breakdown": {
+      "create_stage": 1,
+      "publish_file": 8,
+      "install": 1
+    },
+    "failure_code": "install_rejected",
+    "http_status": null,
+    "runtime_rejection_reason": null,
+    "reason_unavailable": "the client version retained install_rejected but discarded HTTP status and error body",
+    "install_operation_attempt": "e9004f231a9c43869dcc6b564cab68b9",
+    "launch_started": false,
+    "keeper_end": "ended",
+    "keeper_renewals": 0,
+    "keeper_errors": [],
+    "read_only_followup": {
+      "service_blocked": false,
+      "idle_guard_ready": true,
+      "active_attempt": null,
+      "original_attempt_http_status": 404,
+      "claim_observed": false
+    },
+    "likely_source_constraint": "verified install ownership receipts are scoped to Resident build and 0.1.5 receipts were not migrated to 0.1.6; likely explanation, not exact runtime reason",
+    "qualification_scope": "eight-file staging verified; current-build installation and redeployment not qualified; this trial did not launch, with later launch-only evidence recorded separately",
+    "evidence": "evidence/resident/keep-awake-native-20261012T215259Z/proof.json",
+    "journal": "evidence/workbench/native-lifecycle-20261012T215300Z-e03be640/journal.jsonl"
+  },
+  "launch_only_probe": {
+    "status": "completed with original overall result unconfirmed; later read-only absence and lease expiry confirmed",
+    "started_utc": "2026-10-12T21:58:05.115012+00:00",
+    "finished_utc": "2026-10-12T21:58:38.062192+00:00",
+    "scope": "launch/self-test/exit only; no install/redeploy qualification",
+    "evidence": "evidence/workbench/native-launch-only-20261012T215805Z-bf7f2d34/report.json",
+    "original_job_result": "unconfirmed",
+    "install_submissions": 0,
+    "launch_attempt": "fc9670653c214fc683bf6d3b4254687f",
+    "launch_submissions": 1,
+    "native_launch_result": 0,
+    "installed_verified": false,
+    "evaluation": {
+      "samples": 25,
+      "selftest_passed": true,
+      "checksum": 2727420034,
+      "first_frame": 14,
+      "last_frame": 620,
+      "runtime_identity": {
+        "title_id": "VMCP00001",
+        "version": "01.03",
+        "native_build_id": "c450ef59c0038599ebf2f401f6dc8dcff15f2fd7d350da6c54480286b774c1d4",
+        "pid": 996399,
+        "run": "0b8c607779092318d6c4e38485832015",
+        "revision": 1
+      }
+    },
+    "graceful_exit": {
+      "acknowledged": true,
+      "revision": 2,
+      "pid": 996399,
+      "run": "0b8c607779092318d6c4e38485832015"
+    },
+    "failure_type": "Unconfirmed",
+    "failure_code": "resident_keep_awake_lost_during_native_effect",
+    "failure_transport": {
+      "method": "GET",
+      "phase": "read_headers",
+      "cause_type": "TimeoutError"
+    },
+    "keeper_renewals": 1,
+    "keeper_reconciled_renewals": 0,
+    "keeper_errors": [
+      "TimeoutError",
+      "TimeoutError"
+    ],
+    "immediate_keeper_end": "unconfirmed; expires within 30 seconds of last accepted renewal",
+    "read_only_reconciliation": {
+      "observed_utc": "2026-10-12T22:01:48.902841+00:00",
+      "device_mutations": 0,
+      "effect_replays": 0,
+      "native_absence": {
+        "exited": true,
+        "native_idle_samples": 2
+      },
+      "power": {
+        "app": "Vita Resident Keep Awake",
+        "protocol": 1,
+        "resident_build_id": "47ece86ad3b5258b6a52b4aaffefb8046e5af48c69f49a763001bf36bd815240",
+        "instance_id": "955b387f8dd6800315e7678941f513b0",
+        "clock_ms": 1630027,
+        "revision": 37,
+        "port": 17869,
+        "active": false,
+        "lease_id": null,
+        "job_id": null,
+        "remaining_ms": 0,
+        "session_remaining_ms": 0,
+        "last_tick_ms": 1445787,
+        "tick_count": 313,
+        "tick_result": 0,
+        "reason": "lease_expired",
+        "status": 200,
+        "error": null
+      },
+      "native_lab_left_running": false,
+      "original_job_result_retained": true,
+      "observation_errors": []
+    },
+    "qualification_scope": "native launch, 25-sample self-test, acknowledged graceful exit and later two-sample absence proven; original overall result retained unconfirmed; no installation/redeployment or uninterrupted keeper-protected native-cycle acceptance",
+    "accepted_applications_changed": false,
+    "boot_configuration_changed": false
+  },
+  "cross_build_adoption_proposal": {
+    "status": "queued future work; not implemented",
+    "permissions_broadened": false,
+    "required_pins": [
+      "old Resident build",
+      "verified old install receipt",
+      "immutable old stage and manifest hashes",
+      "all eight installed-file hashes"
+    ],
+    "validation": "read-only exact match of all eight installed files before adoption",
+    "receipt": "distinct new adoption receipt binding prior evidence to new Resident build; preserve old records"
+  },
+  "pc_native_rejection_diagnostics": {
+    "status": "implemented; all 41 native-lifecycle host tests passed in fresh root rerun, including six targeted real-HTTP tests; device rejection acceptance pending",
+    "retained_fields": [
+      "http_status",
+      "reason",
+      "category"
+    ],
+    "reason_scope": "35 fixed source-derived HTTP status/reason pairs, strict exact identity/shape/protocol, native namespace only and not Lab",
+    "arbitrary_response_text_retained": false,
+    "historical_reply_recovered": false,
+    "device_acceptance": "pending",
+    "full_suite_tests": 41,
+    "fresh_root_log": "passed 41 tests in 67.202 seconds; refreshed count and hash retained",
+    "root_test_duration_s": 67.202
+  },
+  "ci_source_pre_rejection_diagnostics": {
+    "commit": "c7671385dc1b0c312c98f6d23715051e42c21856",
+    "run": 38313311499,
+    "result": "passed",
+    "scope": "pushed source before rejection-diagnostics patch"
+  },
+  "host_log_receipt_scope": "Native-lifecycle log count and SHA-256 now bind the fresh root 41-test rerun in 67.202 seconds; other log receipts remain tied to the recorded build or later explicitly scoped reruns.",
+  "controlled_lost_renewal_reply": {
+    "result": "passed",
+    "started_utc": "2026-10-12T22:06:55.037545+00:00",
+    "finished_utc": "2026-10-12T22:06:58.215607+00:00",
+    "proof_sha256": "58a2302d7ab5f79416cbaa1856c507b4e11f498eb05d5ddffee3f895963a8e1c",
+    "evidence_visibility": "private helper and original proof remain ignored; sanitized facts and proof hash only are public",
+    "pc_client_sha256": "866de3d662a9c085fd321ddbf629307c87a560d9e20ecd352eba5b4637afafb7",
+    "pc_source_unchanged": true,
+    "resident_build_id": "47ece86ad3b5258b6a52b4aaffefb8046e5af48c69f49a763001bf36bd815240",
+    "forwarded_posts": 3,
+    "post_operations": [
+      "start",
+      "renew",
+      "end"
+    ],
+    "deliberate_accepted_renewal_reply_drops": 1,
+    "reconciliation_gets": 1,
+    "exact_owner_adoptions": 1,
+    "begin_revision": 38,
+    "adopted_revision": 39,
+    "begin_tick_count": 314,
+    "adopted_tick_count": 316,
+    "original_session_deadline_unchanged": true,
+    "upstream_failures": [],
+    "no_effect_replay": true,
+    "keeper_end": "ended",
+    "scope": "controlled lease reply-loss reconciliation on real Vita only; no app, install or saved-setting writes; not physical Wi-Fi loss or general HTTP reliability"
+  },
+  "launch_only_followup_probe": {
+    "result": "blocked",
+    "started_utc": "2026-10-12T22:07:25.275163+00:00",
+    "finished_utc": "2026-10-12T22:07:31.565334+00:00",
+    "failure_type": "TimeoutError",
+    "failure_code": "transport_or_local_failure",
+    "lease_started": false,
+    "native_mutation_submissions": 0,
+    "launch_started": false,
+    "keeper_end": "not_started",
+    "keeper_renewals": 0,
+    "qualification_scope": "separate pre-effect transport failure; lease and native trial not started; no successful-repeat acceptance",
+    "evidence": "evidence/workbench/native-launch-only-20261012T220725Z-a8fa3025/report.json"
+  },
+  "native_install_diagnostic_preparation": {
+    "result": "not_started; first preview GET failed",
+    "failure_type": "LifecycleTransport",
+    "plan_claim_created": false,
+    "journal_created": false,
+    "lease_started": false,
+    "native_mutation_submissions": 0,
+    "install_submitted": false,
+    "historical_runtime_rejection_reason_recovered": false,
+    "evidence_visibility": "private structured no-mutation record retained by root; no public private-evidence link",
+    "qualification_scope": "no new installation or runtime-rejection acceptance; exact historical cause remains unknown"
   }
 }
