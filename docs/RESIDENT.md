@@ -1,6 +1,6 @@
 # Background status and verified uploads
 
-Vita Resident 0.1.2 is a separate SceShell user plugin. It exposes device status, a bounded upload inbox and the native individual-pairing authority while a foreground app runs. The desktop MCP server is `resident/bridge.py`; the native service uses port **17866**. The candidate is installed with startup and pairing-window exchange verified; successful individual confirmation remains pending. [Pairing contract and device gates](PAIRING.md).
+Vita Resident 0.1.2 is a separate SceShell user plugin. It exposes device status, a bounded upload inbox and the native individual-pairing authority while a foreground app runs. The desktop MCP server is `resident/bridge.py`; the native service uses port **17866**. The candidate is installed with startup and pairing-window exchange verified; its exact identity was verified through the registered MCP after the recovered normal boot on October 12. Successful individual confirmation remains pending. [Pairing contract and device gates](PAIRING.md).
 
 The earlier 0.1.1 development prototype passed status and storage checks on one homebrew-enabled Vita running firmware 3.65, including a 4 KiB probe and a 1.2 MB package with the file manager in the foreground. Those results do not qualify the new pairing authority. Gameplay coexistence, sustained transfer load and sleep/wake recovery still need separate checks. [Historical scope and identities](resident-inspector-prototype-validation.json).
 
@@ -15,7 +15,7 @@ From the repository root, with Docker Desktop running:
 
 The build runs the actual C HTTP/storage service under sanitizers with host adapters, MCP stdio fixtures, first-install FTP fixtures and update fixtures. It validates the ARM module's identity, imports, lifecycle, unresolved symbols and source fingerprint. Outputs are `dist/resident/vita_resident.suprx` and `dist/resident/build-report.json`. Building does not contact the Vita.
 
-The combined public bridge exposes four Resident tools, thirteen [Control tools](CONTROL.md) and eleven [Workbench tools](../workbench/README.md), for 28 total. The Resident MCP subset retains these four operations:
+The combined public bridge exposes four Resident tools, thirteen [Control tools](CONTROL.md) and thirteen [Workbench tools](../workbench/README.md), for 30 total. The two new script-preparation/session tools run on the PC through the existing foreground DevLoop API; they do not add native capabilities to installed Resident. The Resident MCP subset retains these four operations:
 
 | Tool | Operation |
 | --- | --- |
@@ -25,6 +25,16 @@ The combined public bridge exposes four Resident tools, thirteen [Control tools]
 | `vita_resident_verify_upload` | Read a named published package/probe twice and verify its length/hash |
 
 Package uploads are limited to **8 MiB**. The service writes a fresh `.part`, verifies its stored hash and renames it to the final name. The bridge then performs two complete readbacks. A failed reply may leave a completed upload: verify its reported attempt before deciding what to do next. Uploads are never automatically replayed, and installation remains manual.
+
+## Control-free scripts and launch candidate
+
+An already open, healthy paused DevLoop 01.04 supports `vita_workbench_prepare_script_session` and `vita_workbench_script_session` without Control or a Resident launch broker. Exact native build/PID/run/revision pins bind up to eight hashed Lua candidates to that runtime. The runner measures finite metrics, ranks accepted candidates and restores the original paused VM between runs; explicit `retain_best` reloads the selected source fresh and paused. It has no work/input lease, power tick, keep-awake, capture or native installation. [Workbench workflow](../workbench/README.md#control-free-script-sessions).
+
+The corrected default and explicit-retention two-candidate script proofs passed on the installed Vita on October 12, with stable exact identity and rate-based selection. Default restoration and separate guarded cleanup after retention restored the original paused scene/native world. The initial cumulative-distance ranking assertion failed due unequal execution times and is retained, along with a reconciled PC cleanup-journal failure. This proves foreground script iteration through the existing API, not a new native Resident capability or physical-control acceptance.
+
+The separate [launch broker core](../resident/launch_broker/README.md) and `resident/launch_client.py` are an October 12 host candidate. The portable C core has strict C11/sanitizer tests, and HTTP/MCP fixtures exercise the PC contract. It is not linked into Resident's native build, packaged as a Vita module or installed. Resident 0.1.2 does not implement the broker protocol or its native instance identity, so launch preparation fails closed as unsupported on that service. The current system still requires someone to open DevLoop.
+
+The future launch branch defaults off, requires explicit `allow_launch` plus exact Resident build/instance pins, and submits at most one fixed `CHRS00003` attempt after durable journaling. Lost replies are inspected without replay. Native storage/serialization, instance generation, app launch and lifecycle behavior require a separate adapter implementation and hardware qualification; neither these host tests nor the existing boot-loaded Resident establish them. This PC slice changes no installed native files or startup configuration and does not use either withdrawn boot experiment.
 
 ## Stage and activate
 
@@ -64,4 +74,4 @@ DevLoop and Resident have separate native services, ports and pairing configurat
 
 `resident/prove_device.py` performs live actions only when explicitly run. It can collect status continuity, publish a probe or stage DevLoop, and record a user-supplied foreground label. That label does not establish which application is on screen. A restarted service fails a continuity claim. Test physical responsiveness and wake recovery separately.
 
-The combined desktop bridge also exposes Control for bounded synthetic input, cross-app framebuffer readback and managed files. [Control tools](CONTROL.md) and the [functional baseline](BASELINE.md) document the recorded results and limits. Automatic native installation is not implemented. The existing manual Starter path remains available; the independent [default-disabled one-shot startup experiment](../resident/autostart/README.md) has its own acceptance gates and does not replace Resident. [Autonomous DevLoop](AUTONOMOUS-DEVLOOP.md) explains script/input readiness. For the complete manual Resident/Starter/DevLoop path, use [GETTING-STARTED.md](GETTING-STARTED.md).
+The combined desktop bridge also exposes Control for bounded synthetic input, cross-app framebuffer readback and managed files. [Control tools](CONTROL.md) and the [functional baseline](BASELINE.md) document the recorded results and limits. Automatic native installation is not implemented. The manual Starter path remains available after a confirmed normal boot and inspected native state. The separate [one-shot startup experiment](../resident/autostart/README.md) and isolated boot diagnostic are withdrawn after boot failures; both remain disabled, and recovered Resident operation is verified. Their source/host results do not qualify a new boot attempt or replace Resident. [Autonomous DevLoop](AUTONOMOUS-DEVLOOP.md) explains script/input readiness and the recovery. For the complete manual Resident/Starter/DevLoop path, use [GETTING-STARTED.md](GETTING-STARTED.md).

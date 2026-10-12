@@ -1,16 +1,18 @@
 # PC setup and development workflows
 
-This repository publishes the Windows PC bridges, development runners, build scripts and Vita services. The iPhone application is developed and distributed privately; its [public guide](IPHONE-COMPANION.md) describes use without shipping app source. Development resumed on October 11, 2026. The latest source is a developer preview with [autonomous preparation and experimental startup](AUTONOMOUS-DEVLOOP.md); pairing and physical [hardware gates](PAIRING-DEVICE-TESTS.md) remain separate.
+This repository publishes the Windows PC bridges, development runners, build scripts and Vita services. The iPhone application is developed and distributed privately; its [public guide](IPHONE-COMPANION.md) describes use without shipping app source. As of October 12, 2026, the developer preview adds Control-free foreground Lua iteration. Both experimental boot candidates are withdrawn and the recovered startup configuration is verified. [Autonomous development status](AUTONOMOUS-DEVLOOP.md), pairing and physical [hardware gates](PAIRING-DEVICE-TESTS.md) remain separate.
 
 ## Public components
 
 | Location | Purpose |
 | --- | --- |
 | `bridge/` | Ten foreground DevLoop MCP tools, configuration, FTP staging, Lua edit/run/capture and explicit live proof helpers |
-| `resident/bridge.py` | Combined 28-tool PC server: four Resident, thirteen Control and eleven Workbench tools |
+| `resident/bridge.py` | Combined 30-tool PC server: four Resident, thirteen Control and thirteen Workbench tools |
 | `resident/control/` | PC Control adapter, screen preview/decoding, guarded staging and recovery, plus matched native modules |
-| `resident/autostart/` | Separate default-disabled one-shot startup experiment, SDK-adapter tests and guarded staging |
-| `workbench/` | Shared session lock, runtime preparation, hash-pinned trials, metrics, restoration, file verification and activity/lifecycle observers |
+| `resident/autostart/`, `resident/boot_diagnostic/` | Withdrawn default-disabled boot experiments, retained for offline diagnosis |
+| `resident/launch_client.py`, `resident/launch_broker/` | Control-free preparation client and portable fixed-title launch contract; host-only broker, absent from native/installed Resident |
+| `workbench/` | Shared session lock, bounded Control-free candidate sessions, Control-backed trials, metrics, restoration, file verification and activity/lifecycle observers |
+| `tools/prove_script_session.py` | Explicit live stdio MCP demonstration: prepare, evaluate two Lua candidates, rank and restore |
 | `tools/pairing_check.py` | Local PC form for physical code confirmation and inspection-permission qualification |
 | `scripts/`, `tests/`, component test files | Source/build validation, local HTTP/FTP fixtures, sanitizer harnesses and CI |
 | `Build-*.ps1`, `Setup-DevLoop.ps1`, `Stage-DevLoop.ps1` | Reproducible PC environment, native builds and explicit manual-install staging |
@@ -44,13 +46,33 @@ Use absolute executable and script paths when registering the two stdio MCP serv
 
 DevLoop normally listens on 17865, Resident on 17866 and Control on 17867. The file manager's FTP port is separate. Control shares the Resident administrator token; the foreground DevLoop token is a separate pairing. Keep all credentials local. Services use unencrypted HTTP on a trusted LAN.
 
-After updating PC source, restart the relevant PC MCP connection. Do not reload Vita helpers to refresh desktop tools. `resident/Register-Mcp.ps1` is the optional Codex CLI registration helper; a different existing registration is refused rather than silently replaced. [Troubleshooting](TROUBLESHOOTING.md) covers offline services, identity mismatch and reboot guards.
+After updating PC source, restart the relevant PC MCP connection to discover the combined 30-tool catalog. The existing two stdio entries remain sufficient; the new script tools are part of the Resident PC bridge, and the separate DevLoop bridge still has ten tools. Do not reload Vita helpers to refresh desktop tools. `resident/Register-Mcp.ps1` is the optional Codex CLI registration helper; a different existing registration is refused rather than silently replaced. [Troubleshooting](TROUBLESHOOTING.md) covers offline services, identity mismatch and reboot guards.
 
-Synchronous MCP soaks can outlast the client's per-tool timeout. Codex supports `tool_timeout_sec` and defaults to 60 seconds. Add `tool_timeout_sec = 4200` inside the existing `[mcp_servers.vita_resident]` table in `~/.codex/config.toml`, retaining its transport settings, then refresh the PC connection. This allows the supported maximum 3,600-second soak plus request and cleanup time; it does not raise the job limit. Other MCP clients need an adequate timeout or the CLI. [Official OpenAI MCP configuration](https://learn.chatgpt.com/docs/extend/mcp?surface=cli).
+Synchronous MCP jobs can outlast the client's per-tool timeout, including script sessions and long soaks. Codex supports `tool_timeout_sec` and defaults to 60 seconds. Add `tool_timeout_sec = 4200` inside the existing `[mcp_servers.vita_resident]` table in `~/.codex/config.toml`, retaining its transport settings, then refresh the PC connection. This allows the supported maximum 3,600-second soak plus request and cleanup time; it does not raise any job limit. Other MCP clients need an adequate timeout or the CLI. [Official OpenAI MCP configuration](https://learn.chatgpt.com/docs/extend/mcp?surface=cli).
 
 For long sessions, run `.\.venv-devloop\Scripts\python.exe -m workbench.cli soak 600 <Control-build-ID>` from the checkout. CLI jobs retain journals under `evidence/workbench/`; inspect the recorded result and cleanup receipt after an interruption before starting another job.
 
 ## Run and recover development work
+
+For Lua iteration without Control, open the installed, paired DevLoop 01.04 and leave it paused. Pin the report matching the installed native app:
+
+```powershell
+$devloop = Get-Content .\dist\devloop\build-report.json -Raw | ConvertFrom-Json
+.\.venv-devloop\Scripts\python.exe -m workbench.cli prepare-script $devloop.nativeIdentity.buildId
+```
+
+This calls `vita_workbench_prepare_script_session` and returns fresh native PID/run/revision pins after two healthy paused observations. It does not need Control or a Resident launch broker. Use those pins in a UTF-8 JSON manifest with `candidates`, `expected_devloop_build`, `expected_pid`, `expected_run`, `expected_revision`, and optional `retain_best`/`selection`. Each candidate carries inline source, its exact UTF-8 `source_sha256` and finite metric checks. Submit the exact manifest hash:
+
+```powershell
+$manifestHash = (Get-FileHash .\outgoing\script-session.json -Algorithm SHA256).Hash.ToLowerInvariant()
+.\.venv-devloop\Scripts\python.exe -m workbench.cli script-session .\outgoing\script-session.json $manifestHash
+```
+
+For a ready-made explicit live demonstration, `tools/prove_script_session.py <DevLoop-native-build-ID>` uses a fresh stdio MCP to prepare, generate/hash two moving scenes, measure/rank their movement rates and restore the original scene paused. Optional `--retain-best` leaves the winner fresh and paused. Both corrected default and retention proofs passed on the installed Vita on October 12, with exact runtime identity. Default restoration and separate guarded cleanup after retention restored the original scene/native world paused. The first cumulative-distance ranking proof failed due unequal execution time and is retained, along with a reconciled PC cleanup-journal failure. See [Workbench](../workbench/README.md#control-free-script-sessions) for candidate bounds, manifest fields and journals. These jobs have no remote scene lease, capture, synthetic input or keep-awake; do not rely on PC activity to prevent Vita sleep. Lost replies are never replayed, and uncertain ownership can leave restoration unconfirmed. The proofs qualify this bounded script loop and explicit retention, not full autonomous platform operation.
+
+The optional preparation launch branch is a future adapter contract: `prepare-script` defaults to no launch, and `--allow-launch` also requires exact `--resident-build` and `--resident-instance` pins. The standalone C broker/client has host tests only, is not linked into native Resident or installed, and Resident 0.1.2 fails closed as unsupported. Open DevLoop manually on the current installed system. This PC update does not stage a package or change the recovered boot configuration.
+
+For Control-backed work, use the separate workflow below. Its `prepare` positional build is the **Control** build, unlike `prepare-script`'s **DevLoop** build.
 
 Start with `vita_workbench_doctor` to inspect availability and the exact Control build. `vita_workbench_prepare_devloop` can launch DevLoop once when its endpoint is unavailable and inspect readiness without replacing a scene. It defaults to DevLoop 01.04, which publishes native title/PID, run and source-build identity. Healthy paused runtime gives `ready_for_script_reload`; input readiness/trials additionally require `expected_devloop_build` matching the actual build report and native `CHRS00003` title/PID matching fresh captures. The build pin is optional for script-only 01.04 work. Select 01.02 or 01.03 explicitly for legacy script-only work. Legacy versions lack this mapping. The installed 01.04 passed exact runtime identity and live Lua reload/recovery; Control capture mapping, synthetic input and lifecycle gates remain open. Background status/control can remain available after Starter exits, until normal reboot.
 
@@ -60,7 +82,7 @@ Start with `vita_workbench_doctor` to inspect availability and the exact Control
 
 Workbench trials pin profile/source hashes and native build identity, record mutation intent before device changes, and retain metrics and cleanup receipts. Preparation and trials freeze their foreground and effective Control endpoints, including `VITA_CONTROL_PORT`; detected configuration drift stops work while cleanup stays on the original endpoint. Input-bearing profiles fail before scene mutation without native target mapping and recheck that mapping before each step. Use [Workbench](../workbench/README.md) for script-only profiles, qualified input trials, capture soak, observers and managed-file recovery. Live proof helpers perform device actions only when explicitly invoked; coordinate an idle device and check their scope first.
 
-The normal Starter path remains manual once per confirmed boot. [Deferred automatic startup](AUTONOMOUS-DEVLOOP.md#experimental-one-shot-startup) is a separate default-disabled one-shot experiment; neither the PC MCP process nor a successful build activates it. Native installation, boot acceptance and recovery remain operator steps. Repeated-boot operation is not implemented or qualified.
+The normal Starter path remains manual once per confirmed boot and inspected native state. [Deferred automatic startup](AUTONOMOUS-DEVLOOP.md#experimental-one-shot-startup) and its isolated diagnostic are withdrawn from routine use after boot failures; keep both disabled and preserve the verified recovery. Neither a PC restart nor a successful host build activates or qualifies a boot candidate. Native installation, boot acceptance and recovery remain operator steps. Repeated-boot operation is not implemented or qualified.
 
 After an interrupted upload, retain its attempt ID, expected size and hash. `vita_resident_verify_upload` reads that exact attempt twice. The candidate staging repair now uses one ID across journal, upload and receipt; a lost reply is not automatically replayed. Native installation is still manual.
 

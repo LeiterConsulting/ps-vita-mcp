@@ -1,0 +1,399 @@
+{
+  "recorded_utc": "2026-10-12T15:31:21.467387+00:00",
+  "scope": "Bounded Control-free metric-driven Lua sessions and winner redeployment accepted on installed DevLoop 01.04; full autonomous boot/native development not accepted",
+  "catalog": {
+    "resident": 4,
+    "control": 13,
+    "workbench": 13,
+    "combined": 30,
+    "foreground_devloop_separate": 10
+  },
+  "host": {
+    "groups_passed": 22,
+    "device_contact": false,
+    "report_sha256": "03e960c0442e424117dd82072bb623815bb04382ccea079104a718709b3e4fb8",
+    "checks": [
+      {
+        "name": "public-source-scope",
+        "exit_code": 0,
+        "log_sha256": "eca8f538dfa88d1d3d1ff4e3af2207446991d31d2a6b230e86089d08998980d6"
+      },
+      {
+        "name": "pc-pairing-form",
+        "exit_code": 0,
+        "log_sha256": "3160493a19f0dfe9375531cabe526c12876313f74d33789a0f88f0c89cce6705"
+      },
+      {
+        "name": "devloop-native-identity",
+        "exit_code": 0,
+        "log_sha256": "77581dd7efcc6f9e7eb8e5698c2711d8d30a7dc1eb6d9c02b4759e5f5bd7e599"
+      },
+      {
+        "name": "devloop-c",
+        "exit_code": 0,
+        "log_sha256": "778299811dff50a04272a6dc62fd10d816386ce39235121a084589c1f6a4c029"
+      },
+      {
+        "name": "resident-c",
+        "exit_code": 0,
+        "log_sha256": "cb0c1e23ef7ee76b65ae94958c050a71a1a519f99401427abf5af74fed329b2d"
+      },
+      {
+        "name": "control-c",
+        "exit_code": 0,
+        "log_sha256": "0c70d3c9d5abc28be1680a887b7b9362202c1d2fabe7e6b3512f5e2151159262"
+      },
+      {
+        "name": "autostart-c",
+        "exit_code": 0,
+        "log_sha256": "2f95099d708ae419e95be505135ce6555e8f2e5e310cc35695c25208e3fa13a1"
+      },
+      {
+        "name": "boot-diagnostic-c",
+        "exit_code": 0,
+        "log_sha256": "19624d3012149f5de43b12e942ace18e64f26f935399c66b08342cbb07ed628e"
+      },
+      {
+        "name": "launch-broker-c",
+        "exit_code": 0,
+        "log_sha256": "686d85caa1aafcb9cffb67ff79cda411dc3287f6a83408bf4fe1304139c6357e"
+      },
+      {
+        "name": "target-c",
+        "exit_code": 0,
+        "log_sha256": "5c521092ef1648a3c51c8bdf54dee1c5307144358e8aad87c5c631048acb19f8"
+      },
+      {
+        "name": "test_bridge-tests",
+        "exit_code": 0,
+        "log_sha256": "345ad472174f7435e0007b26e3af1d1575b21cda80b4684bcef13d4c9df799a8"
+      },
+      {
+        "name": "test_scripts_bridge-tests",
+        "exit_code": 0,
+        "log_sha256": "4dc4224a87cfd7b722283b69e8c4169c7517dc295bca3ba14c0f2843ac863cfc"
+      },
+      {
+        "name": "test_bridge-resident",
+        "exit_code": 0,
+        "log_sha256": "c378a956071cb92fcdd398d37038df1257846f33d24c75ba7a42e7c7f8e29616"
+      },
+      {
+        "name": "test_bridge-control",
+        "exit_code": 0,
+        "log_sha256": "fd3d821197aa459d4e5a4461596c080bb40478312bcd9a8dc732e11d24845229"
+      },
+      {
+        "name": "test_staging-control",
+        "exit_code": 0,
+        "log_sha256": "b7caf31304e46d24a50a3730429836dc7785e786a6bd7da671c95ee2a34f5efc"
+      },
+      {
+        "name": "test_mcp-workbench",
+        "exit_code": 0,
+        "log_sha256": "4c37ec23a28c0f154db3cf996478839c6fc7a6c3a3cecbb3c597a3c81e8d30f9"
+      },
+      {
+        "name": "launch-broker-http",
+        "exit_code": 0,
+        "log_sha256": "47f9c24bf2d2f8bd5c53c18048f3b5ef5f3f1217ea461675988bc2f57fd9edc3"
+      },
+      {
+        "name": "script-session-http",
+        "exit_code": 0,
+        "log_sha256": "6e5b752b988128ec0e8d5cc9493ce636feb7c7c96f7cd682c224e5b6788d5d68"
+      },
+      {
+        "name": "script-session-mcp-cli",
+        "exit_code": 0,
+        "log_sha256": "480fb2a8e57fd2509205078686c668732f2f9e38a840c6c9d12a0c406b6723e0"
+      },
+      {
+        "name": "script-demo-real-lua",
+        "exit_code": 0,
+        "log_sha256": "aae8cb74a298aae669e26fffeb4ddc1fda07f716373bc99820c925897beca409"
+      },
+      {
+        "name": "workbench-decisions",
+        "exit_code": 0,
+        "log_sha256": "143db93673947e00a43201a6952dc6dadbcfc90320cad4b084d50f047ab29086"
+      },
+      {
+        "name": "autostart-staging",
+        "exit_code": 0,
+        "log_sha256": "18db8cadac0feffbf93bd0bfc5b5881b731363b4a9a2a26484c41ae06db543c4"
+      }
+    ],
+    "focused_cases": {
+      "launch_broker_strict_c11_asan_ubsan": 72,
+      "script_session_http": 32,
+      "script_session_stdio_mcp_cli": 6,
+      "broker_real_c_http_stdio_mcp": 13,
+      "generated_demo_real_lua_and_stdio": 6
+    },
+    "new_code_source_hashes": {
+      "resident/Register-Mcp.ps1": "4aa1b69b71cb3316b4208581c80601275bed6174fba22ea560b6e4d3f675ca8e",
+      "resident/bridge.py": "3464d66a3e29f65d73c1706ae4ac6d875378123e0197d05f4692f564055d13f9",
+      "resident/launch_broker/core.c": "f497107c78f63b543922933255d0f6d250ec1a77c022c9b06d58dafb56ec6ac0",
+      "resident/launch_broker/launch_broker.h": "941fcc660cff6fce7e95d943930b2d3f4263285f74cb3110d963ed5a3c387151",
+      "resident/launch_broker/test_core.c": "b300bec77f565152df3e79e0f72d43ec1ee8364ba8ebf1852472c27c609dc830",
+      "resident/launch_broker/test_host.sh": "1c6ef6eb79ddc708b8f3f30880197a2d9c8e603a42bd72145591b0387fb3a37d",
+      "resident/launch_client.py": "135189141e3cb927eab7368fac9596af798930f54df5a2dfe4fce47182bdc0ca",
+      "resident/test_bridge.py": "c5ca63b5faa5a59119a741eae95e3f832e4400c2252e9ea43b18d0b59a29d9b4",
+      "scripts/ci_host.py": "c57aca797f9ff0497f8b5c2d1eb742a501dadc6c36dc3a751dfff3e366d3621b",
+      "scripts/test_script_demo.sh": "1599e7b65de30c0dce59f95e6b3a6c9c70917bc904571b4aa0ef32fdc6bc1b96",
+      "tests/launch_broker_host.c": "f1a71e8ea0046ba9a9161295cb1c2c17da19617e096283f6f4e4b4c49dcc1733",
+      "tests/script_demo_runtime.c": "ff003e828cfb9541a4bdd60ad47b259c8d676b77e455a53bcb747acdd16cc839",
+      "tests/test_launch_broker_http.py": "3bb4b6cd5dae13acc8e4cd7480f93cc0c981c76aaa3b255bcbc3faafa45eee49",
+      "tests/test_script_demo.py": "f895ec219ed1bee9be8e4245da09377947445b0b07af6bff3e8c7f98dbe0667f",
+      "tools/prove_script_session.py": "86b9d324da47c0517bce8c422021d86d486acc1850e3358a4f31a643221881fa",
+      "workbench/cli.py": "637905970d4720b9c30698d72e4cd90f4386e2dd91abe6594967cdbc7dfbb208",
+      "workbench/script_session.py": "5777ff6a17ca269b95854b567f3d81d4591abfdb919b34b5bc1babb2798411d8",
+      "workbench/server.py": "a632b1c55bbd840155c0f55cca2cd805aaa4dbcf6a75b333b3c41d8961725eb5",
+      "workbench/test_mcp.py": "2b8501bcc19fb7210f60f604d6874ec7894283182c02c834f186f0addcc49f01",
+      "workbench/test_script_session.py": "64db14469f89c70c38aeaee002d3e164bbc38dd517ffa6b3b987f4e1bec43deb",
+      "workbench/test_script_session_mcp.py": "e20fcee6146f6c03d4aba6ef82a4c435226cd141a0510b20462c5f96a16eb9ce"
+    },
+    "code_unchanged_during_host_run": true,
+    "source_snapshot_sha256": "cf786c78ca4a7dab628c2c5c8d347844368a44a8a9b412645fb4f45110ede007"
+  },
+  "native": {
+    "build_id": "c7d4a08d3c42025803ded7146b86a68c415ce157d6199978506af3b79a15b5f7",
+    "native_input_count": 75,
+    "package_sha256": "3ba219efd66eb9f97da25fc5178365887b12a9fc7dde968e105bf9eff5c7d075",
+    "package_bytes": 465567,
+    "build_report_sha256": "48e064ca413dedba13a7dc987f9e26295579b6eac7f5e25cb88291252b90315d",
+    "verification": "Unchanged native input manifest and VPK; repeated pinned-SDK ELF-to-SELF byte equality and exact packaged executable passed",
+    "native_launch_broker_linked": false,
+    "native_or_boot_installation_performed": false
+  },
+  "live": {
+    "initial_cumulative_distance_proof": {
+      "result": "failed_proof",
+      "finished_utc": "2026-10-12T15:12:14.923561+00:00",
+      "report_sha256": "a9859185a1e28c0845b41ad1a00923d97caacb814c4a84e54faa8637cdef9bc4",
+      "manifest_sha256": "4a057729d8fda575d2ea0162f38c4944f2cd532fa34235b800795f5b963a3636",
+      "journal_sha256": "695295ffac4e4e86028403982f99bf95452681b072554360f4e66a9bdb7a9443",
+      "mutation_submissions": 8,
+      "restoration": "original_scene_paused_verified",
+      "input_actions": 0,
+      "control_actions": 0,
+      "iterations": [
+        {
+          "name": "steady",
+          "source_sha256": "4bb25113374ba0eee19f82765313444a94913cb99fe36ea5816d042a34f30ef5",
+          "result": "accepted",
+          "metrics": {
+            "distance": 470.46793,
+            "ticks": 471.0,
+            "speed": 60.0
+          }
+        },
+        {
+          "name": "swift",
+          "source_sha256": "8e0e57b4118fbf85cd125e62f0a4e0f480832ce09cf2ff2595c2069b0ae6f7fc",
+          "result": "accepted",
+          "metrics": {
+            "distance": 384.38461,
+            "ticks": 193.0,
+            "speed": 120.0
+          }
+        }
+      ],
+      "best": {
+        "index": 0,
+        "name": "steady",
+        "source_sha256": "4bb25113374ba0eee19f82765313444a94913cb99fe36ea5816d042a34f30ef5",
+        "selection_value": 470.46793
+      },
+      "proof_checks": {
+        "both_exact_candidates_accepted": true,
+        "fresh_execution_observed": true,
+        "swift_distance_exceeds_steady": false,
+        "swift_selected": false,
+        "expected_restoration_verified": true,
+        "same_pinned_runtime": true
+      }
+    },
+    "initial_failure": "Both candidates executed/restored, but cumulative-distance winner assertion failed because HTTP delays gave unequal execution durations. No failed proof was promoted to a pass.",
+    "normalized_rate_default": {
+      "result": "passed",
+      "finished_utc": "2026-10-12T15:16:08.211762+00:00",
+      "report_sha256": "2328479c9434ea1e8a0441b4a795442a4002592286800b4e2f939e49d272e8c0",
+      "manifest_sha256": "066d0e0e99b299d55abac35188956c59f1f342315fdba24442d73dc1d7a5993f",
+      "journal_sha256": "93e4684b503feee38b14773662ca08dd891a1ee6444d98614028b4c8e235559f",
+      "mutation_submissions": 10,
+      "restoration": "original_scene_paused_verified",
+      "input_actions": 0,
+      "control_actions": 0,
+      "iterations": [
+        {
+          "name": "steady",
+          "source_sha256": "8f2b9b5e00d4f1d523aefe82bf30c062099ca4a206d466efaba3f8dc7299a488",
+          "result": "accepted",
+          "metrics": {
+            "distance": 189.189,
+            "ticks": 190.0,
+            "speed": 60.0,
+            "elapsed": 3.15315,
+            "rate": 60.0
+          }
+        },
+        {
+          "name": "swift",
+          "source_sha256": "e9a817c2dcb98e1a669eabad2a16d09477ba4bf767931aee313e7daefd1aec70",
+          "result": "accepted",
+          "metrics": {
+            "distance": 570.56567,
+            "ticks": 286.0,
+            "speed": 120.0,
+            "elapsed": 4.75471,
+            "rate": 120.0
+          }
+        }
+      ],
+      "best": {
+        "index": 1,
+        "name": "swift",
+        "source_sha256": "e9a817c2dcb98e1a669eabad2a16d09477ba4bf767931aee313e7daefd1aec70",
+        "selection_value": 120.0
+      },
+      "proof_checks": {
+        "both_exact_candidates_accepted": true,
+        "fresh_execution_observed": true,
+        "swift_rate_exceeds_steady": true,
+        "swift_selected": true,
+        "expected_restoration_verified": true,
+        "same_pinned_runtime": true
+      }
+    },
+    "normalized_rate_retain_best": {
+      "result": "passed",
+      "finished_utc": "2026-10-12T15:17:10.176455+00:00",
+      "report_sha256": "a5cebaaafcf5be030c4bd9ae39eb1a29772003b883ddb9e773457b0cd47c7d4c",
+      "manifest_sha256": "3c736da4ad29a86c73c2ab322b93555c62924ab60f6f2839b09cf73938bf84c5",
+      "journal_sha256": "15ed9fe81171b084595cf299420f3d1cf32ca7b6345cd8ff0f46809e662a802f",
+      "mutation_submissions": 11,
+      "restoration": "best_source_retained_fresh_vm_paused",
+      "input_actions": 0,
+      "control_actions": 0,
+      "iterations": [
+        {
+          "name": "steady",
+          "source_sha256": "8f2b9b5e00d4f1d523aefe82bf30c062099ca4a206d466efaba3f8dc7299a488",
+          "result": "accepted",
+          "metrics": {
+            "distance": 163.16341,
+            "ticks": 164.0,
+            "speed": 60.0,
+            "elapsed": 2.71939,
+            "rate": 60.0
+          }
+        },
+        {
+          "name": "swift",
+          "source_sha256": "e9a817c2dcb98e1a669eabad2a16d09477ba4bf767931aee313e7daefd1aec70",
+          "result": "accepted",
+          "metrics": {
+            "distance": 316.3158,
+            "ticks": 159.0,
+            "speed": 120.0,
+            "elapsed": 2.63597,
+            "rate": 120.0
+          }
+        }
+      ],
+      "best": {
+        "index": 1,
+        "name": "swift",
+        "source_sha256": "e9a817c2dcb98e1a669eabad2a16d09477ba4bf767931aee313e7daefd1aec70",
+        "selection_value": 120.0
+      },
+      "proof_checks": {
+        "both_exact_candidates_accepted": true,
+        "fresh_execution_observed": true,
+        "swift_rate_exceeds_steady": true,
+        "swift_selected": true,
+        "expected_restoration_verified": true,
+        "same_pinned_runtime": true
+      }
+    },
+    "selected_fresh_vm_updates": 0,
+    "separate_foreground_frame_capture": {
+      "result": "passed: selected paused title, source hash and expected circle/text visually inspected",
+      "sha256": "731e99ca8e0127d3504688d16cfb3b5c0798d2bc8d0181366b03e6626a4a580e",
+      "scope": "Existing foreground screenshot tool; not capture integrated into the new session runner or Control/PID focus proof"
+    },
+    "retention_cleanup": {
+      "result": "Original retained VM then native scene restored paused; exact original parameters/ball/score/obstacles/mode and native session matched",
+      "mutations": 2,
+      "receipt_sha256": "64a24402562427f7e41631a84de9d48c5a1f0c75ad050eb46f9645299b6f4f8f",
+      "retained_failure": "PC-only journal update failed after the rollback receipt arrived. No rollback replay occurred; GET confirmed the original VM, and a separate journaled native action completed restoration."
+    },
+    "syntax_fault_continue_restore": {
+      "result": "passed",
+      "finished_utc": "2026-10-12T15:25:56.315216+00:00",
+      "report_sha256": "ed526b54182cd66cf26a057d32b3aa292a66dad9f632054417e2850b9efb2f0c",
+      "manifest_sha256": "cbfa786828221fa2d6db024e19d130afd96d5367b3151e53ffd71c236d26bf47",
+      "journal_sha256": "5bd7dcf6821a3f1295eddebf8e830ba083130828bf82123c60dd0622a5be9465",
+      "mutation_submissions": 10,
+      "restoration": "original_scene_paused_verified",
+      "input_actions": 0,
+      "control_actions": 0,
+      "iterations": [
+        {
+          "name": "bad_syntax",
+          "source_sha256": "0f1255b2f3f2a4373542128c7e4c41def25e0236255f02fc4f19e6a8418fe4eb",
+          "result": "syntax_or_preflight_rejected",
+          "metrics": {}
+        },
+        {
+          "name": "controlled_fault",
+          "source_sha256": "2bb29a3faac4602e7ea80937efb2afa67e606fa2fd8314e7e9a1b1db2078e2fe",
+          "result": "runtime_fault",
+          "metrics": {}
+        },
+        {
+          "name": "steady",
+          "source_sha256": "8f2b9b5e00d4f1d523aefe82bf30c062099ca4a206d466efaba3f8dc7299a488",
+          "result": "accepted",
+          "metrics": {
+            "distance": 94.0938,
+            "ticks": 95.0,
+            "speed": 60.0,
+            "elapsed": 1.56823,
+            "rate": 60.0
+          }
+        }
+      ],
+      "best": {
+        "index": 2,
+        "name": "steady",
+        "source_sha256": "8f2b9b5e00d4f1d523aefe82bf30c062099ca4a206d466efaba3f8dc7299a488",
+        "selection_value": 60.0
+      },
+      "proof_checks": {
+        "overall_passed": true,
+        "syntax_rejected": true,
+        "fault_recovered": true,
+        "continued_to_healthy": true,
+        "selected_healthy": true,
+        "restored_original": true
+      }
+    },
+    "post_recovery_observation": "Runner verified original scene/world paused at revision42. Later readback was revision43 with one added obstacle; native logs placed Touch obstacle added after the final restoration. That later physical-input change was left intact.",
+    "control_starter_run": false,
+    "synthetic_input_actions": 0,
+    "package_or_system_configuration_writes": 0
+  },
+  "limits": [
+    "DevLoop must already be open on the installed system; Resident 0.1.2 does not implement the host-candidate broker.",
+    "Evaluation uses caller-declared finite metrics; it does not establish game quality, physical controller acceptance or benchmark timing.",
+    "Metrics are cumulative; HTTP latency makes the measurement duration a polling window. The demo ranks simulated distance/elapsed time.",
+    "No remote scene lease, keepawake, power tick, managed assets/audio or native package installer in this script-only slice.",
+    "Local locking and revision/hash guards cannot eliminate another remote client request race. Uncertain writes stop without replay.",
+    "Default restoration preserves the original retained VM; native fallback may retain Lua inactive. Retain-best is a fresh paused VM.",
+    "Both failed boot experiments remain withdrawn/disabled. Broker integration and device durability/lifecycle acceptance remain separate gates."
+  ],
+  "privacy": "iPhone implementation, credentials, LAN addresses, raw journals, captures and generated/native artifacts remain private; this record contains sanitized measurements and hashes only"
+}

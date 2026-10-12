@@ -56,11 +56,21 @@ def read_report(relative,root=WORKDIR):
     if base not in path.parents or path.name!='report.json' or not path.is_file() or path.stat().st_size>2*1024*1024:raise ValueError('Choose a Workbench report.json under the evidence directory')
     return json.loads(path.read_text())
 def register(mcp):
+    from .script_session import run_session
+    from resident.launch_client import prepare_script_session
     from .prepare import prepare
     from .qualify_target import qualify
     from .candidates import stage
     from .verify_file import verify
     from typing import Literal
+    @mcp.tool(annotations=WRITE)
+    def vita_workbench_prepare_script_session(expected_devloop_build:str,allow_launch:bool=False,expected_resident_build:str|None=None,expected_resident_instance:str|None=None,timeout_s:int=15)->dict:
+        """Prepare Control-free script work by observing healthy paused native DevLoop 01.04 twice. Requires its exact native build and returns PID/run/revision pins for script_session. Launch is disabled by default. Explicit allow_launch additionally requires an exact future Resident broker build/native instance; installed Resident 0.1.2 has no broker and fails closed. Queues at most one fixed-title attempt, reconciles lost replies with GET only, then checks actual DevLoop build/session. No input, power, installation or scene mutation; polling 2..60 seconds plus socket deadlines."""
+        return prepare_script_session(expected_devloop_build,allow_launch=allow_launch,expected_resident_build=expected_resident_build,expected_resident_instance=expected_resident_instance,timeout_s=timeout_s)
+    @mcp.tool(annotations=WRITE)
+    def vita_workbench_script_session(candidates:list[dict],expected_devloop_build:str,expected_pid:int,expected_run:str,expected_revision:int,retain_best:bool=False,selection:dict|None=None)->dict:
+        """Autonomously deploy/run/measure/evaluate 1..8 SHA-pinned inline Lua candidates in already-open paused DevLoop 01.04. Pin exact native build/PID/run/revision; no Control required. Aggregate measurement <=120s plus HTTP deadlines. Restores original scene paused between candidates; optional retain_best reloads the chosen passing source paused. Holds the shared local lock, freezes endpoints and journals mutations. Uncertain writes or changed ownership stop without replay or unowned cleanup. No remote scene lease, screenshot, input, keepawake or native installer. Returns metrics, decisions and private evidence path."""
+        return run_session(candidates,expected_devloop_build,expected_pid,expected_run,expected_revision,retain_best=retain_best,selection=selection)
     @mcp.tool(annotations=WRITE)
     def vita_workbench_prepare_devloop(expected_control_build:str,expected_devloop_version:Literal['01.02','01.03','01.04']='01.04',timeout_s:int=30,expected_devloop_build:str|None=None)->dict:
         """Prepare healthy paused DevLoop: pin Control, refuse active input/work leases, launch CHRS00003 at most once if unavailable, and observe progress. Input readiness requires 01.04 native CHRS00003 PID matching captures plus expected_devloop_build from its exact package report; run/build are rechecked. Legacy and unpinned runtimes remain script-only. Journals evidence and ends temporary power. Never installs, loads modules, sends input or replaces a scene. Lost launch replies are inspected without repeating launch. Polls 2..60 seconds plus socket timeouts."""
