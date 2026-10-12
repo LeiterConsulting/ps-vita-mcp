@@ -59,7 +59,7 @@ def main():
         raise ValueError('Plugin SELF must contain the ARM ELF header')
     if (native / 'undefined-symbols.txt').read_text(encoding='utf-8').strip():
         raise ValueError('Unexpected unresolved ELF symbols')
-    core = ['service.c', 'sha256.c', 'sha256.h', 'platform.h', 'platform_vita.c', 'pairing.c', 'pairing_json.c', 'pairing_io.c', 'pairing.h', 'CMakeLists.txt', 'exports.yml',
+    core = ['service.c', 'sha256.c', 'sha256.h', 'platform.h', 'platform_vita.c', 'pairing.c', 'pairing_json.c', 'pairing_io.c', 'pairing.h', 'CMakeLists.txt', 'exports.yml', 'files.c', 'files.h', 'files_platform.h', 'files_platform_vita.c',
             'launch_broker/core.c', 'launch_broker/launch_broker.h', 'launch_broker/http.c', 'launch_broker/http.h',
             'launch_broker/store.c', 'launch_broker/store.h', 'launch_broker/native_vita.c', 'launch_broker/native.h',
             'launch_broker/service.c', 'launch_broker/service.h']
@@ -80,7 +80,7 @@ def main():
             raise ValueError('Previously accepted artifact changed: ' + relative)
         preserved[relative] = actual
     logs = {}
-    for name in ['c-service-tests.log', 'mcp-tests.log', 'ftp-tests.log', 'update-tests.log', 'native-build.log']:
+    for name in ['c-service-tests.log', 'mcp-tests.log', 'files-mcp-tests.log', 'ftp-tests.log', 'update-tests.log', 'native-build.log']:
         path = evidence / name
         if not path.exists() or not path.stat().st_size:
             raise ValueError('Missing build evidence: ' + name)
@@ -98,14 +98,15 @@ def main():
             sources[path.relative_to(ROOT).as_posix()] = digest(path)
     allocated = sum(section[5] for section in velf_sections.values() if section[2] & 2)
     report = {
-        'built_utc': datetime.now(timezone.utc).isoformat(), 'version': '0.1.3',
+        'built_utc': datetime.now(timezone.utc).isoformat(), 'version': '0.1.4',
         'toolchain': json.loads((ROOT / 'toolchain.lock.json').read_text(encoding='utf-8')),
         'plugin': {'file': 'vita_resident.suprx', 'bytes': len(self_data), 'sha256': hashlib.sha256(self_data).hexdigest(), 'build_id': build_id, 'elf_sha256': hashlib.sha256(elf_data).hexdigest(), 'velf_sha256': hashlib.sha256(velf_data).hexdigest(), 'module_attributes': 0, 'imports': imports, 'linked_allocated_section_bytes': allocated, 'worker_stack_bytes': 65536},
         'source_hashes': sources, 'test_log_hashes': logs, 'accepted_artifacts_preserved': preserved,
         'evidence_directory': str(evidence),
         'host_validation': 'Real C service with POSIX adapters, ASan/UBSan; real stdio MCP against simulated HTTP; guarded FTP staging against simulated FTP.',
         'launch_broker': {'enabled': False, 'native_submission': 'unconditionally refused', 'store_format': 1, 'store_capacity_records': 128, 'startup_dispatch': False},
-        'device_acceptance': 'pending: 0.1.3 disabled-candidate normal boot, retained native identity, read-only app inventory, SDK storage/sync/recovery and continued Resident/pairing behavior; app launching is not implemented or qualified',
+        'managed_files': {'protocol': 1, 'read_only': True, 'root': 'ux0:data/vita-resident/inbox', 'page_entries': 32, 'max_offset': 1000, 'max_read_bytes': 16384, 'max_file_bytes': 8388608, 'snapshot': False},
+        'device_acceptance': 'pending: 0.1.4 normal boot, managed inbox listing/hash/chunk reads, retained partial inspection and continued Resident/pairing/disabled-broker behavior; app launching is not implemented or qualified',
     }
     dist = ROOT / 'dist/resident'
     dist.mkdir(parents=True, exist_ok=True)

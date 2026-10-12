@@ -43,7 +43,7 @@ class ResidentRejection(RuntimeError):
         super().__init__(f'Resident rejected request with HTTP {status}' + (': ' + self.reason if self.reason else ''))
 
 
-mcp = FastMCP('Vita Resident', instructions='This server exposes 30 tools: four Resident, thirteen Control and thirteen Workbench. Optional Companion credentials permit inspection only; the desktop administrator token stays private. An active pairing challenge blocks captures until its original deadline. Resident runs in SceShell at boot. The existing manual path loads Control through Starter once after normal boot and retains it until reboot. The two failed boot experiments are withdrawn and must stay disabled. Control-free script sessions can iterate hash-pinned Lua candidates in an open 01.04 runtime. The separate Resident launch broker has a disabled 0.1.3 native qualification candidate; native submission is unconditionally refused, and installed 0.1.2 does not implement the namespace. Preparation may launch DevLoop once; uncertain replies are inspected without replay. Script reload readiness is separate from input readiness: synthetic Workbench trials require an exact caller-supplied DevLoop build pin, native 01.04 title/PID matching fresh captures and stable run/build identity; 01.02/01.03 legacy runtimes are script-only. Preparation defaults to 01.04; its build pin is optional only for script-only work. Read exact identity, current display PID and lease state before action. Input leases are bounded and cancel on focus change; confirm delivery through app telemetry. Screens are on-demand framebuffer copies, not synchronized video. Files are confined to managed revisions and fresh inboxes; native installation and boot acceptance are manual. Never automatically replay an uncertain write/action; inspect the exact revision or attempt. True sleep may make services unavailable; do not change sleep settings. Host tests and native builds do not establish physical acceptance.', log_level='WARNING')
+mcp = FastMCP('Vita Resident', instructions='This server exposes 33 tools: seven Resident, thirteen Control and thirteen Workbench. Optional Companion credentials permit inspection only; the desktop administrator token stays private. An active pairing challenge blocks captures until its original deadline. Resident runs in SceShell at boot. The existing manual path loads Control through Starter once after normal boot and retains it until reboot. The two failed boot experiments are withdrawn and must stay disabled. Control-free script sessions can iterate hash-pinned Lua candidates in an open 01.04 runtime. The separate Resident launch broker unconditionally refuses native submission; Resident 0.1.2 does not implement the namespace. Resident 0.1.4 adds read-only managed inbox listing, file information and bounded range reads; older services do not implement these tools. List pagination and range reads are observations, not atomic snapshots. Preparation may launch DevLoop once; uncertain replies are inspected without replay. Script reload readiness is separate from input readiness: synthetic Workbench trials require an exact caller-supplied DevLoop build pin, native 01.04 title/PID matching fresh captures and stable run/build identity; 01.02/01.03 legacy runtimes are script-only. Preparation defaults to 01.04; its build pin is optional only for script-only work. Read exact identity, current display PID and lease state before action. Input leases are bounded and cancel on focus change; confirm delivery through app telemetry. Screens are on-demand framebuffer copies, not synchronized video. Files are confined to managed revisions and fresh inboxes; native installation and boot acceptance are manual. Never automatically replay an uncertain write/action; inspect the exact revision or attempt. True sleep may make services unavailable; do not change sleep settings. Host tests and native builds do not establish physical acceptance.', log_level='WARNING')
 
 
 def configuration() -> dict:
@@ -59,8 +59,12 @@ def configuration() -> dict:
         raise RuntimeError('Resident pairing is not configured; use the staged prototype setup.') from error
 
 
-def request(method: str, path: str, body: bytes | None = None, digest: str | None = None, limit: int = 4096):
+def request(method: str, path: str, body: bytes | None = None, digest: str | None = None, limit: int = 4096, *, endpoint: dict | None = None):
     config = configuration()
+    if endpoint is not None:
+        if config != endpoint:
+            raise RuntimeError('Resident endpoint configuration changed during inspection')
+        config = endpoint
     connection = http.client.HTTPConnection(config['host'], config['port'], timeout=30 if body is not None else 10)
     headers = {'Authorization': 'Bearer ' + config['token'], 'Connection': 'close'}
     if digest:
@@ -82,6 +86,8 @@ def request(method: str, path: str, body: bytes | None = None, digest: str | Non
             except (ValueError, UnicodeError):
                 pass
             raise ResidentRejection(response.status, reason)
+        if endpoint is not None and configuration() != endpoint:
+            raise RuntimeError('Resident endpoint configuration changed during inspection')
         return data, response.getheader('Content-Type', '').split(';')[0], {'received_utc': datetime.now(timezone.utc).isoformat(), 'round_trip_ms': round((time.monotonic() - started) * 1000, 2)}
     except (OSError, http.client.HTTPException) as error:
         raise RuntimeError('Resident service unavailable or interrupted. Wake/reconnect the Vita; do not automatically replay an upload.') from error
@@ -89,12 +95,10 @@ def request(method: str, path: str, body: bytes | None = None, digest: str | Non
         connection.close()
 
 
-@mcp.tool(annotations=READ)
-def vita_resident_status() -> dict:
-    """Read resident heartbeat, process instance, battery, clocks and network state."""
-    data, content_type, timing = request('GET', '/status')
+def resident_status(*, endpoint: dict | None = None) -> dict:
+    data, content_type, timing = request('GET', '/status', endpoint=endpoint)
     value = json.loads(data)
-    if content_type != 'application/json' or value.get('app') != 'Vita Resident' or value.get('protocol') != 1 or value.get('version') not in ('0.1.1','0.1.2','0.1.3'):
+    if not isinstance(value, dict) or content_type != 'application/json' or value.get('app') != 'Vita Resident' or type(value.get('protocol')) is not int or value['protocol'] != 1 or value.get('version') not in ('0.1.1','0.1.2','0.1.3','0.1.4'):
         raise RuntimeError('Unexpected resident service identity')
     if not isinstance(value.get('build_id'), str) or not re.fullmatch('[0-9a-f]{64}', value['build_id']):
         raise RuntimeError('Invalid resident build identifier')
@@ -103,6 +107,12 @@ def vita_resident_status() -> dict:
             raise RuntimeError('Invalid resident counters')
     value['bridge'] = timing
     return value
+
+
+@mcp.tool(annotations=READ)
+def vita_resident_status() -> dict:
+    """Read resident heartbeat, process instance, battery, clocks and network state."""
+    return resident_status()
 
 
 def verify(attempt: str, leaf: str, expected_sha256: str, expected_bytes: int) -> dict:
@@ -183,6 +193,8 @@ def vita_resident_stage_package(package: Literal['devloop'], expected_sha256: st
 
 
 
+from files_client import register as register_file_tools
+register_file_tools(mcp, request, resident_status, configuration, READ)
 from control.bridge_tools import register as register_control_tools
 register_control_tools(mcp, configuration, ROOT)
 from workbench.server import register as register_workbench_tools

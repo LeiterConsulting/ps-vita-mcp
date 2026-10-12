@@ -7,7 +7,7 @@ This repository publishes the Windows PC bridges, development runners, build scr
 | Location | Purpose |
 | --- | --- |
 | `bridge/` | Ten foreground DevLoop MCP tools, configuration, FTP staging, Lua edit/run/capture and explicit live proof helpers |
-| `resident/bridge.py` | Combined 30-tool PC server: four Resident, thirteen Control and thirteen Workbench tools |
+| `resident/bridge.py` | Combined 33-tool PC server: seven Resident, thirteen Control and thirteen Workbench tools |
 | `resident/control/` | PC Control adapter, screen preview/decoding, guarded staging and recovery, plus matched native modules |
 | `resident/autostart/`, `resident/boot_diagnostic/` | Withdrawn default-disabled boot experiments, retained for offline diagnosis |
 | `resident/launch_client.py`, `resident/launch_broker/` | Control-free preparation client and fixed-title launch contract; installed 0.1.3 has partial native qualification, with launching disabled and refused |
@@ -46,7 +46,7 @@ Use absolute executable and script paths when registering the two stdio MCP serv
 
 DevLoop normally listens on 17865, Resident on 17866 and Control on 17867. The file manager's FTP port is separate. Control shares the Resident administrator token; the foreground DevLoop token is a separate pairing. Keep all credentials local. Services use unencrypted HTTP on a trusted LAN.
 
-After updating PC source, restart the relevant PC MCP connection to discover the combined 30-tool catalog. The existing two stdio entries remain sufficient; the new script tools are part of the Resident PC bridge, and the separate DevLoop bridge still has ten tools. Do not reload Vita helpers to refresh desktop tools. `resident/Register-Mcp.ps1` is the optional Codex CLI registration helper; a different existing registration is refused rather than silently replaced. [Troubleshooting](TROUBLESHOOTING.md) covers offline services, identity mismatch and reboot guards.
+After updating PC source, restart the relevant PC MCP connection to discover the combined 33-tool catalog. The existing two stdio entries remain sufficient; the new script tools are part of the Resident PC bridge, and the separate DevLoop bridge still has ten tools. Do not reload Vita helpers to refresh desktop tools. `resident/Register-Mcp.ps1` is the optional Codex CLI registration helper; a different existing registration is refused rather than silently replaced. [Troubleshooting](TROUBLESHOOTING.md) covers offline services, identity mismatch and reboot guards.
 
 Synchronous MCP jobs can outlast the client's per-tool timeout, including script sessions and long soaks. Codex supports `tool_timeout_sec` and defaults to 60 seconds. Add `tool_timeout_sec = 4200` inside the existing `[mcp_servers.vita_resident]` table in `~/.codex/config.toml`, retaining its transport settings, then refresh the PC connection. This allows the supported maximum 3,600-second soak plus request and cleanup time; it does not raise any job limit. Other MCP clients need an adequate timeout or the CLI. [Official OpenAI MCP configuration](https://learn.chatgpt.com/docs/extend/mcp?surface=cli).
 
@@ -83,6 +83,8 @@ Start with `vita_workbench_doctor` to inspect availability and the exact Control
 Workbench trials pin profile/source hashes and native build identity, record mutation intent before device changes, and retain metrics and cleanup receipts. Preparation and trials freeze their foreground and effective Control endpoints, including `VITA_CONTROL_PORT`; detected configuration drift stops work while cleanup stays on the original endpoint. Input-bearing profiles fail before scene mutation without native target mapping and recheck that mapping before each step. Use [Workbench](../workbench/README.md) for script-only profiles, qualified input trials, capture soak, observers and managed-file recovery. Live proof helpers perform device actions only when explicitly invoked; coordinate an idle device and check their scope first.
 
 The normal Starter path remains manual once per confirmed boot and inspected native state. [Deferred automatic startup](AUTONOMOUS-DEVLOOP.md#experimental-one-shot-startup) and its isolated diagnostic are withdrawn from routine use after boot failures; keep both disabled and preserve the verified recovery. Neither a PC restart nor a successful host build activates or qualifies a boot candidate. Native installation, boot acceptance and recovery remain operator steps. Repeated-boot operation is not implemented or qualified.
+
+Resident 0.1.4 source adds [managed inbox inspection](MANAGED-FILES.md): directory pages, size/hash observations and pinned binary ranges up to 16 KiB, including retained partial files. The installed 0.1.3 does not support these three tools; older versions receive an explicit unsupported response. The tools freeze endpoint credentials for each operation and report non-atomic observations. Native writes, installation and launching remain separate.
 
 After an interrupted upload, retain its attempt ID, expected size and hash. `vita_resident_verify_upload` reads that exact attempt twice. The candidate staging repair now uses one ID across journal, upload and receipt; a lost reply is not automatically replayed. Native installation is still manual.
 

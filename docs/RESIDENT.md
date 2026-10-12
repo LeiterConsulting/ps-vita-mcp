@@ -15,9 +15,9 @@ From the repository root, with Docker Desktop running:
 .\Build-Resident.ps1
 ```
 
-The current source builds the disabled 0.1.3 qualification candidate. The build runs the actual C HTTP/storage service under sanitizers with host adapters, MCP stdio fixtures, first-install FTP fixtures and update fixtures. It validates the ARM module's identity, imports, lifecycle, unresolved symbols and source fingerprint. Outputs are `dist/resident/vita_resident.suprx` and `dist/resident/build-report.json`. Building does not contact the Vita.
+The current source builds Resident 0.1.4 with managed inbox inspection and the launch broker still disabled. This candidate has not been activated or qualified on the Vita. The build runs the actual C HTTP/storage service under sanitizers with host adapters, MCP stdio fixtures, first-install FTP fixtures and update fixtures. It validates the ARM module's identity, imports, lifecycle, unresolved symbols and source fingerprint. Outputs are `dist/resident/vita_resident.suprx` and `dist/resident/build-report.json`. Building does not contact the Vita.
 
-The combined public bridge exposes four Resident tools, thirteen [Control tools](CONTROL.md) and thirteen [Workbench tools](../workbench/README.md), for 30 total. The two new script-preparation/session tools run on the PC through the existing foreground DevLoop API; they do not add native capabilities to installed Resident. The Resident MCP subset retains these four operations:
+The combined public bridge exposes seven Resident tools, thirteen [Control tools](CONTROL.md) and thirteen [Workbench tools](../workbench/README.md), for 33 total. Script-preparation/session tools run on the PC through the existing foreground DevLoop API; they do not add native capabilities to installed Resident. Three 0.1.4-only inspection tools are documented in [Managed files](MANAGED-FILES.md): `vita_resident_list_inbox`, `vita_resident_file_info` and `vita_resident_read_file`. They inspect permitted inbox attempts and retained parts without changing files. The installed 0.1.3 does not implement them. The original Resident subset retains these four operations:
 
 | Tool | Operation |
 | --- | --- |

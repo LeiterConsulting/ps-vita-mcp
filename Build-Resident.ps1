@@ -10,6 +10,8 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Resident C service tests failed.' }
     & $residentPython resident/test_bridge.py 2>&1 | Tee-Object (Join-Path $residentEvidence 'mcp-tests.log')
     if ($LASTEXITCODE -ne 0) { throw 'Resident MCP tests failed.' }
+    & $residentPython resident/test_files_bridge.py 2>&1 | Tee-Object (Join-Path $residentEvidence 'files-mcp-tests.log')
+    if ($LASTEXITCODE -ne 0) { throw 'Resident file MCP tests failed.' }
     & $residentPython resident/test_staging.py 2>&1 | Tee-Object (Join-Path $residentEvidence 'ftp-tests.log')
     if ($LASTEXITCODE -ne 0) { throw 'Resident deployment tests failed.' }
     & $residentPython resident/test_update.py 2>&1 | Tee-Object (Join-Path $residentEvidence 'update-tests.log')

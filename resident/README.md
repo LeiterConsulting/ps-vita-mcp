@@ -6,7 +6,7 @@ A further bounded Lua regression passed under 0.1.3: both candidates accepted at
 
 The earlier 0.1.2 startup and native pairing-window exchange passed; successful individual credential confirmation remains pending. The 0.1.1 storage/runtime record is also separate. Read the [pairing contract and manual gates](../docs/PAIRING.md) before deployment.
 
-Background device status and verified DevLoop uploads through a SceShell user plugin. The combined desktop MCP bridge exposes 30 tools: four Resident, thirteen Control and thirteen Workbench tools.
+Current source builds Resident 0.1.4 with [managed inbox inspection](../docs/MANAGED-FILES.md); it is not yet activated or qualified on the Vita. It adds paginated listing, size/hash and bounded reads of final and retained partial files, without Control or FTP. Background device status and verified DevLoop uploads remain available through the SceShell user plugin. The combined desktop MCP bridge exposes 33 tools: seven Resident, thirteen Control and thirteen Workbench tools.
 
 The 0.1.3 [native launch qualification candidate](../docs/RESIDENT-LAUNCH-CANDIDATE.md) adds retained native identity, immutable attempt storage, strict administrator-only broker HTTP and read-only app inventory. Live broker flags `enabled`, `configured_enabled` and `blocked` were all false. Launch remains disabled and unconditionally refused; no new boot entry or initialization-time launch is added. Storage durability across reboot, phone confirmation and foreground/protected-UI qualification remain open.
 

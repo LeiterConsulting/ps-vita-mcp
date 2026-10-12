@@ -114,7 +114,7 @@ Register two stdio servers using absolute paths from this checkout:
 }
 ```
 
-DevLoop exposes ten tools and resources. The combined Resident bridge exposes **30 tools: four Resident, thirteen Control and thirteen Workbench**. Control uses the existing Resident token and port **17867**; Resident uses **17866**; foreground DevLoop uses **17865**. The desktop process speaks MCP; the Vita services speak authenticated HTTP.
+DevLoop exposes ten tools and resources. The combined Resident bridge exposes **33 tools: seven Resident, thirteen Control and thirteen Workbench**. Control uses the existing Resident token and port **17867**; Resident uses **17866**; foreground DevLoop uses **17865**. The desktop process speaks MCP; the Vita services speak authenticated HTTP.
 
 Restart/refresh this client's existing MCP connection after updating the bridge. A long-lived old bridge rejected Control 0.2.2 as an unexpected identity until it was restarted. Restart the **PC connection**, not the loaded Vita modules. The supplied `resident/Register-Mcp.ps1` is an optional Codex CLI registration helper; other clients can use the JSON above.
 
@@ -173,4 +173,4 @@ The [deferred startup helper](../resident/autostart/README.md) and isolated boot
 
 ## Companion pairing candidate
 
-Current source builds Resident 0.1.3 and Starter 01.06 / Control 0.3.4. The earlier Resident 0.1.2 pairing trial passed startup, physical code display and graceful timeout; these are historical results. Resident 0.1.3 has partial native boot/identity/inventory/transfer qualification, with its 0.1.2 rollback retained. Successful phone credential confirmation and physical regression gates remain open. Follow [PAIRING.md](PAIRING.md); keep the desktop token private and keep the phone session separate from desktop input/work trials. Historical device acceptance does not transfer to a new build.
+Current source builds Resident 0.1.4 and Starter 01.06 / Control 0.3.4. The new [managed inbox inspection](MANAGED-FILES.md) candidate needs its own activation and hardware qualification; the test Vita still runs Resident 0.1.3. The earlier Resident 0.1.2 pairing trial passed startup, physical code display and graceful timeout; these are historical results. Resident 0.1.3 has partial native boot/identity/inventory/transfer qualification, with its 0.1.2 rollback retained. Successful phone credential confirmation and physical regression gates remain open. Follow [PAIRING.md](PAIRING.md); keep the desktop token private and keep the phone session separate from desktop input/work trials. Historical device acceptance does not transfer to a new build.
