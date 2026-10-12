@@ -11,6 +11,14 @@ a normal reboot, with GET-only verification and no replay. Accepted Resident
 0.1.4 is retained for rollback; DevLoop 01.04 remains installed. Host simulations
 and an ARM build do not establish Vita acceptance.
 
+The separate [Make Vita App workflow](MAKE-VITA-APP.md) adds an application-module
+wrapper for this single owned development slot. It preserves the pristine Lab
+baseline and authenticates application health through the existing lifecycle
+envelope. Two generated Native Paddle builds passed registered-MCP lifecycle
+cycles and read-only reconciliation, including a changed-source redeploy. These
+results are recorded separately from the five baseline cycles above; the wrapper
+does not enable arbitrary titles or establish visual/physical acceptance.
+
 The [dated validation record](native-lifecycle-validation.json) pins the exact
 source, Resident plugin, lab package and 27 passing host groups. It records
 staging, the five passed native cycles across two builds and the remaining

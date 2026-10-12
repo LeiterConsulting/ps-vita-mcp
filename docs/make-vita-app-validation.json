@@ -1,0 +1,146 @@
+{
+  "date": "2026-10-12",
+  "scope": "Reusable skill, PC project workflows, shared Lua host behavior and native development-slot build; device acceptance recorded separately.",
+  "skill": {
+    "name": "make-vita-app",
+    "natural_alias": "make_vita_app",
+    "source": "skills/make-vita-app",
+    "syntax_validation": "passed",
+    "installed_local_launcher_outside_checkout": "passed",
+    "routes": [
+      "plan-only",
+      "Lua DevLoop scene",
+      "native development-slot prototype",
+      "standalone source/build assessment"
+    ]
+  },
+  "host_validation": {
+    "groups": 30,
+    "result": "passed",
+    "shared_lua_validator_tests": 14,
+    "project_and_native_tests": 27,
+    "compiler_dependency_negative_fixtures": [
+      "undeclared host header",
+      "undeclared native-only header",
+      "native inline-assembler file read"
+    ],
+    "negative_fixture_expectation": "reject before test execution or candidate publication; retain previous candidate",
+    "windows_link_tests": "two symlink creation tests skipped because the host does not permit creating their fixtures; Linux CI runs them",
+    "device_acceptance": false,
+    "retained_linux_ci_failure": {
+      "run_id": "38302277573",
+      "head_sha": "860e0c5b8f1b21b7089c558fc4f90d0dbea3596a",
+      "group": "vita-app-shared-lua",
+      "cause": "Container uid 0 with all capabilities dropped could not write a Linux host-uid-owned mode-755 output bind.",
+      "fix": "Use invoking host UID:GID on POSIX; preserve Windows defaults.",
+      "real_linux_permissions_reproduction": "Old compile failed with Permission denied; fixed compile and actual 120-frame shared Lua starter run passed.",
+      "runtime_fingerprint_changed": false
+    }
+  },
+  "forward_tests": {
+    "plan_only_music_player": {
+      "result": "passed",
+      "app_scaffolds": 0,
+      "builds": 0,
+      "device_mutations": 0,
+      "finding": "Native audio/media provisioning needs adapter work; current Lua sandbox cannot provide a local music player."
+    },
+    "breathing_timer": {
+      "result": "passed",
+      "delivery_form": "DevLoop scene",
+      "source_sha256": "160e0a4b56d9fa8e6a163e9b68105a9d32d6ae050aa1176f8100a93e243865f2",
+      "source_bytes": 2118,
+      "helper_check": "passed",
+      "supplementary_cases": 13,
+      "numeric_predicates": 104,
+      "wrong_duration_mutation": "correctly rejected",
+      "radius_bounds": [
+        40,
+        120
+      ],
+      "peak_memory_bytes": 41457,
+      "device_mutations": 0
+    }
+  },
+  "native_prototype": {
+    "application": "Native Paddle",
+    "title_id": "VMCP00001",
+    "version": "01.03",
+    "native_build_id": "c450ef59c0038599ebf2f401f6dc8dcff15f2fd7d350da6c54480286b774c1d4",
+    "module_sha256": "283d239e501c17f796246a2eccb3b89a2b65951c7f0101da662c70495a2509fa",
+    "package_sha256": "1c94d70c44738df598d7c13c364a891282eb6ad03a08cfcf7db42028fceea5c7",
+    "package_bytes": 129577,
+    "host_simulation": "passed",
+    "arm_self_sfo_package_validation": "passed",
+    "compiler_dependencies_verified": true,
+    "isolated_pinned_build_workspace": true,
+    "hardware_lifecycle": "two bounded cycles across two app builds passed through registered MCP tools",
+    "physical_input_and_visual_acceptance": "pending",
+    "cycles": [
+      {
+        "result": "passed",
+        "job_id": "f0f198dc236844288a6051d627315bdc",
+        "version": "01.02",
+        "native_build_id": "8ff6285916c7971315de5121ada888755f9a4f6c9bb9b238cb07d6e36de92379",
+        "package_sha256": "70bd3ae94f094f1bf08abe0dee7cc8014487e2e9a11af07a30c93d627df81e50",
+        "package_bytes": 129580,
+        "installed_hashes_verified": true,
+        "install_dispatch_count": 1,
+        "launch_dispatch_count": 1,
+        "runtime_identity_matches_independent_inventory": true,
+        "app_inclusive_selftest_passed": true,
+        "checksum": 2727420034,
+        "first_frame": 353,
+        "last_frame": 487,
+        "graceful_exit_and_absence": true,
+        "read_only_reconciliation": "passed",
+        "elapsed_s": 40.462,
+        "accepted_applications_changed": false,
+        "boot_configuration_changed": false
+      },
+      {
+        "result": "passed",
+        "job_id": "dc939a21ebbf43acbc60a826a99aa7dc",
+        "version": "01.03",
+        "native_build_id": "c450ef59c0038599ebf2f401f6dc8dcff15f2fd7d350da6c54480286b774c1d4",
+        "package_sha256": "1c94d70c44738df598d7c13c364a891282eb6ad03a08cfcf7db42028fceea5c7",
+        "package_bytes": 129577,
+        "installed_hashes_verified": true,
+        "install_dispatch_count": 1,
+        "launch_dispatch_count": 1,
+        "runtime_identity_matches_independent_inventory": true,
+        "app_inclusive_selftest_passed": true,
+        "checksum": 2727420034,
+        "first_frame": 31,
+        "last_frame": 102,
+        "graceful_exit_and_absence": true,
+        "read_only_reconciliation": "passed",
+        "elapsed_s": 41.858,
+        "accepted_applications_changed": false,
+        "boot_configuration_changed": false
+      }
+    ],
+    "source_iteration": "Initial horizontal ball speed changed from 220 to 300 pixels/second. The old 50 ms position oracle correctly failed; the intended new x=495 expectation then passed before version 01.03 redeployment.",
+    "preflight": "Initial unavailability preceded all writes; operator confirmed the Vita had slept. After a physical wake and fresh ready guard, each new effect plan executed once.",
+    "routine_manual_steps_after_wake": 0,
+    "ftp_starter_or_reboot_used": false
+  },
+  "prior_hardware_baseline": {
+    "component": "pristine Lifecycle Lab",
+    "cycles": 5,
+    "builds": 2,
+    "normal_reboot_durability": "passed without replay",
+    "qualification": "docs/native-lifecycle-validation.json",
+    "inherits_generated_app_acceptance": false
+  },
+  "boundaries": [
+    "One VMCP00001 native development bubble; arbitrary titles and accepted app replacement are unsupported.",
+    "Lua requires an already-open healthy paused DevLoop 01.04; the script-only path does not launch or keep it awake.",
+    "Native callbacks have no Lua instruction or memory containment and must return promptly.",
+    "Embedded assets and the fixed linked libraries only; media, audio and additional dependencies need reviewed adapter work.",
+    "Unknown native effects are retained and reconciled read-only without replay.",
+    "True sleep or lost Wi-Fi can require a physical wake; boot/sleep settings are preserved.",
+    "iPhone implementation, signing/build artifacts, credentials, private projects and raw device evidence remain private."
+  ],
+  "next_qualification_slice": "A bounded Resident work lease to prevent idle sleep during active development, with explicit expiry/release and crash/disconnect recovery; preserve ordinary sleep settings and qualify independently."
+}
