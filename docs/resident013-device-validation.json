@@ -1,0 +1,144 @@
+{
+  "recorded_date": "2026-10-12",
+  "recorded_utc": "2026-10-12T16:27:19.884610+00:00",
+  "scope": "Partial physical-Vita Resident 0.1.3 qualification after one operator-confirmed normal boot; native launching remains disabled",
+  "version": "0.1.3",
+  "native_build_id": "dff9ca028eff4329b8212c0222c8cc39324fff25401adc83b0ca9ec62445d3a7",
+  "plugin_sha256": "12552378c0cbc6bdc8f523b5bab7882446d0bc6bdd38610da1ee9cdc17465f17",
+  "plugin_bytes": 39761,
+  "candidate_record": "resident-launch-validation.json",
+  "candidate_source_commit": "312687a77fc1d644c40d58e21873011dc9018bd5",
+  "native_input_count": 21,
+  "native_inputs_unchanged": true,
+  "operator_boot": {
+    "normal_boot": true,
+    "plugin_bypass_used": false,
+    "starter_run": false,
+    "confirmation": "Booted normally; FTP ready"
+  },
+  "read_only_device_verification": {
+    "active_sha256": "3c2dca6bf87746e949514bd5c658ed9b14e9fd1bb0c400d0b22c58dcaff262d9",
+    "readbacks": 2,
+    "pairing_unchanged": true,
+    "candidate_plugin_exact": true,
+    "rollback_plugin_and_config_retained": true,
+    "no_ux0_override": true,
+    "withdrawn_experiments_disabled": true,
+    "configuration_or_plugin_writes": 0
+  },
+  "native_identity": {
+    "samples": 3,
+    "exact_build_matched": true,
+    "instance_stable_across_requests": true,
+    "clock_strictly_advanced": true,
+    "instance_changes_after_restart": "pending",
+    "enabled": false,
+    "configured_enabled": false,
+    "blocked": false
+  },
+  "inventory": {
+    "context": "operator-opened file manager",
+    "available": true,
+    "entries_reported": 1,
+    "resolved_entries": 1,
+    "app_id_pid_title_mapping": "resolved one file-manager entry",
+    "snapshot_atomic": false,
+    "capacity_limited": true,
+    "foreground_verified": false,
+    "protected_ui_verified": false,
+    "native_submission_enabled": false,
+    "devloop_comparison": "passed: exact CHRS00003 PID matched native DevLoop self-report in all eight samples",
+    "contexts": [
+      "operator-opened file manager",
+      "operator-opened paused DevLoop 01.04"
+    ]
+  },
+  "access_denial": {
+    "unauthenticated_inventory_status": 403,
+    "result": "refused"
+  },
+  "fresh_stdio_mcp": {
+    "ordinary_status": "passed: exact 0.1.3 native identity and advancing counters",
+    "inbox_probe_bytes": 4096,
+    "complete_readbacks": 2,
+    "result": "passed",
+    "keep_awake": false,
+    "saved_administrator_credential": "continued to authorize status and inbox transfer",
+    "individual_phone_credential_confirmation": "not tested",
+    "catalog_tools": 30,
+    "probe_contexts": [
+      "file manager open",
+      "DevLoop open"
+    ],
+    "background_probe_bytes": 4096,
+    "background_probe_readbacks": 2,
+    "same_resident_instance_across_apps": true
+  },
+  "desktop_connection": {
+    "existing_registered_process": "stale: rejected new version; old 28-tool catalog still advertised",
+    "fresh_source_process": "passed live status and probe",
+    "required_action": "restart PC Resident MCP connection to use updated source"
+  },
+  "github": {
+    "pr8": "merged into PR6 branch",
+    "merge_commit": "09e17f4ab1bfd4e521fa2de6554a68338c25e325",
+    "base_branch": "document-boot-recovery-20261012",
+    "pr6": "still open against main",
+    "candidate_ci_url": "https://github.com/LeiterConsulting/ps-vita-mcp/actions/runs/38276177950",
+    "candidate_ci_head": "312687a77fc1d644c40d58e21873011dc9018bd5",
+    "candidate_host_groups_passed": 22
+  },
+  "raw_evidence_sha256": {
+    "qualification": "35bcdd45e952c6b1fc35b417d7bf6368a7bdecd6919624dcea1711623f59c010",
+    "fresh_mcp_probe": "8558c0f4c0fb0341d1e185cd03f40b36d08a64160a3d2c5a31571a55319301d2",
+    "background_mcp_probe": "cf0d12290ab743779df81fedbb688c10f562d442c82edffdf4f04adc5c5e63fd",
+    "lua_regression": "faabc574ab68db2556b9ddcd8bce55bfd9ed161c8cd8c0f8368774a755daba7a"
+  },
+  "remaining_gates": [
+    "native store write/sync/recovery and reboot durability",
+    "read-only foreground/protected-UI policy",
+    "enabled fixed-title native launch",
+    "native installation and Resident managed file-service expansion",
+    "sleep/wake, Wi-Fi recovery and complete platform autonomy",
+    "individual phone credential confirmation and persistence"
+  ],
+  "excluded_private_data": [
+    "LAN addresses",
+    "pairing credentials and codes",
+    "raw native instance identifiers",
+    "active/proposed configuration contents",
+    "raw device journals",
+    "private iPhone implementation and artifacts"
+  ],
+  "concurrent_services": {
+    "samples": 8,
+    "resident_identity_unchanged": true,
+    "resident_clock_advanced": true,
+    "devloop_native_build_id": "c7d4a08d3c42025803ded7146b86a68c415ce157d6199978506af3b79a15b5f7",
+    "devloop_pid_run_build_stable": true,
+    "devloop_frames_advanced": true,
+    "initial_revision_unchanged": true,
+    "scene_writes_during_observer": 0,
+    "foreground_attestation": false
+  },
+  "lua_regression": {
+    "result": "passed",
+    "completed_utc": "2026-10-12T16:30:44.476436+00:00",
+    "candidate_count": 2,
+    "measured_rates": [
+      60.0,
+      120.0
+    ],
+    "selected": "swift",
+    "restoration": "original_scene_paused_verified",
+    "native_world_unchanged": true,
+    "devloop_native_identity_retained": true,
+    "final_paused_revision": 9,
+    "resident_native_identity_retained": true,
+    "input_actions": 0,
+    "control_actions": 0,
+    "launches": 0,
+    "known_limit": "Last Lua VM retained inactive; previous rollback history cannot be preserved"
+  },
+  "updated_utc": "2026-10-12T16:38:21.030430+00:00"
+}
