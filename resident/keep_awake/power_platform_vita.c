@@ -25,8 +25,8 @@ static int worker_entry(unsigned args,void *arg) { (void)args;(void)arg;power_wo
 int rkap_worker_start(void (*worker)(void)) {
     if(power_thread>=0) return -1;
     power_worker=worker;
-    /* A bounded worker must preempt Resident's 0x40 bulk-transfer thread. */
-    power_thread=sceKernelCreateThread("resident-keep-awake",worker_entry,0x38,32768,0,0,0);
+    /* 0x40 is the highest user priority; 0x38 fails with ILLEGAL_PRIORITY. */
+    power_thread=sceKernelCreateThread("resident-keep-awake",worker_entry,0x40,32768,0,0,0);
     if(power_thread<0) return power_thread;
     int result=sceKernelStartThread(power_thread,0,0);
     if(result<0) { sceKernelDeleteThread(power_thread);power_thread=-1; }

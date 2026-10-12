@@ -1,18 +1,18 @@
 {
   "as_of": "2026-10-12",
   "candidate_version": "0.1.6",
-  "installed_version": "0.1.5",
+  "installed_version": "0.1.6 first candidate; corrected candidate staged",
   "host_tests": "passed",
   "native_build": "passed",
-  "device_update": "staged and verified; physical activation pending",
+  "device_update": "corrected candidate staged and verified; normal reboot pending",
   "live_keep_awake": "pending",
   "live_expiry_and_normal_sleep": "pending",
   "physical_manual_sleep_wake": "pending",
   "physical_wifi_loss": "pending",
   "sleep_settings_changed": false,
   "iphone_code_published": false,
-  "plugin_sha256": "8d75572f6fedafeb27d053ba0b3f693bd9821a97336aa398d4eefa725ff37bb4",
-  "resident_build_id": "da36d6c08e75c3d0069723a92f1d64cafd7bf8e8f6cb440f4773c1f61ea90e2b",
+  "plugin_sha256": "d8ca07cfb6ef6e367ed792b08f4bfe134053e609dfeb10a20c8845aff508c45a",
+  "resident_build_id": "ed4abe7bbf3f5cb6f52899d4bcace5483dd2fd19b193e7e6034fb1338ffd04d4",
   "host_test_counts": {
     "c-service-tests.log": [
       "8",
@@ -46,5 +46,19 @@
     "native-lifecycle-pc-tests.log": "92e50a3d32b3ad26d86196c14f75ff7b33f792309f78dc224ee0e3235d511d36",
     "keep-awake-pc-tests.log": "27d95ca070c0512900f37f564a85fd50ee226abda24da4715be99b379b77bc77",
     "native-build.log": "8e23dd361870bfc09a4f00eaea2fe74922ca2040ed956f5f9d05910e3fdf1932"
+  },
+  "operator_standby_minutes": 1,
+  "sleep_settings_changed_by_service": false,
+  "first_candidate": {
+    "plugin_sha256": "8d75572f6fedafeb27d053ba0b3f693bd9821a97336aa398d4eefa725ff37bb4",
+    "normal_boot": "passed",
+    "exact_config_and_plugin_readback": "passed",
+    "keep_awake_endpoint": "unavailable; no lease started",
+    "worker_start_result": "0x80028023 SCE_KERNEL_ERROR_ILLEGAL_PRIORITY",
+    "cause": "worker priority 0x38 rejected; corrected to existing qualified user priority 0x40"
+  },
+  "ci_first_run": {
+    "run": 38306873777,
+    "result": "failed stale 36-tool fixture assertion; corrected to 40 and all 13 targeted tests passed"
   }
 }

@@ -132,7 +132,7 @@ The [Lua interface](SCRIPTING.md) covers drawing, input observations, metrics an
 ```mermaid
 flowchart LR
     Client[MCP client] <-->|stdio| DevBridge[DevLoop bridge: 10 tools]
-    Client <-->|stdio| Background[Resident Control and Workbench: 36 tools]
+    Client <-->|stdio| Background[Resident Control and Workbench: 40 tools]
     DevBridge <-->|LAN HTTP :17865| DevLoop[Foreground Lua app]
     Background <-->|LAN HTTP :17866| Resident[Resident in SceShell]
     Background <-->|LAN HTTP :17867| Control[Control in SceShell]
