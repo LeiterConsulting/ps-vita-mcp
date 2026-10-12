@@ -78,7 +78,7 @@ class IntegrationTests(unittest.TestCase):
         async def run():
             async with self.mcp() as client:
                 tools = (await client.list_tools()).tools
-                self.assertEqual(len(tools), 36)
+                self.assertEqual(len(tools), 40)
                 self.assertEqual(sum(t.name.startswith('vita_workbench_') for t in tools), 16)
                 self.assertEqual(sum(t.name.startswith('vita_control_') for t in tools), 13)
                 self.assertEqual(sum(t.name.startswith('vita_resident_') for t in tools), 7)

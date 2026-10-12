@@ -1,0 +1,50 @@
+{
+  "as_of": "2026-10-12",
+  "candidate_version": "0.1.6",
+  "installed_version": "0.1.5",
+  "host_tests": "passed",
+  "native_build": "passed",
+  "device_update": "staged and verified; physical activation pending",
+  "live_keep_awake": "pending",
+  "live_expiry_and_normal_sleep": "pending",
+  "physical_manual_sleep_wake": "pending",
+  "physical_wifi_loss": "pending",
+  "sleep_settings_changed": false,
+  "iphone_code_published": false,
+  "plugin_sha256": "8d75572f6fedafeb27d053ba0b3f693bd9821a97336aa398d4eefa725ff37bb4",
+  "resident_build_id": "da36d6c08e75c3d0069723a92f1d64cafd7bf8e8f6cb440f4773c1f61ea90e2b",
+  "host_test_counts": {
+    "c-service-tests.log": [
+      "8",
+      "1",
+      "10",
+      "21",
+      "13",
+      "6"
+    ],
+    "mcp-tests.log": [],
+    "files-mcp-tests.log": [],
+    "ftp-tests.log": [
+      "14"
+    ],
+    "update-tests.log": [
+      "3"
+    ],
+    "native-lifecycle-pc-tests.log": [
+      "35"
+    ],
+    "keep-awake-pc-tests.log": [
+      "25"
+    ]
+  },
+  "test_log_sha256": {
+    "c-service-tests.log": "810b8c6e106467118904d13edd057068c1d8c0d094011b3d08df3d1508a09bcc",
+    "mcp-tests.log": "808274b523a0395f966a0a595f3d4937ff4760ea15ecd37b00e4bc5c69c70f2d",
+    "files-mcp-tests.log": "4f93d93675505180aab06a8a16469a5ea675a8eade28c5cb4e76194a6344c75e",
+    "ftp-tests.log": "70ac39eeb01eef4030813a4e0ad507b19bb8784c7272c6f409501855346ecbbe",
+    "update-tests.log": "c3a7cb22dc90c562b4ac832aa57b0d5ae7bb75ae9265926e020140f055cbb249",
+    "native-lifecycle-pc-tests.log": "92e50a3d32b3ad26d86196c14f75ff7b33f792309f78dc224ee0e3235d511d36",
+    "keep-awake-pc-tests.log": "27d95ca070c0512900f37f564a85fd50ee226abda24da4715be99b379b77bc77",
+    "native-build.log": "8e23dd361870bfc09a4f00eaea2fe74922ca2040ed956f5f9d05910e3fdf1932"
+  }
+}

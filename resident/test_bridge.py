@@ -80,7 +80,7 @@ async def main():
     try:
         with tempfile.TemporaryDirectory() as temp:
             fixture_root = Path(temp)
-            for name in ('resident/bridge.py', 'resident/files_client.py', 'resident/launch_client.py', 'resident/lifecycle_client.py', 'bridge/server.py', 'bridge/ftp_staging.py', 'resident/control/bridge_tools.py', 'resident/control/rgb_codec.py'):
+            for name in ('resident/bridge.py', 'resident/files_client.py', 'resident/launch_client.py', 'resident/lifecycle_client.py', 'resident/keep_awake_client.py', 'bridge/server.py', 'bridge/ftp_staging.py', 'resident/control/bridge_tools.py', 'resident/control/rgb_codec.py'):
                 destination = fixture_root / name
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(ROOT / name, destination)
@@ -128,18 +128,18 @@ async def main():
                 async with ClientSession(read, write) as session:
                     await session.initialize()
                     tools = await session.list_tools()
-                    assert len(tools.tools) == 36
+                    assert len(tools.tools) == 40
                     assert {'vita_resident_status', 'vita_resident_verify_upload', 'vita_resident_probe_upload', 'vita_resident_stage_package'}.issubset({tool.name for tool in tools.tools})
-                    checks.append('seven-resident-thirteen-control-sixteen-workbench-tools-listed')
+                    checks.append('eleven-resident-thirteen-control-sixteen-workbench-tools-listed')
                     status = await session.call_tool('vita_resident_status', {})
                     assert not status.isError and value(status)['app'] == 'Vita Resident'
                     checks.append('status-through-MCP')
-                    for supported in ('0.1.1', '0.1.2', '0.1.3', '0.1.4', '0.1.5'):
+                    for supported in ('0.1.1', '0.1.2', '0.1.3', '0.1.4', '0.1.5', '0.1.6'):
                         fault['version'] = supported
                         status = await session.call_tool('vita_resident_status', {})
                         assert not status.isError and value(status)['version'] == supported
                     checks.append('supported-installed-and-disabled-candidate-versions-through-MCP')
-                    for unsupported in ('0.1.6', '', 1):
+                    for unsupported in ('0.1.7', '', 1):
                         fault['version'] = unsupported
                         status = await session.call_tool('vita_resident_status', {})
                         assert status.isError

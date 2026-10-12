@@ -296,6 +296,107 @@ class NativeLifecycleTests(unittest.TestCase):
         self.assertEqual(value['plan_sha256'], sha(canonical(value['plan'])))
         self.assertEqual(self.writes(), [])
 
+    def power_identity(self, **overrides):
+        original = self.fixture.status
+        def status():
+            value = original()
+            value.update(resident_version='0.1.6', keep_awake_protocol=1, keep_awake_port=17869)
+            value.update(overrides)
+            return value
+        return patch.object(self.fixture, 'status', side_effect=status)
+
+    def fake_keeper(self, *, fail_start=False, fail_fresh=None, fail_pending=False,
+                    fail_after_exit=False, end='ended'):
+        owner = self
+        class Keeper:
+            def __init__(self, *args, **kwargs):
+                self.result = {'enabled': False, 'renewals': 0, 'errors': []}
+                self.checks = self.fresh = self.stops = 0
+                owner.power_keeper = self
+            def start(self, *pins):
+                # The lease worker's own instance is independent from the
+                # native lifecycle instance. Only the shared build is passed.
+                owner.assertEqual(pins, (BUILD,))
+                owner.assertEqual(owner.writes(), [])
+                if fail_start:
+                    raise RuntimeError('fixture lease unavailable')
+                self.result['enabled'] = True
+            def check(self, *, fresh=False):
+                self.checks += 1
+                self.fresh += int(fresh)
+                if fresh and self.fresh == fail_fresh:
+                    raise RuntimeError('fixture heartbeat lost')
+                if fail_pending and any(value['state'] in ('queued', 'dispatch_intent', 'running')
+                                        for value in owner.fixture.operations.values()):
+                    raise RuntimeError('fixture heartbeat lost during native dispatch')
+                if fail_after_exit and ('POST', '/exit') in owner.fixture.calls:
+                    raise RuntimeError('fixture heartbeat lost before native exit absence was confirmed')
+            def stop(self):
+                self.stops += 1
+                self.result['end'] = end
+                return self.result
+        return patch('workbench.native_lifecycle.ResidentKeeper', Keeper)
+
+    def test_resident016_requires_owned_lease_before_native_writes_and_ends_after_work(self):
+        with self.power_identity(), self.fake_keeper():
+            result = self.run_job()
+        self.assertEqual(result['result'], 'passed')
+        self.assertTrue(result['keep_awake']['enabled'])
+        self.assertEqual(result['keep_awake']['end'], 'ended')
+        self.assertEqual(self.power_keeper.stops, 1)
+        self.assertEqual(self.power_keeper.fresh, len(self.writes()) + 1)
+
+    def test_resident016_missing_lease_capability_refuses_without_native_writes(self):
+        with self.power_identity(keep_awake_protocol=None), self.fake_keeper():
+            result = self.run_job()
+        self.assertEqual(result['result'], 'blocked')
+        self.assertEqual(result['failure_code'], 'resident_keep_awake_capability_missing_or_invalid')
+        self.assertEqual(self.writes(), [])
+        self.assertFalse(hasattr(self, 'power_keeper'))
+
+    def test_lease_start_failure_stops_native_effects_and_always_attempts_owned_end(self):
+        with self.power_identity(), self.fake_keeper(fail_start=True):
+            result = self.run_job()
+        self.assertEqual(result['result'], 'blocked')
+        self.assertEqual(self.writes(), [])
+        self.assertEqual(self.power_keeper.stops, 1)
+
+    def test_lease_health_checkpoint_stops_before_next_native_effect(self):
+        with self.power_identity(), self.fake_keeper(fail_fresh=3):
+            result = self.run_job()
+        self.assertEqual(result['result'], 'blocked')
+        self.assertEqual(result['failure_code'], 'resident_keep_awake_no_longer_confirmed')
+        self.assertEqual(len(self.writes()), 1)
+        self.assertEqual(self.writes()[0], ('POST', '/native-lifecycle/stage'))
+        self.assertEqual(self.power_keeper.stops, 1)
+
+    def test_lease_release_uncertainty_is_reported_separately_from_completed_native_cycle(self):
+        with self.power_identity(), self.fake_keeper(end='unconfirmed; fixture'):
+            result = self.run_job()
+        self.assertEqual(result['result'], 'unconfirmed')
+        self.assertEqual(result['failure_code'], 'resident_keep_awake_end_unconfirmed')
+        self.assertEqual(result['cycles'][0]['result'], 'passed')
+        self.assertFalse(self.fixture.running)
+
+    def test_lease_loss_during_async_native_install_retains_unknown_effect_without_replay(self):
+        with self.power_identity(), self.fake_keeper(fail_pending=True):
+            result = self.run_job('pending_install')
+        self.assertEqual(result['result'], 'unconfirmed')
+        self.assertEqual(result['failure_code'], 'install_pending_when_keep_awake_lost')
+        self.assertIsNone(result['native_lab_left_running'])
+        self.assertEqual(len([path for method, path in self.writes() if path.endswith('/install')]), 1)
+        self.assertFalse(any(path.endswith('/launch') or path == '/exit' for method, path in self.writes()))
+        self.assertEqual(self.power_keeper.stops, 1)
+
+    def test_lease_loss_after_exit_ack_before_absence_is_unconfirmed_without_replay(self):
+        with self.power_identity(), self.fake_keeper(fail_after_exit=True):
+            result = self.run_job()
+        self.assertEqual(result['result'], 'unconfirmed')
+        self.assertEqual(result['failure_code'], 'resident_keep_awake_lost_during_native_effect')
+        self.assertIsNone(result['native_lab_left_running'])
+        self.assertEqual(len([path for method, path in self.writes() if path == '/exit']), 1)
+        self.assertEqual(self.power_keeper.stops, 1)
+
     def test_two_complete_cycles_install_launch_evaluate_exit_and_redeploy(self):
         result = self.run_job(cycles=2)
         self.assertEqual(result['result'], 'passed')

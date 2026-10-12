@@ -5,6 +5,7 @@
 #include "files.h"
 #include "launch_broker/service.h"
 #include "native_install/service.h"
+#include "keep_awake/service.h"
 
 static unsigned char buffer[R_CHUNK];
 static char headers[4097];
@@ -170,7 +171,7 @@ static void download(int socket,const Request *request) {
 }
 static void status(int socket) {
     RDevice d; r_device(&d);
-    R_SNPRINTF(reply,sizeof(reply),"{\"app\":\"Vita Resident\",\"protocol\":1,\"version\":\"" R_VERSION "\",\"build_id\":\"%s\",\"port\":17866,\"started_ms\":%llu,\"uptime_ms\":%llu,\"heartbeat\":%llu,\"requests\":%llu,\"uploads\":%llu,\"battery_percent\":%d,\"charging\":%d,\"clocks_mhz\":[%d,%d,%d,%d],\"network_state\":%d,\"keep_awake\":false,\"max_upload_bytes\":%u,\"process\":\"SceShell user plugin\"}",R_BUILD_ID,(unsigned long long)started,(unsigned long long)(r_now()-started),(unsigned long long)heartbeat,(unsigned long long)requests,(unsigned long long)uploads,d.battery,d.charging,d.cpu,d.bus,d.gpu,d.xbar,d.network,R_MAX_FILE);
+    R_SNPRINTF(reply,sizeof(reply),"{\"app\":\"Vita Resident\",\"protocol\":1,\"version\":\"" R_VERSION "\",\"build_id\":\"%s\",\"port\":17866,\"started_ms\":%llu,\"uptime_ms\":%llu,\"heartbeat\":%llu,\"requests\":%llu,\"uploads\":%llu,\"battery_percent\":%d,\"charging\":%d,\"clocks_mhz\":[%d,%d,%d,%d],\"network_state\":%d,\"keep_awake\":%s,\"keep_awake_protocol\":1,\"keep_awake_port\":17869,\"max_upload_bytes\":%u,\"process\":\"SceShell user plugin\"}",R_BUILD_ID,(unsigned long long)started,(unsigned long long)(r_now()-started),(unsigned long long)heartbeat,(unsigned long long)requests,(unsigned long long)uploads,d.battery,d.charging,d.cpu,d.bus,d.gpu,d.xbar,d.network,rka_active()?"true":"false",R_MAX_FILE);
     respond(socket,200,reply);
 }
 static void storage_request(int socket,const Request *request,int admin,size_t initial_size) {
@@ -350,6 +351,7 @@ void r_service(const char token[33]) {
     if(!pr_init(&pairing_state,pr_platform_io(),R_PORT,17867,R_BUILD_ID))r_log("Phone pairing unavailable; legacy auth preserved",-1);
     rlb_init();
     ni_init();
+    r_log("keep-awake worker start",rka_start(token));
     int listener=-1; uint64_t previous=started;
     r_log("worker ready",0);
     while(r_running()) {
@@ -370,5 +372,6 @@ void r_service(const char token[33]) {
         r_delay(25);
     }
     if(listener>=0) r_close_socket(listener);
+    rka_stop();
     r_network_end(); r_log("worker stopped",0);
 }

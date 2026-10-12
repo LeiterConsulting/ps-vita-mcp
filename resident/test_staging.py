@@ -139,6 +139,33 @@ class StageTests(unittest.TestCase):
                     stage(self.root, EXPECTED)
                 self.assertFalse(any(c in ['STOR', 'MKD', 'RNTO'] for c, p in self.ftp.commands))
 
+    def keep_awake_report(self):
+        path, report = self.lifecycle_candidate_report()
+        report['version'] = '0.1.6'
+        report['keep_awake'] = {
+            'protocol': 1, 'port': 17869, 'ttl_ms': [5000, 30000],
+            'max_duration_ms': 1800000, 'automatic_suspend_only': True,
+            'persistent': False, 'status_renews': False, 'display_settings_changed': False}
+        return path, report
+
+    def test_keep_awake_candidate_stages_without_activation(self):
+        path, report = self.keep_awake_report()
+        path.write_text(json.dumps(report))
+        self.assertEqual(stage(self.root, EXPECTED)['version'], '0.1.6')
+        self.assert_untouched()
+
+    def test_keep_awake_widened_contract_refused_before_writes(self):
+        for key, value in [('persistent', True), ('status_renews', True),
+                           ('ttl_ms', [5000, 60000]), ('max_duration_ms', 3600000),
+                           ('display_settings_changed', True), ('port', 17866)]:
+            with self.subTest(key=key):
+                path, report = self.keep_awake_report()
+                report['keep_awake'][key] = value
+                path.write_text(json.dumps(report))
+                with self.assertRaises(ValueError):
+                    stage(self.root, EXPECTED)
+                self.assertFalse(any(c in ['STOR', 'MKD', 'RNTO'] for c, p in self.ftp.commands))
+
     def test_config_change_and_precedence_refuse_before_device_writes(self):
         for mode in ['changed', 'ux0']:
             with self.subTest(mode=mode):
