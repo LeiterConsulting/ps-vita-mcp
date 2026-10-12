@@ -1,12 +1,15 @@
 """Recover an uncertain managed-file outcome by observation, without rewriting it."""
 import hashlib,http.client,json,os,re,time
-from .runner import Device,Journal,WORKDIR,check_identity,utc
+from .runner import Device,Journal,WORKDIR,check_identity,freeze_device_endpoints,utc
 from .session import exclusive
 from .power import WorkKeeper
 
 MAX_FILE=8*1024*1024
 def read_wire(client,path,limit):
-    config=client.configuration();port=int(os.environ.get('VITA_CONTROL_PORT',config['port']+1))
+    freeze=getattr(client,'freeze_endpoint',None)
+    if freeze is not None:config=freeze();port=config['port']
+    else:
+        config=client.configuration();port=int(os.environ.get('VITA_CONTROL_PORT',config['port']+1))
     if not 1<=port<=65535:raise ValueError('Invalid Control port')
     connection=http.client.HTTPConnection(config['host'],port,timeout=30)
     start=time.monotonic()
@@ -26,6 +29,7 @@ def verify(attempt,name,expected_bytes,expected_sha256,expected_control_build,de
         j=Journal(root,'file-verification');keeper=WorkKeeper(d.control,j.folder)
         j.report.update(attempt=attempt,name=name,expected_bytes=expected_bytes,expected_sha256=expected_sha256,control_build=expected_control_build,device_file_mutations=0)
         try:
+            freeze_device_endpoints(d)
             check_identity(d.control_status(),expected_control_build)
             def stat():
                 raw,mime,ms=read_wire(d.control,'/workspace/stat/'+identity,8192)

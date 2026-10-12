@@ -5,15 +5,30 @@ Use this sequence to turn the reviewed source candidate into a supported develop
 ## Completed preparation
 
 - [x] Import allowlisted Control 0.3.3 and Workbench sources without private pairing, device journals or unrelated apps.
-- [x] Add ten Workbench tools to the existing background MCP and share the foreground session lock.
+- [x] Add the original ten Workbench tools to the existing background MCP and share the foreground session lock.
 - [x] Check hash/revision guards, uncertain replies, ownership, paused restoration and invalid-version refusal through actual MCP fixtures.
 - [x] Run C sanitizer harnesses, staging/retirement fixtures and native ARM/package validation in the isolated public checkout.
 - [x] Record development-device input, power, synthetic filtering, Lua restoration and managed-file recovery separately from public packages.
 - [x] Add portable host CI, setup guidance, qualification records and remaining gates.
 
+## October 11 autonomous source candidate
+
+- [x] Add the eleventh Workbench tool for one-attempt launch preparation with journaled observation and bounded power cleanup.
+- [x] Freeze effective endpoints for preparation and trials; retain original endpoint cleanup after detected configuration drift.
+- [x] Separate script readiness from native target/PID input readiness; block input-bearing profiles on legacy DevLoop before scene mutation and recheck before each input.
+- [x] Add native DevLoop 01.04 title/PID, run and build telemetry, with PC runtime pinning and an exact caller build pin required for synthetic input.
+- [x] Implement a separate default-disabled deferred one-shot startup helper with exact module hashes, consumed opt-in, retained duplicate-load guards, metadata probe and cancellation.
+- [x] Retain the one-shot helper's native build and disabled staging record: seven files, two readbacks, active configuration and pairing preserved. [October 11 evidence](autonomous-candidate-validation.json).
+- [x] Retain the complete final 17-group host pass, unchanged 221-file source/build snapshot, per-group log hashes and exact DevLoop 01.04 native build evidence in the [candidate record](autonomous-candidate-validation.json).
+- [x] Verify a normal disabled boot through worker logs, expected Resident identity and Control absence.
+- [ ] Verify one explicitly armed startup with exact external service identities and ordinary app operation. The first armed trial booted normally and submitted the exact native service, but Control work-power worker startup failed and its endpoint remained unavailable. Inspect and repair before another guarded attempt.
+- [x] Build, stage with two readbacks and install exact DevLoop 01.04; verify stable native identity and the 55-step live Lua reload/recovery proof with original native scene restored paused.
+- [ ] Qualify DevLoop 01.04 identity against fresh Control captures before re-enabling synthetic Workbench profiles on the test device. Control is unavailable after the first armed startup.
+- [ ] Design and qualify persistent activation across repeated boots, duplicate detection, lifecycle recovery and failure handling. The one-shot helper does not satisfy this gate.
+
 ## 1. Finish the repaired development build acceptance
 
-With the existing matched Control 0.3.3 pair already loaded, open native DevLoop paused and rest the Vita flat. Do not run Starter again in the same boot.
+Use the exact matched pair selected for the current trial; the latest recorded pairing candidate is Control 0.3.4 / Starter 01.06. Control 0.3.3 observations below are history, not acceptance of the new pair. Load Starter only once after a confirmed normal boot, open native DevLoop paused and rest the Vita flat. Do not run Starter again or layer it over an uncertain automatic startup.
 
 - [ ] After a fresh dim cycle, hold only the bottom edge of the front panel for eight seconds. Require foreground contact telemetry, visible brightening, brightness throughout the hold, neutral release and a subsequent dim cycle.
 - [ ] Repeat for the rear panel, avoiding the front panel, buttons and sticks.
@@ -30,9 +45,9 @@ Run the observers described in [Workbench](../workbench/README.md). Store raw ev
 - [ ] Stage exact candidates with two readbacks. Keep the old packages, active tai configuration and pairing for rollback. Installation, normal reboot and activation remain manual.
 - [ ] Inspect installed Starter and Target entries against their public reports. Retire an old guard only after a confirmed normal reboot, Control absence and exact inspected identities. Never remove an active guard or load Starter twice per boot.
 - [ ] Prove the public Resident identity after its deliberate installation, then the matched public Control ABI/build through actual desktop MCP.
-- [ ] Repeat power, synthetic exclusion, Target input/expiry/focus, both Lua profiles, file recovery and completed capture checks with public build pins.
+- [ ] Repeat power, synthetic exclusion, Target input/expiry/focus, script-only Lua, file recovery and completed capture checks with public build pins. Input-bearing Lua profiles additionally require installed native title/PID mapping and matched fresh captures.
 - [ ] Repeat the physical gates above on the installed public pair.
-- [ ] Qualify public DevLoop 01.03 launch, Lua load/run/recovery, clean exit and sleep/return. The older development 01.02 run does not cover the changed shutdown code.
+- [ ] Qualify public DevLoop 01.04 title/PID/run/build telemetry, launch, Lua load/run/recovery, clean exit and sleep/return. Neither the older development 01.02 run nor the historical 01.03 build covers this candidate.
 
 The [setup guide](GETTING-STARTED.md) preserves storage/plugin settings and describes rollback. A staged inbox or native launch receipt alone does not prove installation or runtime.
 

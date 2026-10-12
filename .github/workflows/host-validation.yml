@@ -19,7 +19,7 @@ jobs:
           cache-dependency-path: bridge/requirements-lock.txt
       - name: Install pinned host dependencies
         run: python -m pip install -r bridge/requirements-lock.txt
-      - name: Check C and MCP host contracts
+      - name: Check C, MCP, preparation and one-shot startup host contracts
         run: python scripts/ci_host.py
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()

@@ -1,0 +1,303 @@
+{
+  "recorded_date": "2026-10-11",
+  "scope": "Autonomous candidate build, staging and scoped Vita observations; complete autonomous-session acceptance not achieved",
+  "catalog": {
+    "resident": 4,
+    "control": 13,
+    "workbench": 11,
+    "combined": 28,
+    "foreground_devloop_separate": 10
+  },
+  "autostart": {
+    "version": "0.1.0",
+    "mode": "experimental one-shot only",
+    "built_utc": "2026-10-11T22:27:40.466238+00:00",
+    "build_report_sha256": "e9e8b1160503d74320351467521138848f68268f25f42f90dcee401b851578e0",
+    "control_version": "0.3.4",
+    "control_build_id": "22a9a4202a5feb39f413f37cb235c9a31391bd785b9dff573bb0d638e5fdc8fa",
+    "artifacts": {
+      "vita_autostart.suprx": {
+        "bytes": 11327,
+        "sha256": "3b23b67406a24340c4a7dfecff29b5b2461113bf7df140efbbed9e7ec9beeaf6",
+        "imports": [
+          "SceAppMgr",
+          "SceAppMgrUser",
+          "SceIofilemgr",
+          "SceLibKernel",
+          "SceThreadmgr",
+          "taihenUnsafe"
+        ]
+      },
+      "autostart_shell_probe.suprx": {
+        "bytes": 6284,
+        "sha256": "4376cb926d4b87afa3928bc5b04e6c74813f7a0f9a2ec0f001109ca2b230f51e",
+        "imports": [
+          "SceIofilemgr",
+          "SceLibKernel",
+          "SceThreadmgr",
+          "VitaControlKernel"
+        ]
+      },
+      "vita_control_kernel.skprx": {
+        "bytes": 10512,
+        "sha256": "2b6698d6722d57e94c6ce98f5607a5af518e9b57f39d0637f8a7c48010652173"
+      },
+      "vita_control.suprx": {
+        "bytes": 27765,
+        "sha256": "294bdaf994a8e93084f1acaa748560ec89805cdc83897d9572856fae202d7677"
+      }
+    },
+    "native_build": "passed: pinned SDK; imports, SELF/module metadata, entry points and exact source/artifact hashes checked",
+    "disabled_staging": {
+      "verified_utc": "2026-10-11T22:28:05.295140+00:00",
+      "file_count": 7,
+      "readbacks_per_file": 2,
+      "active_config_unchanged": true,
+      "pairing_unchanged": true,
+      "active_opt_in_created": false,
+      "state": "staged and read-back verified; disabled"
+    },
+    "physical_disabled_boot": "passed: operator normal reboot, worker disabled completion, exact Resident available and Control absent",
+    "physical_armed_one_shot_boot": "normal boot and exact native submission confirmed; Control network startup failed",
+    "external_network_identity_after_autostart": "failed: Control endpoint unavailable after work-power worker startup error",
+    "persistent_boot": "not implemented or qualified",
+    "armed_boot_trials": [
+      {
+        "trial": 1,
+        "date": "2026-10-11",
+        "normal_boot": "passed",
+        "delayed_readiness": "confirmed after 15 seconds",
+        "immutable_hashes": "verified by helper",
+        "opt_in": "consumed before native submission",
+        "kernel_shell_probe": "matched ABI 2/build and Shell caller",
+        "service_submission": "confirmed at about 17.8 seconds uptime",
+        "network_service": "unavailable",
+        "control_failure": "work power worker failed (-1), about 21.6 seconds uptime",
+        "automatic_retry": "blocked; consumed opt-in and duplicate-load guards retained",
+        "ordinary_app_acceptance": "not established"
+      }
+    ]
+  },
+  "host_validation": {
+    "configured_groups": 17,
+    "pre_devloop_01_04_run": "passed all 15 groups; preliminary because native DevLoop identity changed afterward",
+    "final_candidate_rerun": "passed all 17 groups",
+    "autostart_staging_tests": 11,
+    "device_contact_by_host_tests": false,
+    "completed_utc": "2026-10-11T23:02:58.817847+00:00",
+    "report_sha256": "fa44a3dfe0fd93bd5bbb9c2d7e2dc474d79cbbe50873b59a627f5a92a10614f9",
+    "checks": [
+      {
+        "name": "public-source-scope",
+        "exit_code": 0,
+        "log_sha256": "f9eab5f9821efee1880aa29a03e0e6a04e7f484a5c598acb395e0d0edcd6dc36"
+      },
+      {
+        "name": "pc-pairing-form",
+        "exit_code": 0,
+        "log_sha256": "c59cf031108e593c9714f292ad3224bd3fc7737712699140c8d3df017f72615f"
+      },
+      {
+        "name": "devloop-native-identity",
+        "exit_code": 0,
+        "log_sha256": "9bd7b3928608af1671f590334ee6f86948e2026f878a63f312741197f04e7008"
+      },
+      {
+        "name": "devloop-c",
+        "exit_code": 0,
+        "log_sha256": "778299811dff50a04272a6dc62fd10d816386ce39235121a084589c1f6a4c029"
+      },
+      {
+        "name": "resident-c",
+        "exit_code": 0,
+        "log_sha256": "96b6ab462fadc8d76197ed15fcbddbe7f44fde2c542657bd2354f221cab1440c"
+      },
+      {
+        "name": "control-c",
+        "exit_code": 0,
+        "log_sha256": "3396ab5cbfded5e2549f6226d22dc344dba5fdd241ea1d38f283c8e1325ed593"
+      },
+      {
+        "name": "autostart-c",
+        "exit_code": 0,
+        "log_sha256": "2f95099d708ae419e95be505135ce6555e8f2e5e310cc35695c25208e3fa13a1"
+      },
+      {
+        "name": "boot-diagnostic-c",
+        "exit_code": 0,
+        "log_sha256": "19624d3012149f5de43b12e942ace18e64f26f935399c66b08342cbb07ed628e"
+      },
+      {
+        "name": "target-c",
+        "exit_code": 0,
+        "log_sha256": "5c521092ef1648a3c51c8bdf54dee1c5307144358e8aad87c5c631048acb19f8"
+      },
+      {
+        "name": "test_bridge-tests",
+        "exit_code": 0,
+        "log_sha256": "345ad472174f7435e0007b26e3af1d1575b21cda80b4684bcef13d4c9df799a8"
+      },
+      {
+        "name": "test_scripts_bridge-tests",
+        "exit_code": 0,
+        "log_sha256": "4dc4224a87cfd7b722283b69e8c4169c7517dc295bca3ba14c0f2843ac863cfc"
+      },
+      {
+        "name": "test_bridge-resident",
+        "exit_code": 0,
+        "log_sha256": "130cf186f93a4c34f4f22fa557a8b8960954555391c4c0d5fbc7fa18d9dc51cf"
+      },
+      {
+        "name": "test_bridge-control",
+        "exit_code": 0,
+        "log_sha256": "fd3d821197aa459d4e5a4461596c080bb40478312bcd9a8dc732e11d24845229"
+      },
+      {
+        "name": "test_staging-control",
+        "exit_code": 0,
+        "log_sha256": "a4e8e8d9c457ff0b7581bc3305bfc06ef534fc4e9b572a2ac351ef96daee68dc"
+      },
+      {
+        "name": "test_mcp-workbench",
+        "exit_code": 0,
+        "log_sha256": "d68993aa560b7f3b461d3763185a0554a66dc994e6831a3fb2f77faa7ecee255"
+      },
+      {
+        "name": "workbench-decisions",
+        "exit_code": 0,
+        "log_sha256": "92a787faf6ab7166a5254ce7be78958e5509f813cddfe9a58e32b677fb46f187"
+      },
+      {
+        "name": "autostart-staging",
+        "exit_code": 0,
+        "log_sha256": "4168f3c2010872fbe8025821d3cd5346b8720c5a04914fd445bde79c884c984f"
+      }
+    ],
+    "selected_source_file_count": 221,
+    "source_snapshot_sha256": "e12008e5bcd21e0cee6e6fba7d639944d73bfc10dcecf4ea0bac4bd2daf6d986",
+    "source_unchanged_during_run": true,
+    "native_identity_unit_checks": 6,
+    "endpoint_regressions": 12,
+    "boot_diagnostic_adapter_cases": 34
+  },
+  "devloop_01_04": {
+    "version": "01.04",
+    "title_id": "CHRS00003",
+    "native_build": "passed: full pinned-SDK Build-DevLoop.ps1 and independently reviewed artifact chain",
+    "built_utc": "2026-10-11T22:54:32.328180+00:00",
+    "build_id": "c7d4a08d3c42025803ded7146b86a68c415ce157d6199978506af3b79a15b5f7",
+    "native_input_count": 75,
+    "build_report_sha256": "5a4e216b9da84d383b5465b293dbd4fbe4fc2e5872118ad492d41ae9599944ef",
+    "package": {
+      "file": "vita_devloop.vpk",
+      "bytes": 465567,
+      "sha256": "3ba219efd66eb9f97da25fc5178365887b12a9fc7dde968e105bf9eff5c7d075",
+      "elfSha256": "276694b3318ac8a1e92aa3258deb115b6bfa3540533557dc972ec06a8cea1f49",
+      "velfSha256": "9c863b001a5622053b14aef5dd4a1f122fac33254aafd2048553fb42fb9fae59",
+      "selfSha256": "947e66d78dfbf33a70a968d316383e32979473908b9e0ff82cdfe258c40bc32b"
+    },
+    "conversion_verification": {
+      "image": "vitasdk/vitasdk@sha256:fd82d88ff456d118eef16533ebf9a3a6ae0e292684fb8a3a35f15f0707b4692d",
+      "command": "sh scripts/verify_devloop_chain.sh",
+      "logSha256": "4c606ed0221c984e6fa78cf2bf90507a07d20e776d50b27edd792009416547e1"
+    },
+    "staging": {
+      "result": "passed",
+      "bytes": 465567,
+      "sha256": "3ba219efd66eb9f97da25fc5178365887b12a9fc7dde968e105bf9eff5c7d075",
+      "readbacks": 2,
+      "installation": "passed after staging"
+    },
+    "installation": "passed: exact staged 01.04 candidate installed",
+    "runtime_identity": "passed on physical Vita: native build pin, advancing status/script/input frames and stable native PID/run",
+    "live_lua": {
+      "passed": true,
+      "mcp_steps": 55,
+      "completed_utc": "2026-10-11T22:54:44.435937+00:00",
+      "report_sha256": "2a2db2e55fa7411c9945ab47168c15643faf64e5b26039da999a7475f6a8f13f",
+      "scope": [
+        "load/resume/pause and metrics",
+        "framebuffer capture and visibly inspected hot reload",
+        "rollback preserves metrics",
+        "restart",
+        "syntax and infinite-loop rejection",
+        "controlled late fault and recovery",
+        "original native parameters and scene restored paused"
+      ],
+      "restored_native_paused": true
+    },
+    "physical_acceptance": "partial: native runtime/Lua proof and normal START+SELECT exit passed; Control capture mapping, synthetic input and sleep/reopen remain pending",
+    "control_capture_pid_mapping": "pending: Control network service unavailable",
+    "synthetic_workbench_input": "pending",
+    "physical_input_acceptance": "pending",
+    "sleep_and_reopen": "pending",
+    "normal_exit": "passed: operator confirmed START+SELECT exit, then reopened FTP"
+  },
+  "release": {
+    "public_binary_distribution": "blocked pending dependency notices and artifact-bound device gates",
+    "iphone_implementation": "private; documentation and protocol public"
+  },
+  "excluded_private_data": [
+    "LAN addresses",
+    "pairing credentials and codes",
+    "active or proposed device configuration contents",
+    "captures",
+    "detailed raw journals",
+    "iPhone source and build artifacts"
+  ],
+  "boot_resource_diagnostic": {
+    "version": "0.1.0",
+    "mode": "isolated one-shot mutex/thread diagnostic; no Control or module loads",
+    "built_utc": "2026-10-11T22:59:29.849718+00:00",
+    "build_id": "7a701339c5859ba5915b7c32241814dc55d7f21e98be7cba08102862f4f1c863",
+    "source_input_count": 11,
+    "artifact": {
+      "file": "vita_boot_diagnostic.suprx",
+      "bytes": 7838,
+      "sha256": "7c3e33f04f4e605a1765c058fe60895823e72ffdf3f0b25fc0500618ecc7c399",
+      "imports": [
+        "SceAppMgr",
+        "SceAppMgrUser",
+        "SceIofilemgr",
+        "SceLibKernel",
+        "SceThreadmgr"
+      ],
+      "elf_sha256": "c7c0da4f5e9b0b9814f1df998d506a73a82e4c3cc9c25efbdfe972b62348e955",
+      "velf_sha256": "cb68f8bbcb5eb83dcd63ae23a0538ec02d7b174260138e93f5805a9b7700f559"
+    },
+    "build_report_sha256": "47243c5c9229e6d0307d1426d70e726b9271795a0c3e433b79080e927f3ff54b",
+    "conversion_verification": "pinned SDK repeats ELF-to-VELF-to-SELF; exact byte equality",
+    "native_build": "passed; independent pinned-SDK ELF-to-SELF equality and import checks",
+    "host_adapter_cases": 34,
+    "staging": "passed: four files, two exact readbacks each; isolated diagnostic opt-in armed last",
+    "hardware_acceptance": "pending; staging and opt-in do not establish diagnostic execution",
+    "control_or_other_plugin_loads": "none; diagnostic cannot establish MCP readiness",
+    "staging_details": {
+      "completed_utc": "2026-10-12T03:10:57.716513+00:00",
+      "receipt_sha256": "2391f75386a21aaf3bb2e94edde9ffba50e2b81486e42c26455b6bd2e77f01d9",
+      "file_count": 4,
+      "readbacks_per_file": 2,
+      "active_config_written": false,
+      "active_config_unchanged": true,
+      "original_autostart_and_control_guards_unchanged": true,
+      "diagnostic_opt_in": "armed after other staged files; two exact readbacks",
+      "pairing_unchanged": true
+    },
+    "activation": "pending: module inactive until manual configuration copy and normal reboot"
+  },
+  "desktop_registration": {
+    "configured_entries_verified": 2,
+    "fresh_stdio_tools": {
+      "resident_combined": 28,
+      "devloop": 10
+    },
+    "client_ui_reload": "passed: operator restarted Codex; actual host exposes 28 combined Resident tools and 10 foreground DevLoop tools",
+    "configuration_applied": "passed: both existing PC MCP entries updated and verified",
+    "actual_host_resident_status": {
+      "result": "passed: actual host vita_resident_status returned exact installed Resident identity",
+      "version": "0.1.2",
+      "build_id": "cc816e8db301e5a250ee5d19d060c1f896244c7af1f0a7333a46380f1fd4f0ef"
+    }
+  },
+  "current_autonomy_status": "Foreground 01.04 native identity/Lua proof passed; background Control unavailable after first armed startup, so full autonomous operation is not accepted"
+}

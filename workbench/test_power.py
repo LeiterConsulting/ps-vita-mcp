@@ -43,6 +43,19 @@ class Tests(unittest.TestCase):
             self.assertTrue(keeper.end.wait(2));count=len(self.calls);time.sleep(.15);self.assertEqual(len(self.calls),count)
             result=keeper.stop()
         self.assertEqual(self.calls,[30000,30000,0]);self.assertEqual(len(result['errors']),1)
+    def test_start_freezes_endpoint_without_device_preparation(self):
+        config={'host':'127.0.0.1','port':self.server.server_port-1,'token':'d'*32}
+        client=ControlClient(lambda:dict(config))
+        self.assertFalse(hasattr(client,'_frozen_endpoint'))
+        with exclusive():
+            keeper=WorkKeeper(client,self.folder,interval=.05);keeper.start({'abi':2,'power_protocol':1})
+            config.update(host='127.0.0.2',port=1,token='f'*32);os.environ['VITA_CONTROL_PORT']='0'
+            limit=time.monotonic()+2
+            while len(self.calls)<3 and time.monotonic()<limit:time.sleep(.01)
+            result=keeper.stop()
+        self.assertGreaterEqual(result['renewals'],2);self.assertEqual(self.calls[-1],0)
+        self.assertEqual(client.endpoint(),{'host':'127.0.0.1','port':self.server.server_port,'token':'d'*32})
+        text=(self.folder/'power.jsonl').read_text();self.assertNotIn('d'*32,text);self.assertNotIn('f'*32,text)
     def test_read_only_status_and_legacy_do_not_enable_work(self):
         self.client.status();self.assertEqual(self.calls,[])
         keeper=WorkKeeper(self.client,self.folder);keeper.start({'abi':1});self.assertFalse(keeper.stop()['enabled']);self.assertEqual(self.calls,[])

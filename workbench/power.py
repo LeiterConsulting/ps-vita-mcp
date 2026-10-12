@@ -20,6 +20,8 @@ def validate(value):
 def status(client):return validate(client.json('GET','/power/status'))
 def lease(client,ttl_ms=30000,idle_ms=30000,dim_percent=20):
     body=pack(ttl_ms,idle_ms,dim_percent) # Validate before contacting the device.
+    freeze=getattr(client,'freeze_endpoint',None)
+    if freeze is not None:freeze()
     identity=client.status()
     if identity.get('abi')!=2 or identity.get('power_protocol')!=1:raise RuntimeError('Install the current Control Starter for work power support')
     value=validate(client.json('POST','/power/lease',body));client.work_renewed=time.monotonic() if ttl_ms else 0
@@ -34,12 +36,18 @@ class WorkKeeper:
     """
     def __init__(self,client,folder,interval=10):
         self.client=client;self.folder=folder;self.interval=interval;self.end=threading.Event();self.thread=None
+        self._endpoint=None
         self.result={'enabled':False,'ttl_ms':30000,'idle_ms':30000,'dim_percent':20,'renewals':0,'errors':[]}
     def record(self,kind,**fields):
         with (self.folder/'power.jsonl').open('a',encoding='utf-8') as f:
             f.write(json.dumps({'utc':datetime.now(timezone.utc).isoformat(),'kind':kind,**fields})+'\n');f.flush();os.fsync(f.fileno())
     def send(self,ttl):
-        body=pack(ttl);config=self.client.configuration();port=int(os.environ.get('VITA_CONTROL_PORT',config['port']+1))
+        body=pack(ttl)
+        endpoint=getattr(self.client,'endpoint',None)
+        if self._endpoint is not None:config=dict(self._endpoint);port=config['port']
+        elif endpoint is not None:config=endpoint();port=config['port']
+        else:
+            config=self.client.configuration();port=int(os.environ.get('VITA_CONTROL_PORT',config['port']+1))
         if not 1<=port<=65535:raise ValueError('Invalid Control port')
         self.record('lease_intent',ttl_ms=ttl)
         c=http.client.HTTPConnection(config['host'],port,timeout=5)
@@ -56,6 +64,14 @@ class WorkKeeper:
     def start(self,identity):
         if identity.get('abi')!=2 or identity.get('power_protocol')!=1:
             self.result['reason']='Endpoint does not advertise temporary work power support';return
+        freeze=getattr(self.client,'freeze_endpoint',None)
+        if freeze is not None:self._endpoint=dict(freeze())
+        else:
+            endpoint=getattr(self.client,'endpoint',None)
+            if endpoint is not None:self._endpoint=dict(endpoint())
+            else:
+                config=self.client.configuration();self._endpoint={'host':config['host'],'port':int(os.environ.get('VITA_CONTROL_PORT',config['port']+1)),'token':config['token']}
+        if type(self._endpoint['port']) is not int or not 1<=self._endpoint['port']<=65535:raise ValueError('Invalid Control port')
         self.send(30000);self.result['enabled']=True
         def run():
             while not self.end.wait(self.interval):

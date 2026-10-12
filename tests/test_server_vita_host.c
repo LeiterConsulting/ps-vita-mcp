@@ -12,7 +12,8 @@ static void setup(void) {
     memset(&server,0,sizeof(server)); server.mutex=sceKernelCreateMutex("host-test",0,0,NULL); server.thread=server.listener=-1;
     server.running=server.paired=true; memset(server.token,'0',32); server.token[32]=0;
     server.pixels=malloc(SCREEN_W*SCREEN_H*4); assert(server.pixels);
-    dev_init(&core); core.frame=40; core.sampled_ms=now_ms(); core.input.motion_result=0;
+    dev_init(&core);assert(dev_identity(&core,77,1000,10,"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"));
+    core.frame=40; core.sampled_ms=now_ms(); core.input.motion_result=0;
     dev_server_publish(&core);
 }
 /* Exercise actual server code over real local socketpairs. Mode 1 pumps commands
@@ -58,6 +59,7 @@ static int script_post(const char *name,const char *source,uint32_t revision,con
 int main(void) {
     setup(); char reply[16384];
     assert(get("/status",reply,sizeof(reply))==200&&strstr(reply,"\"revision\":1")&&strstr(reply,"\"frame\":40"));
+    assert(strstr(reply,"\"title_id\":\"CHRS00003\"")&&strstr(reply,"\"pid\":77")&&strstr(reply,core.run)&&strstr(reply,core.build_id));
     assert(get("/input",reply,sizeof(reply))==200&&strstr(reply,"\"sticks\""));
     assert(get("/logs",reply,sizeof(reply))==200&&strstr(reply,"\"entries\""));
     puts("PASS actual native HTTP status/input/logs paths across fragmented socket reads");

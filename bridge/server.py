@@ -75,8 +75,14 @@ def json_request(path: str, fields: dict | None = None, **kwargs) -> dict:
     result = json.loads(data)
     if not isinstance(result, dict) or any(type(result.get(key)) is not int or result[key] < 0 for key in ("revision", "frame", "sampled_ms")) or result["frame"] == 0:
         raise RuntimeError("Device returned an invalid or unsampled result")
-    if path == "/status" and (result.get("protocol") != 1 or result.get("app") != "Vita DevLoop"):
+    if path == "/status" and (result.get("protocol") != 1 or result.get("app") != "Vita DevLoop" or result.get("version") not in ('01.01','01.02','01.03','01.04')):
         raise RuntimeError("Device protocol or application does not match")
+    if result.get('version') == '01.04' and (
+            type(result.get('protocol')) is not int or result['protocol'] != 1 or result.get('app') != 'Vita DevLoop' or result.get('title_id') != 'CHRS00003' or
+            type(result.get('pid')) is not int or result['pid'] <= 0 or
+            not isinstance(result.get('run'),str) or not re.fullmatch('[0-9a-f]{32}',result['run']) or
+            not isinstance(result.get('build_id'),str) or not re.fullmatch('[0-9a-f]{64}',result['build_id'])):
+        raise RuntimeError('Native DevLoop 01.04 process identity is invalid')
     result["bridge"] = timing
     return result
 

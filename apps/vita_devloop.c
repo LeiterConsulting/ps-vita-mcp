@@ -2,12 +2,16 @@
 #include "ui.h"
 #include "core.h"
 #include "server_vita.h"
+#include "devloop_build_identity.h"
 #include <psp2/kernel/processmgr.h>
+#include <psp2/kernel/threadmgr.h>
 #include <string.h>
 
 int main(void) {
     if(!platform_init()) return 1;
-    DevCore core; dev_init(&core); bool network=dev_server_start();
+    DevCore core; dev_init(&core);
+    if(!dev_identity(&core,sceKernelGetProcessId(),sceKernelGetSystemTimeWide(),sceKernelGetProcessTimeWide(),DEV_BUILD_ID)) { platform_shutdown();return 1; }
+    bool network=dev_server_start();
     dev_log(&core,network?"Network listener started":"Network initialization failed; local controls available");
     char address[80]=""; unsigned count=0;
     while(!platform_should_exit()) {

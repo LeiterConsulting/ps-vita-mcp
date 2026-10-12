@@ -1,6 +1,16 @@
 # Validation and release criteria
 
-The prototype has real-device evidence. The imported public source builds a fresh, independently identifiable **01.03** candidate. Results from prototype 01.02 do not certify changed code, packaging or setup.
+The prototype has real-device evidence. The first imported public build was **01.03**; the October 11 source candidate is **01.04** with native process/build identity. Results from prototype 01.02 or public 01.03 do not certify changed code, packaging or setup.
+
+## October 11 autonomous candidate
+
+Development has resumed. The source adds one Workbench preparation tool, bringing the combined catalog to 28 tools (4 Resident + 13 Control + 11 Workbench), and an independent default-disabled one-shot startup helper. DevLoop 01.04 adds native title/PID, run and source-build identity; PC jobs pin that identity, and synthetic input requires an exact caller-supplied expected DevLoop build. [Autonomous scope](AUTONOMOUS-DEVLOOP.md) distinguishes healthy script runtime from verified native foreground input identity. Legacy installed DevLoop lacks title/PID telemetry, so synthetic Workbench profiles are blocked while script-only profiles remain available. Candidate identity and foreground mapping still require artifact-bound device acceptance.
+
+The host CI runner is configured for 17 groups. It includes six native DevLoop identity regressions, preparation/endpoint decisions and real stdio MCP/local HTTP fixtures, the actual one-shot coordinator/probe/Vita adapter and separate boot resource diagnostic under SDK substitutes with sanitizers, and guarded startup staging fixtures. Its reports/logs establish the result of the exact checkout tested; host tests do not establish ARM build, installation, normal boot, network activation, physical input or repeated-boot acceptance. Build the experiment separately with `Build-Autostart.ps1` after matching Control artifacts and retain its own report. Hardware progression and remaining gates are in [the release checklist](RELEASE-CHECKLIST.md).
+
+The [October 11 candidate record](autonomous-candidate-validation.json) records the helper's pinned-SDK native build and disabled staging: seven files, two readbacks each, active configuration and pairing unchanged, no active opt-in created. A normal disabled boot passed. The first armed trial booted normally and confirmed exact native submission, but Control's work-power worker failed and its network service was unavailable. DevLoop 01.04 passed its native build, staged with two readbacks, was installed and passed exact native runtime identity plus a 55-step live Lua reload/recovery proof with native scene restoration paused. Control capture mapping, synthetic input and lifecycle checks remain pending. The final 17-group host run passed, including endpoint consistency repairs and the separate boot resource diagnostic; all 221 selected source/build files were unchanged across that run. Its report and individual log hashes are retained in the candidate record. The diagnostic passed its pinned-SDK native build and 34 host adapter cases; its hardware trial is locally prepared and awaiting FTP, with no diagnostic staged or armed on the Vita.
+
+The earlier dated JSON reports linked below remain historical records. They are not rewritten to certify the October 11 changes or a new device run.
 
 ## Existing evidence
 
@@ -15,7 +25,7 @@ As of October 2, 2026, development evidence includes:
 
 Physical coverage is currently one homebrew-enabled Vita on firmware 3.65 with a Windows bridge. [Prototype results](prototype-validation.json) retain the exact 01.02 package hash and scoped live checks. [Screenshot provenance](screenshots.json) records hashes of the original captures; their local address is published with explicit permission. Pairing secrets and unrelated files are excluded.
 
-## Public candidate changes
+## Original 01.03 public candidate changes
 
 - Import only DevLoop and its supporting sources, examples, tests and pinned build inputs.
 - Run the FTP fixture after building the VPK it consumes, so a fresh checkout works.
@@ -54,7 +64,7 @@ Git stores the native sources with LF line endings. Their source fingerprints an
 
 [The baseline](BASELINE.md) and its [machine-readable record](functional-mcp-baseline.json) bind the original Starter 01.00, Control 0.2.2, Resident 0.1.1 and DevLoop 01.02 identities to saved device evidence. That record includes matched readiness and normal Starter exit, actual registered MCP status, managed text/copy/hash-delete and one 1 MiB transfer, framebuffer readback, DevLoop launch/quit, five synthetic channels observed by Lua, expiry without PC release, stale-PID refusal and focus cancellation before deadline.
 
-Warm preview/detail timings are individual samples; multi-second outliers occurred. Physical controller acceptance, sleep/wake, long sessions, unattended confirmation and native installation remain separate gates. The public DevLoop candidate stays 01.03 and still needs its own hardware acceptance.
+Warm preview/detail timings are individual samples; multi-second outliers occurred. Physical controller acceptance, sleep/wake, long sessions, unattended confirmation and native installation remain separate gates. At that October 3 staging point, the public DevLoop candidate was 01.03 and still needed its own hardware acceptance. These observations do not qualify the later 01.04 candidate.
 
 Control publication adds source, runtime-only staging, explicit marker retirement, CLI diagnostics, loopback preview, documentation and support. Legacy boot activation is disabled. Fixtures test refusals before writes and uncertain rename behavior. Public sources are normalized to LF; their build fingerprints can differ from the recorded development artifacts. [Public baseline build results](public-baseline-build-validation.json) record current host/package qualification without claiming a new device run.
 

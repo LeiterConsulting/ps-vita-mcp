@@ -11,7 +11,9 @@ Control 0.3.4 consists of a matched kernel helper and an authenticated user serv
 | Control | 17867 | Same Resident token | Starter loaded pair, until normal reboot |
 | File manager FTP | Displayed by file manager | Separate FTP settings | User explicitly enabled it |
 
-The combined desktop server is `resident/bridge.py`. Its four Resident and thirteen Control tools remain available, with ten additional [Workbench tools](../workbench/README.md) for 27 total. Tokens are read on the PC; the loopback preview page receives no token.
+The combined desktop server is `resident/bridge.py`. Its four Resident and thirteen Control tools remain available, with eleven additional [Workbench tools](../workbench/README.md) for 28 total. Tokens are read on the PC; the loopback preview page receives no token.
+
+The manual Starter path remains available. A separate [default-disabled one-shot startup experiment](../resident/autostart/README.md) defers the matched pair's loading until LiveArea readiness; native boot/network and repeated-boot acceptance remain open. The full Control pair must not be added directly to tai boot configuration.
 
 ## Tool reference
 
@@ -50,6 +52,8 @@ The first five-channel trial used:
 ```
 
 Replace `12345` with a fresh `vita_control_screen` PID while the input monitor is foreground. The saved [input monitor](../experiments/mcp_input_proof.lua) checks this exact request, records capability mask 31 and neutral return, and preserves its observed values after expiry. It is a synthetic delivery test, not a physical controller test.
+
+This direct-tool example requires the operator to verify that the intended monitor is foreground. Autonomous Workbench input profiles additionally require an exact caller-supplied DevLoop 01.04 build pin and native title/PID telemetry matching a fresh capture; legacy 01.02/01.03 lacks that mapping and is blocked from those profiles. [Readiness rules](AUTONOMOUS-DEVLOOP.md#runtime-preparation-and-target-identity).
 
 With the monitor loaded and physical controls neutral, PowerShell 7 can submit that single lease through the real stdio server:
 

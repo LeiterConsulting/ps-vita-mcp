@@ -16,7 +16,7 @@ from mcp.client.stdio import stdio_client
 
 ROOT = Path(__file__).resolve().parents[1]
 TOKEN = "0" * 32
-state = {"revision": 1, "frame": 100, "sampled_ms": 1234, "protocol": 1, "app": "Vita DevLoop", "paused": True, "parameters": {"gravity": 620.0, "drag": .9, "brake": 10.0, "max_speed": 340.0}}
+state = {"version": "01.03", "revision": 1, "frame": 100, "sampled_ms": 1234, "protocol": 1, "app": "Vita DevLoop", "paused": True, "parameters": {"gravity": 620.0, "drag": .9, "brake": 10.0, "max_speed": 340.0}}
 fault = {"stale": False, "drop_change": False, "bad_image": False}
 calls = []
 
@@ -68,6 +68,7 @@ async def main():
     fixture_lines = (ROOT / "build/host/devloop-fixtures.jsonl").read_text().splitlines()
     fixtures = [json.loads(line) for line in fixture_lines]
     assert len(fixtures[1]["front"]["contacts"]) == 8 and len(fixtures[2]["entries"]) == 12
+    assert all(row['version']=='01.04' and row['title_id']=='CHRS00003' and row['pid']==77 and len(row['run'])==32 and len(row['build_id'])==64 for row in fixtures)
     print("PASS C sample JSON parses, including full touch arrays and escaped log ring")
     device = ThreadingHTTPServer(("127.0.0.1", 0), Device)
     thread = threading.Thread(target=device.serve_forever, daemon=True); thread.start()
@@ -90,6 +91,15 @@ async def main():
                 image = next(item for item in shot.content if item.type == "image")
                 assert Image.open(io.BytesIO(base64.b64decode(image.data))).size == (960,544)
                 print("PASS actual MCP initialize, ten tool schemas, status/input/logs and PNG image content")
+                original=dict(state)
+                state.update(version='01.04',title_id='CHRS00003',pid=77,run='e'*32,build_id='f'*64)
+                assert content(await session.call_tool('vita_status'))['run']=='e'*32
+                for field,value in (('protocol',True),('protocol',1.0),('pid',True),('pid',0),('run','bad'),('build_id','bad'),('title_id','OTHERAPP'),('version','01.99')):
+                    before=dict(state);state[field]=value
+                    assert (await session.call_tool('vita_status')).isError,(field,value)
+                    state.clear();state.update(before)
+                state.clear();state.update(original)
+                print('PASS native01.04 identity and unsupported/malformed process telemetry through actual MCP')
                 current = content(await session.call_tool("vita_set_parameters", {"expected_revision": 1, "gravity": 900, "max_speed": 200}))
                 assert current["revision"] == 2 and current["parameters"]["gravity"] == 900
                 current = content(await session.call_tool("vita_run_experiment", {"action": "resume", "expected_revision": 2}))
@@ -119,6 +129,6 @@ async def main():
                 device.shutdown(); device.server_close(); thread.join()
                 assert (await session.call_tool("vita_status")).isError
                 print("PASS dropped mutation response is not retried; reconnect state and offline errors are honest")
-    print("6 bridge/protocol test groups passed using a simulated device; physical Wi-Fi acceptance remains separate.")
+    print("7 bridge/protocol test groups passed using a simulated device; physical Wi-Fi acceptance remains separate.")
 
 if __name__ == "__main__": asyncio.run(main())

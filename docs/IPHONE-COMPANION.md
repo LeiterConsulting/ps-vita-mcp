@@ -2,7 +2,7 @@
 
 The iPhone Companion application remains private. This public guide describes its intended connection workflow and the Vita's implemented pairing contract. It does not include the app's source, Swift packages, Xcode project, signing material, builds or private handoff archives. Application distribution is managed separately from this repository; the public MIT license covers the published project source, not the private phone implementation.
 
-As of October 5, 2026, Resident 0.1.2 / Control 0.3.4 / Starter 01.06 are installed on the test Vita. Matching startup, a physically displayed code and graceful challenge timeout passed. Successful individual confirmation, saved reconnect, actual phone interoperability, revocation persistence and overlay privacy are still open hardware gates. Development and device testing are paused. Use an approved private app build whose accepted protocol and native build identities match the test; do not change its allowlist solely because a PC build passes.
+As of October 11, 2026, the latest recorded native pairing candidate is Resident 0.1.2 / Control 0.3.4 / Starter 01.06. Its earlier matching startup, physically displayed code and graceful challenge timeout passed. Successful individual confirmation, saved reconnect, actual phone interoperability, revocation persistence and overlay privacy remain open hardware gates in this repository. PC/Vita development has resumed; the new [autonomous preparation and one-shot startup work](AUTONOMOUS-DEVLOOP.md) does not qualify phone interoperability. Use an approved private app build whose accepted protocol and native build identities match the test; do not change its allowlist solely because a PC build passes.
 
 ## Prepare the Vita
 

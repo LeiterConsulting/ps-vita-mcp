@@ -5,7 +5,7 @@ import re
 import statistics
 import time
 from mcp.types import ToolAnnotations
-from .runner import Device,Journal,ROOT,WORKDIR,run_trial,check_identity
+from .runner import Device,Journal,ROOT,WORKDIR,run_trial,check_identity,freeze_device_endpoints
 from .session import exclusive
 from .power import WorkKeeper,lease as work_lease,status as power_status
 READ=ToolAnnotations(readOnlyHint=True,destructiveHint=False,idempotentHint=True,openWorldHint=False)
@@ -15,12 +15,12 @@ def doctor(expected_control_build=None,device=None):
     with exclusive():
         try:value=d.control_status()
         except Exception:
-            return {'control':'unavailable; run the installed Control Starter once after a normal reboot','resident':d.resident.vita_resident_status(),'ready_for_lua_trial':False,'ready_for_target_trial':False}
+            return {'control':'unavailable; run the installed Control Starter once after a normal reboot','resident':d.resident.vita_resident_status(),'ready_for_lua_trial':False,'ready_for_script_reload':False,'ready_for_input_trial':False,'ready_for_target_trial':False}
         if expected_control_build:check_identity(value,expected_control_build)
-        result={'control':value,'ready_for_lua_trial':False,'ready_for_target_trial':False,'native_installation':'manual VPK installation and normal reboot; runtime Starter once per boot','work_power':'temporary 30-second lease during active jobs; dims after 30 seconds without device activity, including motion'}
+        result={'control':value,'ready_for_lua_trial':False,'ready_for_script_reload':False,'ready_for_input_trial':False,'ready_for_target_trial':False,'input_target_verification':'not observed; use prepare_devloop before an input trial','native_installation':'manual VPK installation and normal reboot; runtime Starter once per boot','work_power':'temporary 30-second lease during active jobs; dims after 30 seconds without device activity, including motion'}
         try:
             foreground=d.status();script=d.script();result['devloop']=foreground;result['script']=script
-            result['ready_for_lua_trial']=foreground.get('version') in ('01.02','01.03') and foreground.get('paused') and not script.get('faulted') and not value.get('lease_remaining_ms') and script['revision']==foreground['revision']
+            result['ready_for_script_reload']=foreground.get('version') in ('01.02','01.03','01.04') and foreground.get('paused') and not script.get('faulted') and not value.get('lease_remaining_ms') and script['revision']==foreground['revision']
         except Exception:result['devloop']='unavailable; leave the foreground DevLoop app open'
         try:result['target']=d.target();result['ready_for_target_trial']=value.get('version') in ('0.3.0','0.3.1','0.3.2','0.3.3','0.3.4') and not value.get('lease_remaining_ms')
         except Exception:result['target']='unavailable; install/open the Input Target for device input qualification'
@@ -32,6 +32,7 @@ def soak(seconds,expected_control_build,device=None,root=WORKDIR):
         j=Journal(root,'soak');j.report['control_build']=expected_control_build;j.report['requested_s']=seconds;j.save()
         start=time.monotonic();last_uptime=None;last_sequence=None;times=[];samples=[];keeper=WorkKeeper(d.control,j.folder)
         try:
+            freeze_device_endpoints(d)
             initial=d.control_status();check_identity(initial,expected_control_build)
             keeper.start(initial)
             while time.monotonic()-start<seconds:
@@ -55,18 +56,23 @@ def read_report(relative,root=WORKDIR):
     if base not in path.parents or path.name!='report.json' or not path.is_file() or path.stat().st_size>2*1024*1024:raise ValueError('Choose a Workbench report.json under the evidence directory')
     return json.loads(path.read_text())
 def register(mcp):
+    from .prepare import prepare
     from .qualify_target import qualify
     from .candidates import stage
     from .verify_file import verify
     from typing import Literal
+    @mcp.tool(annotations=WRITE)
+    def vita_workbench_prepare_devloop(expected_control_build:str,expected_devloop_version:Literal['01.02','01.03','01.04']='01.04',timeout_s:int=30,expected_devloop_build:str|None=None)->dict:
+        """Prepare healthy paused DevLoop: pin Control, refuse active input/work leases, launch CHRS00003 at most once if unavailable, and observe progress. Input readiness requires 01.04 native CHRS00003 PID matching captures plus expected_devloop_build from its exact package report; run/build are rechecked. Legacy and unpinned runtimes remain script-only. Journals evidence and ends temporary power. Never installs, loads modules, sends input or replaces a scene. Lost launch replies are inspected without repeating launch. Polls 2..60 seconds plus socket timeouts."""
+        return prepare(expected_control_build,expected_devloop_version,timeout_s,expected_devloop_build=expected_devloop_build)
     @mcp.tool(annotations=READ)
     def vita_workbench_doctor(expected_control_build:str|None=None)->dict:
-        """Inspect exact Control identity and readiness for a paused Lua trial or Input Target trial. Optional build pin rejects drift."""
+        """Inspect Control identity and paused script runtime or Input Target availability. Script readiness is distinct from synthetic input readiness; doctor does not map the foreground PID. Optional build pin rejects drift."""
         return doctor(expected_control_build)
     @mcp.tool(annotations=WRITE)
-    def vita_workbench_run_trial(relative_profile:str,expected_profile_sha256:str,expected_control_build:str)->dict:
-        """Run one hash-pinned Lua trial from workbench/projects: upload once, check metrics, bounded inputs/screens, evidence and paused restoration. Takes up to roughly 90 seconds; never replays uncertain mutations."""
-        return run_trial(relative_profile,expected_profile_sha256,expected_control_build)
+    def vita_workbench_run_trial(relative_profile:str,expected_profile_sha256:str,expected_control_build:str,expected_devloop_build:str|None=None)->dict:
+        """Run one hash-pinned Lua trial: upload once, check metrics, evidence and paused restoration. Synthetic steps require 01.04 expected_devloop_build from its package report and native CHRS00003 PID matching a fresh capture before load and each input. Pins/rechecks native run/build; legacy runtimes support script-only profiles. Freezes endpoints for the job. Takes roughly 90 seconds; never replays uncertain mutations."""
+        return run_trial(relative_profile,expected_profile_sha256,expected_control_build,expected_devloop_build=expected_devloop_build)
     @mcp.tool(annotations=READ)
     def vita_workbench_read_report(relative_report:str)->dict:
         """Read an existing evidence/workbench/.../report.json without contacting the Vita."""
