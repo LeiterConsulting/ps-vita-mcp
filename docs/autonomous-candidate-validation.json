@@ -4,8 +4,8 @@
   "catalog": {
     "resident": 4,
     "control": 13,
-    "workbench": 11,
-    "combined": 28,
+    "workbench": 13,
+    "combined": 30,
     "foreground_devloop_separate": 10
   },
   "autostart": {
@@ -188,7 +188,7 @@
     "built_utc": "2026-10-11T22:54:32.328180+00:00",
     "build_id": "c7d4a08d3c42025803ded7146b86a68c415ce157d6199978506af3b79a15b5f7",
     "native_input_count": 75,
-    "build_report_sha256": "4a57244a03d885a5280c2b2dbca9cda613e5bc8e465b70c29118119916178f0e",
+    "build_report_sha256": "48e064ca413dedba13a7dc987f9e26295579b6eac7f5e25cb88291252b90315d",
     "package": {
       "file": "vita_devloop.vpk",
       "bytes": 465567,
@@ -324,7 +324,7 @@
       "build_id": "cc816e8db301e5a250ee5d19d060c1f896244c7af1f0a7333a46380f1fd4f0ef"
     }
   },
-  "current_autonomy_status": "Historical foreground 01.04 native identity/Lua/normal-exit proof passed; both experimental boot candidates withdrawn after failures. Pre-experiment configuration, normal boot and registered Resident identity verified after recovery; Control not reactivated during recovery. Complete autonomous operation is not accepted.",
+  "current_autonomy_status": "Control-free metric-driven Lua iteration, ranking, selected-source redeployment and syntax/fault recovery accepted on installed01.04; both experimental boot candidates remain withdrawn, verified recovery preserved. App opening, native installation, qualified persistent startup, Control input/capture and lifecycle gates remain separate; complete autonomous platform operation is not accepted.",
   "boot_recovery_2026_10_12": {
     "configuration_restore": "passed: exact inspected pre-Autostart configuration restored; both experimental boot entries removed",
     "completed_utc": "2026-10-12T14:05:54.646834+00:00",
@@ -351,5 +351,12 @@
       "resident_build_id": "cc816e8db301e5a250ee5d19d060c1f896244c7af1f0a7333a46380f1fd4f0ef",
       "control_or_boot_candidate_activation": "none during recovery"
     }
+  },
+  "script_sessions_2026_10_12": {
+    "record": "script-session-validation.json",
+    "result": "passed: default iteration, selected-source redeployment, syntax/fault recovery and original-scene restoration; initial metric-ranking and PC cleanup-journal failures retained",
+    "host_groups_passed": 22,
+    "native_or_boot_installation_performed": false,
+    "complete_platform_autonomy": "not achieved"
   }
 }

@@ -1,8 +1,8 @@
 # Live Lua experiments
 
-DevLoop supports edit/push/run without rebuilding or reinstalling a VPK for each script change. This interface was exercised on prototype 01.02 and is retained in public candidate 01.03. The PC bridge exposes ten tools. `vita_load_script` sends text and its SHA-256 to the running app; the main thread creates a fresh Lua VM, compiles the source, runs init plus one update with dt=0 and cleared button edges, and checks draw. Only a successful candidate replaces the current VM. A failed edit keeps the current script and its state. Loading, restarting, rolling back and changing modes always start paused.
+DevLoop supports edit/push/run without rebuilding or reinstalling a VPK for each script change. Installed candidate 01.04 retains the Lua interface and adds exact native build/PID/run identity. Its October 11 live Lua and normal-exit results are recorded in [candidate validation](docs/autonomous-candidate-validation.json). The PC foreground bridge exposes ten tools. `vita_load_script` sends text and its SHA-256 to the running app; the main thread creates a fresh Lua VM, compiles the source, runs init plus one update with dt=0 and cleared button edges, and checks draw. Only a successful candidate replaces the current VM. A failed edit keeps the current script and its state. Loading, restarting, rolling back and changing modes always start paused.
 
-Follow [setup and pairing](docs/SETUP.md), then leave DevLoop open on Wi-Fi. [Validation](docs/VALIDATION.md) distinguishes prototype hardware results from pending 01.03 device qualification.
+Follow [setup and pairing](docs/SETUP.md), then leave DevLoop open on Wi-Fi. [Workbench script sessions](workbench/README.md#control-free-script-sessions) add automatic deployment, metric checks, ranking and paused restoration across several hash-pinned Lua candidates without Control. These runs use existing 01.04 APIs; native installation, app opening, input qualification and power management have separate limits.
 
 ## Quick start
 
