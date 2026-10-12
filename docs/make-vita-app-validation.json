@@ -1,0 +1,89 @@
+{
+  "date": "2026-10-12",
+  "scope": "Reusable skill, PC project workflows, shared Lua host behavior and native development-slot build; device acceptance recorded separately.",
+  "skill": {
+    "name": "make-vita-app",
+    "natural_alias": "make_vita_app",
+    "source": "skills/make-vita-app",
+    "syntax_validation": "passed",
+    "installed_local_launcher_outside_checkout": "passed",
+    "routes": [
+      "plan-only",
+      "Lua DevLoop scene",
+      "native development-slot prototype",
+      "standalone source/build assessment"
+    ]
+  },
+  "host_validation": {
+    "groups": 30,
+    "result": "passed",
+    "shared_lua_validator_tests": 12,
+    "project_and_native_tests": 27,
+    "compiler_dependency_negative_fixtures": [
+      "undeclared host header",
+      "undeclared native-only header",
+      "native inline-assembler file read"
+    ],
+    "negative_fixture_expectation": "reject before test execution or candidate publication; retain previous candidate",
+    "windows_link_tests": "two symlink creation tests skipped because the host does not permit creating their fixtures; Linux CI runs them",
+    "device_acceptance": false
+  },
+  "forward_tests": {
+    "plan_only_music_player": {
+      "result": "passed",
+      "app_scaffolds": 0,
+      "builds": 0,
+      "device_mutations": 0,
+      "finding": "Native audio/media provisioning needs adapter work; current Lua sandbox cannot provide a local music player."
+    },
+    "breathing_timer": {
+      "result": "passed",
+      "delivery_form": "DevLoop scene",
+      "source_sha256": "160e0a4b56d9fa8e6a163e9b68105a9d32d6ae050aa1176f8100a93e243865f2",
+      "source_bytes": 2118,
+      "helper_check": "passed",
+      "supplementary_cases": 13,
+      "numeric_predicates": 104,
+      "wrong_duration_mutation": "correctly rejected",
+      "radius_bounds": [
+        40,
+        120
+      ],
+      "peak_memory_bytes": 41457,
+      "device_mutations": 0
+    }
+  },
+  "native_prototype": {
+    "application": "Native Paddle",
+    "title_id": "VMCP00001",
+    "version": "01.02",
+    "native_build_id": "8ff6285916c7971315de5121ada888755f9a4f6c9bb9b238cb07d6e36de92379",
+    "module_sha256": "8dd14f9dbca6b50ae92aa3a3104bab001e0099fbc52dfffe81ba7503d582f414",
+    "package_sha256": "70bd3ae94f094f1bf08abe0dee7cc8014487e2e9a11af07a30c93d627df81e50",
+    "package_bytes": 129580,
+    "host_simulation": "passed",
+    "arm_self_sfo_package_validation": "passed",
+    "compiler_dependencies_verified": true,
+    "isolated_pinned_build_workspace": true,
+    "hardware_lifecycle": "pending",
+    "physical_input_and_visual_acceptance": "pending",
+    "preflight": "Resident became unavailable before any device writes; no native effect was submitted."
+  },
+  "prior_hardware_baseline": {
+    "component": "pristine Lifecycle Lab",
+    "cycles": 5,
+    "builds": 2,
+    "normal_reboot_durability": "passed without replay",
+    "qualification": "docs/native-lifecycle-validation.json",
+    "inherits_generated_app_acceptance": false
+  },
+  "boundaries": [
+    "One VMCP00001 native development bubble; arbitrary titles and accepted app replacement are unsupported.",
+    "Lua requires an already-open healthy paused DevLoop 01.04; the script-only path does not launch or keep it awake.",
+    "Native callbacks have no Lua instruction or memory containment and must return promptly.",
+    "Embedded assets and the fixed linked libraries only; media, audio and additional dependencies need reviewed adapter work.",
+    "Unknown native effects are retained and reconciled read-only without replay.",
+    "True sleep or lost Wi-Fi can require a physical wake; boot/sleep settings are preserved.",
+    "iPhone implementation, signing/build artifacts, credentials, private projects and raw device evidence remain private."
+  ]
+}

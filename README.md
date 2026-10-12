@@ -14,6 +14,15 @@ PS Vita MCP connects a desktop MCP client to a modded Vita. Its PC bridges combi
 
 ## Status as of October 12 2026
 
+**App-making workflow:** [`make-vita-app`](skills/make-vita-app/SKILL.md) provides
+planning, port assessment, Lua project generation and a separate native
+application-module wrapper for the single owned development slot. Its helper
+checks scripts through the real shared Lua engine, builds source-bound native
+prototypes and generates fresh MCP arguments. Host behavior checks and native
+packaging passed; the new app module's live test is pending device availability.
+Standalone title deployment and visual/physical acceptance remain separate.
+[Install, commands and evidence](docs/MAKE-VITA-APP.md).
+
 **Native lifecycle candidate:** Resident 0.1.5 adds administrator-only staging,
 native package promotion and a fixed-title launch adapter for the new Vita
 Lifecycle Lab (`VMCP00001`). Three new PC tools preview an exact package,

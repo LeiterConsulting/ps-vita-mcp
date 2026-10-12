@@ -92,6 +92,14 @@ Historical Resident 0.1.4 added [managed inbox inspection](MANAGED-FILES.md): di
 
 After an interrupted upload, retain its attempt ID, expected size and hash. `vita_resident_verify_upload` reads that exact attempt twice. The candidate staging repair now uses one ID across journal, upload and receipt; a lost reply is not automatically replayed. DevLoop installation is still manual; the separate 0.1.5 fixed-Lab native lifecycle candidate passed five install/launch/evaluate/graceful-exit cycles across two builds, with same-build normal-reboot journal durability passed without replay.
 
+## Create application projects
+
+Use the [`make-vita-app` skill and project helper](MAKE-VITA-APP.md) to create
+private source projects, run actual shared Lua checks, build a native module
+for the single owned development slot and produce fresh session arguments.
+The helper does not contact the Vita; live effects use the existing guarded
+MCP tools. The skill's planning mode makes no app/device changes.
+
 ## Test native pairing from the PC
 
 The standalone form reproduces a Companion-style exchange from the PC without needing iPhone app source. This is an explicit hardware qualification utility, separate from MCP startup. Its default live target is Resident 0.1.2 / Control 0.3.4 on ports 17866/17867; the operator supplies exact installed build IDs.

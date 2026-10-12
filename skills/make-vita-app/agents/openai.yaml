@@ -1,0 +1,4 @@
+interface:
+  display_name: "Make Vita App"
+  short_description: "Plan, build and iterate PS Vita apps and ports"
+  default_prompt: "Use $make-vita-app to plan or build my PS Vita application and validate it through the available devloop."

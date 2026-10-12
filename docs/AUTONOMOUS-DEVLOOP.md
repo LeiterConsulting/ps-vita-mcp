@@ -38,7 +38,7 @@ Installed Resident 0.1.4 passed a separate user-confirmed normal boot, exact con
 
 Storage durability across reboot and phone credential confirmation remain pending. Inventory correlation does not establish displayed foreground or protected UI; its attestation flags remain false, and a qualified launch policy is still required before an enabled adapter. Native submission remains unconditionally refused. The 128-record qualification store preserves all tombstones and rejects old-build history; production retention/migration is unfinished. No withdrawn boot experiment was used.
 
-Remote scene ownership, qualified power/keep-awake and asset delivery would then expand the loop. Resident 0.1.5 implements the [fixed-title Lifecycle Lab installation candidate](NATIVE-LIFECYCLE.md); hardware acceptance and extension to DevLoop remain pending. Preserve the verified 0.1.4 configuration, retained 0.1.3 and 0.1.2 rollback plugins and both experiment disable markers while further gates are tested separately.
+Remote scene ownership, qualified power/keep-awake and asset delivery would then expand the loop. Resident 0.1.5 implements the [fixed-title Lifecycle Lab installation candidate](NATIVE-LIFECYCLE.md); five Lab cycles across two builds and normal-reboot durability passed, while extension to DevLoop remains pending. The [Make Vita App workflow](MAKE-VITA-APP.md) adds project generation and separate application-module qualification within that owned development slot. Preserve the verified rollback configurations/plugins and both experiment disable markers while further gates are tested separately.
 
 ## Control-backed preparation and target identity
 

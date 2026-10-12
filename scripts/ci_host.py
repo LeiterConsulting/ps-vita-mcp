@@ -29,13 +29,18 @@ def main():
                                    ('native-launch-c', 'resident/native_launch/test_host.sh'),
                                    ('native-install-c', 'resident/native_install/test_host.sh'),
                                    ('native-lab-c', 'lifecycle_lab/test_host.sh'),
-                                   ('target-c', 'workbench/target/test_host.sh')]]
+                                   ('target-c', 'workbench/target/test_host.sh'),
+                                   ('vita-app-native-c', 'scripts/test_vita_app_native.sh')]]
     checks += [(Path(script).stem + '-' + Path(script).parent.name, [sys.executable, script])
                for script in ['tests/test_bridge.py', 'tests/test_scripts_bridge.py',
                               'resident/test_bridge.py', 'resident/test_files_bridge.py', 'resident/control/test_bridge.py',
                               'resident/control/test_staging.py', 'workbench/test_mcp.py']]
     checks.append(('launch-broker-http', [sys.executable, 'tests/test_launch_broker_http.py']))
     checks.append(('native-lifecycle-pc', [sys.executable, '-m', 'unittest', 'workbench.test_native_lifecycle']))
+    checks.append(('vita-app-projects', [sys.executable, '-m', 'unittest',
+                                       'tools.test_vita_app', 'app_slot.test_native_slot',
+                                       'app_slot.test_dependency_integration']))
+    checks.append(('vita-app-shared-lua', [sys.executable, '-m', 'unittest', 'app_tools.test_lua_check']))
     checks.append(('script-session-http', [sys.executable, '-m', 'unittest', 'workbench.test_script_session']))
     checks.append(('script-session-mcp-cli', [sys.executable, '-m', 'unittest', 'workbench.test_script_session_mcp']))
     checks.append(('script-demo-real-lua', [sys.executable, 'tests/test_script_demo.py']))
@@ -46,7 +51,10 @@ def main():
                    'resident.autostart.test_staging']))
     report = {'scope': 'Host code and actual stdio MCP against simulated local adapters; no device acceptance', 'checks': []}
     for name, command in checks:
-        result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, encoding='utf-8', timeout=600)
+        environment = dict(os.environ)
+        if name == 'vita-app-shared-lua': environment['VITA_APP_TEST_DOCKER'] = '1'
+        result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, encoding='utf-8',
+                                timeout=600, env=environment)
         (output / (name + '.log')).write_text(result.stdout + result.stderr, encoding='utf-8')
         report['checks'].append({'name': name, 'exit_code': result.returncode})
         (output / 'report.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
