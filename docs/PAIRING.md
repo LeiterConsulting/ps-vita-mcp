@@ -1,6 +1,8 @@
 # Vita Companion pairing implementation
 
-This native candidate implements the approved six-digit exchange alongside the existing Windows administrator token. Resident 0.1.2, Control 0.3.4 and Starter 01.06 are installed on the test Vita. Matching service startup, physical code display and graceful challenge timeout passed. Individual credential confirmation and the remaining [device gates](PAIRING-DEVICE-TESTS.md) are still open. These partial results do not qualify the phone allowlist for release.
+This native candidate implements the approved six-digit exchange alongside the existing Windows administrator token. The earlier Resident 0.1.2 / Control 0.3.4 / Starter 01.06 trial passed matching service startup, physical code display and graceful challenge timeout. Those pairing results remain historical. Resident 0.1.3 is now installed with 0.1.2 retained for rollback and administrator pairing preserved; normal boot, identity/clock, file-manager inventory, eight DevLoop PID-correlation samples and fresh stdio MCP status/probe readbacks with both apps open at separate times passed. [Partial native qualification](RESIDENT-LAUNCH-CANDIDATE.md).
+
+Successful individual phone credential confirmation has not been established on either trial. It and the remaining [device gates](PAIRING-DEVICE-TESTS.md) remain open; these partial results do not qualify the phone allowlist for release. The registered desktop connection still uses an older 28-tool process and needs a PC refresh for 0.1.3. Native app launching remains disabled and refused.
 
 ## Contract decisions recorded before implementation
 
@@ -32,9 +34,9 @@ An expired, rejected or exhausted nonce cannot start another deadline when the l
 
 ## Operator flow after manual candidate installation
 
-Use the exact build identities in [candidate validation](pairing-candidate-validation.json). Retain the previously qualified packages and configuration. Replace the Resident plugin and install Starter manually during a confirmed normal reboot; never activate a second Control pair within the existing boot. Do not add Control to `config.txt`. Host checks and native installation receipts are separate evidence.
+The [pairing validation record](pairing-candidate-validation.json) pins the historical 0.1.2 trial; [current Resident qualification](resident-launch-validation.json) pins the installed 0.1.3 replacement. Use the exact identities actually installed for any new pairing trial. Retain the previously qualified packages and configuration. A new native candidate requires manual installation and a confirmed normal reboot; never activate a second Control pair within the existing boot. Do not add Control to `config.txt`. Host checks and native installation receipts are separate evidence.
 
-Before native activation, use this checkout's host bridge and its Python environment: `resident/bridge.py` recognizes the new versions while retaining legacy compatibility. Set `VITA_RESIDENT_CONFIG` to the existing private desktop configuration path. Keep that file outside Git; do not move a token into source, an issue or a report. Update the private Workbench build pins to the exact candidate reports only when manually activating those binaries. The old registered desktop bridge and installed Vita are still unchanged by this work.
+Use this checkout's host bridge and its Python environment: `resident/bridge.py` recognizes 0.1.3 while retaining legacy compatibility. Set `VITA_RESIDENT_CONFIG` to the existing private desktop configuration path. Keep that file outside Git; do not move a token into source, an issue or a report. Update the private Workbench build pins to the exact candidate reports only when manually activating those binaries. The installed Vita now runs 0.1.3, but its older registered desktop connection still needs refreshing. Fresh stdio checks do not establish successful phone confirmation.
 
 1. Start the matched Control once with CROSS, then let the desktop verify identity and neutral leases. Pairing is a separate action; reopening Starter does not permit another module load.
 2. In Starter, press SQUARE. On the phone, select Pair a Vita. Check the displayed phone label, release the controls briefly, then press CROSS. CIRCLE declines or closes the window.

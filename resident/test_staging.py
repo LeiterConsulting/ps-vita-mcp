@@ -60,6 +60,28 @@ class StageTests(unittest.TestCase):
         checked = verify_existing(self.root, Path(result['local_evidence']))
         self.assertEqual(checked['configuration'], 'proposal present; runtime unverified')
 
+    def test_disabled_native_candidate_can_be_staged_without_activation(self):
+        path = self.root / 'dist/resident/build-report.json'
+        report = json.loads(path.read_text())
+        report['version'] = '0.1.3'
+        report['launch_broker'] = {'enabled': False, 'startup_dispatch': False,
+            'native_submission': 'unconditionally refused', 'store_format': 1, 'store_capacity_records': 128}
+        path.write_text(json.dumps(report))
+        result = stage(self.root, EXPECTED)
+        self.assertEqual(result['version'], '0.1.3')
+        self.assert_untouched()
+
+    def test_native_candidate_enable_claim_is_refused_before_writes(self):
+        path = self.root / 'dist/resident/build-report.json'
+        report = json.loads(path.read_text())
+        report['version'] = '0.1.3'
+        report['launch_broker'] = {'enabled': True, 'startup_dispatch': False,
+            'native_submission': 'unconditionally refused', 'store_format': 1, 'store_capacity_records': 128}
+        path.write_text(json.dumps(report))
+        with self.assertRaises(ValueError):
+            stage(self.root, EXPECTED)
+        self.assertFalse(any(c in ['STOR', 'MKD', 'RNTO'] for c, p in self.ftp.commands))
+
     def test_config_change_and_precedence_refuse_before_device_writes(self):
         for mode in ['changed', 'ux0']:
             with self.subTest(mode=mode):

@@ -1,9 +1,15 @@
-# Vita Resident 0.1.2 pairing candidate
+# Vita Resident
 
-Resident 0.1.2 is installed on the test Vita. Startup and native pairing-window exchange passed; successful individual credential confirmation remains pending. The earlier 0.1.1 storage/runtime record is separate. Read the [pairing contract and manual gates](../docs/PAIRING.md) before deployment.
+Resident 0.1.3 is installed on the test Vita and passed a user-confirmed normal boot, exact plugin/configuration checks, native identity/clock and file-manager inventory, and eight DevLoop PID-correlation samples with stable exact paused runtime and advancing frames. Fresh stdio MCP status plus 4 KiB probes with two readbacks passed with the file manager and DevLoop open at separate times, retaining Resident's start time. The 0.1.2 rollback and saved administrator pairing are retained, with both withdrawn boot experiments disabled. The registered desktop connection still needs a refresh from its older 28-tool process to accept 0.1.3.
 
-Background device status and verified DevLoop uploads through a SceShell user plugin. The combined desktop MCP bridge exposes 28 tools: four Resident, thirteen Control and eleven Workbench tools.
+A further bounded Lua regression passed under 0.1.3: both candidates accepted at rates 60/120, faster candidate selected and original native world restored paused with exact DevLoop identity. Lua finished inactive with the last VM retained. The broker kept its instance and stayed disabled and unblocked. A fresh stdio process verified the 30-tool catalog, both script tools and 0.1.3 status.
 
-Development resumed on October 11, 2026. The existing manual Starter path remains available. The separate [automatic startup helper](autostart/README.md) is a default-disabled one-shot experiment with its own build and device gates; it does not replace Resident or qualify persistent startup. [Autonomous preparation](../docs/AUTONOMOUS-DEVLOOP.md) separates Lua script readiness from verified foreground input readiness.
+The earlier 0.1.2 startup and native pairing-window exchange passed; successful individual credential confirmation remains pending. The 0.1.1 storage/runtime record is also separate. Read the [pairing contract and manual gates](../docs/PAIRING.md) before deployment.
+
+Background device status and verified DevLoop uploads through a SceShell user plugin. The combined desktop MCP bridge exposes 30 tools: four Resident, thirteen Control and thirteen Workbench tools.
+
+The 0.1.3 [native launch qualification candidate](../docs/RESIDENT-LAUNCH-CANDIDATE.md) adds retained native identity, immutable attempt storage, strict administrator-only broker HTTP and read-only app inventory. Live broker flags `enabled`, `configured_enabled` and `blocked` were all false. Launch remains disabled and unconditionally refused; no new boot entry or initialization-time launch is added. Storage durability across reboot, phone confirmation and foreground/protected-UI qualification remain open.
+
+Development resumed on October 11, 2026. The existing manual Starter path remains available. The separate [automatic startup helper](autostart/README.md) and boot diagnostic were withdrawn after October 12 boot failures; retain them disabled for offline investigation. [Autonomous preparation](../docs/AUTONOMOUS-DEVLOOP.md) separates the proven bounded Lua loop from native launch, installation and physical-input gates.
 
 Start with the [complete functional MCP setup](../docs/GETTING-STARTED.md), [baseline acceptance](../docs/BASELINE.md) and [Control tool reference](../docs/CONTROL.md). Resident-specific activation and rollback are covered in [its guide](../docs/RESIDENT.md). Control Inspector's optional read-only checks are documented [here](../docs/INSPECTOR.md).
