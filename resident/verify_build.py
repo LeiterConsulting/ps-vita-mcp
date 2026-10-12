@@ -59,12 +59,19 @@ def main():
         raise ValueError('Plugin SELF must contain the ARM ELF header')
     if (native / 'undefined-symbols.txt').read_text(encoding='utf-8').strip():
         raise ValueError('Unexpected unresolved ELF symbols')
-    core = ['service.c', 'sha256.c', 'sha256.h', 'platform.h', 'platform_vita.c', 'pairing.c', 'pairing_json.c', 'pairing_io.c', 'pairing.h', 'CMakeLists.txt', 'exports.yml']
+    core = ['service.c', 'sha256.c', 'sha256.h', 'platform.h', 'platform_vita.c', 'pairing.c', 'pairing_json.c', 'pairing_io.c', 'pairing.h', 'CMakeLists.txt', 'exports.yml',
+            'launch_broker/core.c', 'launch_broker/launch_broker.h', 'launch_broker/http.c', 'launch_broker/http.h',
+            'launch_broker/store.c', 'launch_broker/store.h', 'launch_broker/native_vita.c', 'launch_broker/native.h',
+            'launch_broker/service.c', 'launch_broker/service.h']
     build_id = hashlib.sha256(''.join(digest(ROOT / 'resident' / name) for name in core).encode('ascii')).hexdigest()
     if build_id.encode('ascii') not in elf_data:
         raise ValueError('Native build identifier differs from the source fingerprint')
+    forbidden = [b'sceAppMgrLaunch', b'sceAppMgrDestroy', b'sceKernelLoadStartModule',
+                 b'taiLoadStart', b'fixture-enable-launch', b'fixture-launch-success']
+    if any(name in elf_data for name in forbidden):
+        raise ValueError('Qualification module contains a forbidden launch/loader or host-fixture path')
     imports = sorted(name.removeprefix('.text.fstubs.') for name in velf_sections if name.startswith('.text.fstubs.'))
-    if set(imports) != {'SceLibKernel', 'SceNet', 'SceNetCtl', 'SceSysmodule', 'SceThreadmgr', 'SceIofilemgr', 'ScePower', 'SceRtcUser', 'SceLibRng'}:
+    if set(imports) != {'SceLibKernel', 'SceNet', 'SceNetCtl', 'SceSysmodule', 'SceThreadmgr', 'SceIofilemgr', 'ScePower', 'SceRtcUser', 'SceLibRng', 'SceAppMgr', 'SceAppMgrUser'}:
         raise ValueError('Unexpected imports')
     preserved = {}
     for relative, expected in ACCEPTED.items():
@@ -86,15 +93,19 @@ def main():
             sources[path.relative_to(ROOT).as_posix()] = digest(path)
     for relative in ['Build-Resident.ps1', 'toolchain.lock.json', 'bridge/ftp_staging.py', 'tests/ftp_fixture.py']:
         sources[relative] = digest(ROOT / relative)
+    for path in sorted((ROOT / 'resident/launch_broker').iterdir()):
+        if path.is_file():
+            sources[path.relative_to(ROOT).as_posix()] = digest(path)
     allocated = sum(section[5] for section in velf_sections.values() if section[2] & 2)
     report = {
-        'built_utc': datetime.now(timezone.utc).isoformat(), 'version': '0.1.2',
+        'built_utc': datetime.now(timezone.utc).isoformat(), 'version': '0.1.3',
         'toolchain': json.loads((ROOT / 'toolchain.lock.json').read_text(encoding='utf-8')),
         'plugin': {'file': 'vita_resident.suprx', 'bytes': len(self_data), 'sha256': hashlib.sha256(self_data).hexdigest(), 'build_id': build_id, 'elf_sha256': hashlib.sha256(elf_data).hexdigest(), 'velf_sha256': hashlib.sha256(velf_data).hexdigest(), 'module_attributes': 0, 'imports': imports, 'linked_allocated_section_bytes': allocated, 'worker_stack_bytes': 65536},
         'source_hashes': sources, 'test_log_hashes': logs, 'accepted_artifacts_preserved': preserved,
         'evidence_directory': str(evidence),
         'host_validation': 'Real C service with POSIX adapters, ASan/UBSan; real stdio MCP against simulated HTTP; guarded FTP staging against simulated FTP.',
-        'device_acceptance': 'pending: 0.1.2 plugin load, SDK RNG/RTC/sync adapters, physical pairing/rejection, exact 90-day and revoke recovery, screen privacy, LiveArea/foreground behavior and sleep/Wi-Fi recovery',
+        'launch_broker': {'enabled': False, 'native_submission': 'unconditionally refused', 'store_format': 1, 'store_capacity_records': 128, 'startup_dispatch': False},
+        'device_acceptance': 'pending: 0.1.3 disabled-candidate normal boot, retained native identity, read-only app inventory, SDK storage/sync/recovery and continued Resident/pairing behavior; app launching is not implemented or qualified',
     }
     dist = ROOT / 'dist/resident'
     dist.mkdir(parents=True, exist_ok=True)

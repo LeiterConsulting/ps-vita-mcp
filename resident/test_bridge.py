@@ -18,7 +18,7 @@ from mcp.client.stdio import stdio_client
 ROOT = Path(__file__).resolve().parents[1]
 TOKEN = 'a' * 32
 files = {}
-fault = {'drop_reply': False, 'bad_readback': False, 'rejection': None}
+fault = {'drop_reply': False, 'bad_readback': False, 'rejection': None, 'version': '0.1.1'}
 calls = []
 
 def value(result):
@@ -43,7 +43,7 @@ class Device(BaseHTTPRequestHandler):
         if self.headers.get('Authorization') != 'Bearer ' + TOKEN:
             return self.reply(401, {'error': 'Unauthorized'})
         if self.path == '/status':
-            return self.reply(200, {'app': 'Vita Resident', 'protocol': 1, 'version': '0.1.1', 'build_id': '0' * 64, 'started_ms': 100, 'uptime_ms': 1000, 'heartbeat': 2, 'requests': len(calls), 'uploads': len(files), 'battery_percent': 73, 'charging': 0, 'clocks_mhz': [333, 222, 111, 111], 'network_state': 3, 'keep_awake': False})
+            return self.reply(200, {'app': 'Vita Resident', 'protocol': 1, 'version': fault['version'], 'build_id': '0' * 64, 'started_ms': 100, 'uptime_ms': 1000, 'heartbeat': 2, 'requests': len(calls), 'uploads': len(files), 'battery_percent': 73, 'charging': 0, 'clocks_mhz': [333, 222, 111, 111], 'network_state': 3, 'keep_awake': False})
         key = self.path.removeprefix('/files/')
         if key not in files:
             return self.reply(404, {'error': 'Not published'})
@@ -134,6 +134,17 @@ async def main():
                     status = await session.call_tool('vita_resident_status', {})
                     assert not status.isError and value(status)['app'] == 'Vita Resident'
                     checks.append('status-through-MCP')
+                    for supported in ('0.1.1', '0.1.2', '0.1.3'):
+                        fault['version'] = supported
+                        status = await session.call_tool('vita_resident_status', {})
+                        assert not status.isError and value(status)['version'] == supported
+                    checks.append('supported-installed-and-disabled-candidate-versions-through-MCP')
+                    for unsupported in ('0.1.4', '', 1):
+                        fault['version'] = unsupported
+                        status = await session.call_tool('vita_resident_status', {})
+                        assert status.isError
+                    fault['version'] = '0.1.1'
+                    checks.append('unknown-or-malformed-versions-refused-through-MCP')
                     probe = await session.call_tool('vita_resident_probe_upload', {})
                     assert not probe.isError and value(probe)['read_back_checks'] == 2
                     assert value(probe)['bytes'] == 4096 and files[value(probe)['attempt'] + '/probe.bin'] == bytes(range(256)) * 16

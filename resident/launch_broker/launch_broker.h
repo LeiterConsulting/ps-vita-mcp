@@ -90,6 +90,8 @@ int lb_dispatch_after_response(LBCore *core,const char attempt[33],int response_
 int lb_get(LBCore *core,const LBAuth *auth,const char attempt[33],LBReceipt *out);
 int lb_observe(LBCore *core,const LBAuth *auth,const char attempt[33],const LBObservation *observation,LBReceipt *out);
 int lb_set_enabled(LBCore *core,int enabled);
+/* Trusted native status sampling also participates in regression detection. */
+int lb_status_clock(LBCore *core,uint64_t *now_ms);
 int lb_receipt_valid(const LBReceipt *receipt);
 const char *lb_state_name(LBState state);
 #endif

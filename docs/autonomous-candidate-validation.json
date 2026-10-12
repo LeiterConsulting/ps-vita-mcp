@@ -358,5 +358,13 @@
     "host_groups_passed": 22,
     "native_or_boot_installation_performed": false,
     "complete_platform_autonomy": "not achieved"
+  },
+  "resident_launch_candidate_2026_10_12": {
+    "record": "resident-launch-validation.json",
+    "version": "0.1.3",
+    "result": "native build, all 22 host groups and immutable staging passed; activation/hardware qualification pending",
+    "launch_enabled": false,
+    "native_submission": "unconditionally refused",
+    "complete_platform_autonomy": "not achieved"
   }
 }

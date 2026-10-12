@@ -48,7 +48,7 @@ static int observation_valid(const LBObservation *o) {
 }
 int lb_receipt_valid(const LBReceipt *r) {
     if(!r || r->format!=LB_FORMAT || r->state<LB_QUEUED || r->state>LB_CANCELLED ||
-       r->reason<LB_REASON_NONE || r->reason>LB_REASON_OBSERVATION || !hex(r->attempt,32) ||
+       (unsigned)r->reason>LB_REASON_OBSERVATION || !hex(r->attempt,32) ||
        !literal(r->title,LB_TITLE,9) || !hex(r->resident_build,64) || !hex(r->instance,32) ||
        !hex(r->devloop_build,64) || r->expires_ms<=r->issued_ms ||
        r->expires_ms-r->issued_ms>LB_MAX_TTL_MS || r->accepted_ms<r->issued_ms ||
@@ -160,7 +160,11 @@ int lb_set_enabled(LBCore *c,int enabled) {
     if(!enabled && c->has_current && c->current.state==LB_QUEUED)return finish(c,LB_CANCELLED,LB_REASON_DISABLED,0);
     return LB_OK;
 }
+int lb_status_clock(LBCore *c,uint64_t *now_ms) {
+    if(!c||!c->initialized||!now_ms)return LB_UNAVAILABLE;
+    return clock_now(c,now_ms)?LB_OK:LB_UNAVAILABLE;
+}
 const char *lb_state_name(LBState state) {
     static const char *const names[]={"empty","queued","dispatch_intent","submitted","native_rejected","unknown","observed_script_only","expired_before_submission","cancelled_before_submission"};
-    return state>=LB_EMPTY&&state<=LB_CANCELLED ? names[state] : "invalid";
+    return (unsigned)state<=LB_CANCELLED ? names[state] : "invalid";
 }
