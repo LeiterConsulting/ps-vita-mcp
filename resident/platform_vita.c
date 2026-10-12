@@ -1,4 +1,5 @@
 #include "platform.h"
+#include "launch_broker/service.h"
 #include <psp2/kernel/modulemgr.h>
 #include <psp2/kernel/rng.h>
 #include <psp2/rtc.h>
@@ -20,6 +21,8 @@ static unsigned log_bytes;
 /* Compiler-generated aggregate clearing must not depend on SceShell having libc. */
 void *memset(void *destination,int value,size_t size) { return sceClibMemset(destination,value,size); }
 void *memcpy(void *destination,const void *source,size_t size) { return sceClibMemcpy(destination,source,size); }
+int memcmp(const void *left,const void *right,size_t size) { return sceClibMemcmp(left,right,size); }
+int strcmp(const char *left,const char *right) { return sceClibStrcmp(left,right); }
 
 uint64_t r_pair_mono(void) { return sceKernelGetSystemTimeWide()/1000; }
 int r_pair_utc(uint64_t *out) { SceDateTime date={0};SceUInt64 value=0;if(sceRtcGetCurrentClock(&date,0)<0||sceRtcGetTime64_t(&date,&value)<0)return -1;*out=value;return 0; }
@@ -68,6 +71,7 @@ int r_accept(int socket) { int client=sceNetAccept(socket,0,0); if(client<0) ret
 int r_recv(int socket,void *data,size_t size) { int n=sceNetRecv(socket,data,size,0); return n<0&&again()?-2:n; }
 int r_send(int socket,const void *data,size_t size) { int n=sceNetSend(socket,data,size,0); return n<0&&again()?-2:n; }
 void r_close_socket(int socket) { sceNetSocketClose(socket); }
+int r_close_client(int socket) { return sceNetSocketClose(socket); }
 void r_device(RDevice *d) {
     d->battery=scePowerGetBatteryLifePercent(); d->charging=scePowerIsBatteryCharging();
     d->cpu=scePowerGetArmClockFrequency(); d->bus=scePowerGetBusClockFrequency(); d->gpu=scePowerGetGpuClockFrequency(); d->xbar=scePowerGetGpuXbarClockFrequency();
@@ -98,7 +102,7 @@ int module_start(SceSize args,const void *arg) {
     if(thread<0) { r_log("thread create failed",thread); return SCE_KERNEL_START_FAILED; }
     int result=sceKernelStartThread(thread,0,0);
     if(result<0) { r_log("thread start failed",result); sceKernelDeleteThread(thread); thread=-1; return SCE_KERNEL_START_FAILED; }
-    r_log("module start 0.1.2",0); return SCE_KERNEL_START_SUCCESS;
+    r_log("module start " R_VERSION,0); return SCE_KERNEL_START_SUCCESS;
 }
 int module_stop(SceSize args,const void *arg) {
     (void)args; (void)arg; __atomic_store_n(&running,0,__ATOMIC_RELEASE);

@@ -1,25 +1,63 @@
 # Portable fixed-title launch broker
 
-This is an **offline prototype**. Nothing in this directory is linked into the
-Vita build, boot configuration, installed Resident, Control or retired startup
-candidates. Its tests execute the real portable C core with a fake adapter; they
-do not establish Vita API, filesystem, scheduling, foreground or boot acceptance.
+Resident **0.1.3 is a disabled native qualification candidate**, built separately
+from the installed 0.1.2 service. The core, strict HTTP codec, immutable store,
+native instance identity and read-only app inventory are linked into its native
+module. Native submission is unconditionally refused; there is no enable file
+or API. It has not been installed or boot-tested. Control, DevLoop and the
+withdrawn boot experiments are unchanged.
 
-The intended later integration is one authenticated PC request to open
+The intended later operation is one authenticated PC request to open
 `CHRS00003` (Vita DevLoop) after Resident is already healthy. The existing Resident
-service worker would dispatch only after the requesting HTTP client handler has
-returned and its socket has closed. The native adapter would call the fixed-title
-AppMgr operation. The core has no SDK imports, native module loaders, arbitrary
+worker now has a dispatch boundary after response completion and successful
+socket closure. The qualification candidate keeps it disabled and its native
+callback refuses even an accidental dispatch. The core has no SDK imports, native module loaders, arbitrary
 URI/path/title inputs, installation, input injection or boot-time dispatch.
 Installed Resident 0.1.2 has no broker namespace or random native instance identity
 and must be refused by clients that require this contract.
+
+Read the [native candidate and hardware gates](../../docs/RESIDENT-LAUNCH-CANDIDATE.md)
+before any deployment. Tests cover actual Resident HTTP and real POSIX storage,
+with a separately compiled simulated launch adapter. These are host checks,
+not native filesystem durability, foreground or boot acceptance.
+
+## Native qualification integration
+
+`service.c` combines the core, `http.c`, `store.c` and `native_vita.c` in the
+existing delayed Resident worker. No additional worker, boot entry, module load,
+power policy or launch on initialization is added. One 16-byte SDK RNG call creates
+the retained native instance ID; failure disables the broker while ordinary
+Resident inspection stays available. Status clock samples also detect regression.
+
+`GET /devloop-launch/status`, `GET /devloop-launch/inventory`, receipt GETs and
+the reserved offer POST require the desktop administrator token. Phone credentials
+cannot access this namespace. POST uses exactly seven bounded fields with no
+duplicates, unknowns, escapes, NULs or numeric coercion. Native offers are denied
+because the candidate is disabled. There is no client-supplied observation route.
+
+The fixed `ux0:data/vita-resident/launch-v1` store has 128 immutable record slots.
+An exclusive CLAIM record is the permanent attempt tombstone; later records chain
+explicit little-endian fields and SHA-256 checksums. Each append requires complete
+write, file/device sync and exact readback. Recovery rejects gaps, known orphan
+suffixes, torn/noncanonical records, altered history and invalid transitions.
+Capacity exhaustion blocks further writes; nothing is pruned. Without directory
+enumeration, arbitrary unrelated filenames cannot be excluded. Only format 1 and
+the exact compiled Resident build are supported: an older store is retained and
+blocks this broker until an explicit migration policy exists. These qualification
+bounds are not a long-term production retention policy.
+
+App inventory maps App IDs to PIDs, then titles. Its separate reads are not atomic
+and its bounded list is not foreground evidence. The pinned SDK does not establish
+displayed foreground/protected-UI semantics through those calls. Accordingly
+`foreground_verified`, `protected_ui_verified` and `native_submission_enabled`
+remain false, and no AppMgr launch API is imported into this candidate.
 
 ## Core and adapter contract
 
 `launch_broker.h` defines `lb_init`, `lb_offer`,
 `lb_dispatch_after_response`, `lb_get`, `lb_observe` and `lb_set_enabled`.
-All operations and adapter callbacks are **serialized and non-reentrant**. A
-future threaded HTTP host must serialize access to the whole core. Its native
+All operations and adapter callbacks are **serialized and non-reentrant**. Any
+future threaded HTTP host must serialize access to the whole core. An enabled native
 launch callback may block the single service worker; the core cannot promise
 continued HTTP responsiveness or bound/cancel that native call.
 
@@ -115,6 +153,10 @@ intent and the separately qualified foreground policy.
 
 ```sh
 sh resident/launch_broker/test_host.sh
+sh resident/launch_broker/test_http.sh
+sh resident/launch_broker/test_store.sh
+sh resident/launch_broker/test_native_host.sh
+sh resident/test_host.sh
 ```
 
 The script builds `core.c` with strict C11 warnings, AddressSanitizer and

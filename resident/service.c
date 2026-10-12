@@ -2,12 +2,15 @@
 #include "platform.h"
 #include "sha256.h"
 #include "pairing.h"
+#include "launch_broker/service.h"
 
 static unsigned char buffer[R_CHUNK];
 static char headers[4097];
 static char reply[4096];
 static PRState pairing_state;
 static char phone_token[33];
+static LBDeferred launch_deferred;
+static int launch_response_complete;
 static void error(int socket,int status,const char *reason);
 static uint64_t started,heartbeat,requests,uploads;
 static uint64_t idle_deadline,total_deadline;
@@ -86,9 +89,9 @@ static int response_header(int socket,int status,const char *type,uint32_t lengt
     char text[256]; int n=R_SNPRINTF(text,sizeof(text),"HTTP/1.1 %d Result\r\nContent-Type: %s\r\nContent-Length: %u\r\nConnection: close\r\nCache-Control: no-store\r\n\r\n",status,type,(unsigned)length);
     return n>0&&(size_t)n<sizeof(text)&&send_all(socket,text,(unsigned)n);
 }
-static void respond(int socket,int status,const char *body) {
+static int respond(int socket,int status,const char *body) {
     idle_deadline=r_now()+5000; total_deadline=r_now()+10000;
-    if(response_header(socket,status,"application/json",(uint32_t)R_STRLEN(body))) send_all(socket,body,R_STRLEN(body));
+    return response_header(socket,status,"application/json",(uint32_t)R_STRLEN(body))&&send_all(socket,body,R_STRLEN(body));
 }
 static void error(int socket,int status,const char *reason) {
     R_SNPRINTF(reply,sizeof(reply),"{\"error\":\"%s\"}",reason); respond(socket,status,reply);
@@ -163,11 +166,36 @@ static void download(int socket,const Request *request) {
 }
 static void status(int socket) {
     RDevice d; r_device(&d);
-    R_SNPRINTF(reply,sizeof(reply),"{\"app\":\"Vita Resident\",\"protocol\":1,\"version\":\"0.1.2\",\"build_id\":\"%s\",\"port\":17866,\"started_ms\":%llu,\"uptime_ms\":%llu,\"heartbeat\":%llu,\"requests\":%llu,\"uploads\":%llu,\"battery_percent\":%d,\"charging\":%d,\"clocks_mhz\":[%d,%d,%d,%d],\"network_state\":%d,\"keep_awake\":false,\"max_upload_bytes\":%u,\"process\":\"SceShell user plugin\"}",R_BUILD_ID,(unsigned long long)started,(unsigned long long)(r_now()-started),(unsigned long long)heartbeat,(unsigned long long)requests,(unsigned long long)uploads,d.battery,d.charging,d.cpu,d.bus,d.gpu,d.xbar,d.network,R_MAX_FILE);
+    R_SNPRINTF(reply,sizeof(reply),"{\"app\":\"Vita Resident\",\"protocol\":1,\"version\":\"" R_VERSION "\",\"build_id\":\"%s\",\"port\":17866,\"started_ms\":%llu,\"uptime_ms\":%llu,\"heartbeat\":%llu,\"requests\":%llu,\"uploads\":%llu,\"battery_percent\":%d,\"charging\":%d,\"clocks_mhz\":[%d,%d,%d,%d],\"network_state\":%d,\"keep_awake\":false,\"max_upload_bytes\":%u,\"process\":\"SceShell user plugin\"}",R_BUILD_ID,(unsigned long long)started,(unsigned long long)(r_now()-started),(unsigned long long)heartbeat,(unsigned long long)requests,(unsigned long long)uploads,d.battery,d.charging,d.cpu,d.bus,d.gpu,d.xbar,d.network,R_MAX_FILE);
     respond(socket,200,reply);
+}
+static void launch_request(int socket,const Request *request,int admin,
+                           const unsigned char *initial,size_t initial_size) {
+    if(!admin) { error(socket,403,"Desktop administrator required");return; }
+    char body[LB_HTTP_BODY_MAX+1];size_t used=initial_size;
+    if(request->length>LB_HTTP_BODY_MAX||used>request->length) { error(socket,413,"Launch request exceeds bound");return; }
+    if(!R_STRCMP(request->method,"GET")) {
+        if(request->length||used) { error(socket,400,"GET body is not supported");return; }
+    } else if(!R_STRCMP(request->method,"POST")) {
+        if(!request->has_length) { error(socket,400,"Launch content length required");return; }
+        if(!request->has_mime||R_STRNCMP(request->mime,"application/json",16)||
+           (request->mime[16]&&request->mime[16]!=';')) { error(socket,415,"Launch JSON required");return; }
+    } else { error(socket,405,"Method not supported");return; }
+    R_MEMCPY(body,initial,used);
+    while(used<request->length&&!timed()) {
+        int got=r_recv(socket,body+used,request->length-used);
+        if(got>0) { used+=(unsigned)got;idle_deadline=r_now()+5000; }
+        else if(got==-2)r_delay(5);else break;
+    }
+    if(used!=request->length) { R_MEMSET(body,0,sizeof(body));error(socket,408,"Incomplete launch request");return; }
+    body[used]=0;
+    int code=rlb_request(admin,request->method,request->path,body,used,reply,sizeof(reply),&launch_deferred);
+    R_MEMSET(body,0,sizeof(body));
+    launch_response_complete=respond(socket,code,reply);
 }
 static void client(int socket,const char token[33]) {
     phone_token[0]=0;
+    R_MEMSET(&launch_deferred,0,sizeof(launch_deferred));launch_response_complete=0;
     size_t used=0,header_size=0; idle_deadline=r_now()+5000; total_deadline=r_now()+120000;
     while(used<sizeof(headers)-1&&!timed()) {
         int n=r_recv(socket,headers+used,sizeof(headers)-1-used);
@@ -186,6 +214,11 @@ static void client(int socket,const char token[33]) {
     if(result) { error(socket,result,"Invalid request framing"); return; }
     const char *bearer=request.has_auth&&R_STRLEN(request.authorization)==39&&!R_STRNCMP(request.authorization,"Bearer ",7)?request.authorization+7:"";
     int admin=*bearer&&equal_token(bearer,token);
+    if(!R_STRCMP(request.path,"/devloop-launch")||!R_STRNCMP(request.path,"/devloop-launch/",16)) {
+        if(admin)requests++;
+        launch_request(socket,&request,admin,(const unsigned char *)headers+header_size,used-header_size);
+        return;
+    }
     if(!R_STRNCMP(request.path,"/pairing/",9)) {
         char body[PR_REQUEST_MAX+1];size_t body_used=used-header_size;
         if(request.length>PR_REQUEST_MAX||body_used>request.length){error(socket,413,"Pairing request exceeds bound");return;}
@@ -226,6 +259,7 @@ void r_service(const char token[33]) {
     if(r_network_init()<0) { r_log("network initialization failed",-1); return; }
     if(!r_directory_exists("ux0:data/vita-resident/inbox")) { r_log("inbox missing",-1); r_network_end(); return; }
     if(!pr_init(&pairing_state,pr_platform_io(),R_PORT,17867,R_BUILD_ID))r_log("Phone pairing unavailable; legacy auth preserved",-1);
+    rlb_init();
     int listener=-1; uint64_t previous=started;
     r_log("worker ready",0);
     while(r_running()) {
@@ -233,7 +267,12 @@ void r_service(const char token[33]) {
         if(!r_network_ready()) { if(listener>=0) r_close_socket(listener); listener=-1; r_delay(100); continue; }
         if(listener<0) { listener=r_listen(); r_log("listener",listener); if(listener<0) { r_delay(1000); continue; } }
         int socket=r_accept(listener);
-        if(socket>=0) { client(socket,token); r_close_socket(socket); }
+        if(socket>=0) {
+            client(socket,token);
+            int closed=r_close_client(socket);
+            /* Only this serialized boundary may dispatch; initialization never does. */
+            rlb_after_response(&launch_deferred,launch_response_complete&&closed==0);
+        }
         else if(socket==-2) { r_close_socket(listener); listener=-1; }
         r_delay(25);
     }

@@ -41,8 +41,9 @@ static int again(void) { return errno==EAGAIN||errno==EWOULDBLOCK; }
 int r_listen(void) { int fd=socket(AF_INET,SOCK_STREAM,0); if(fd<0) return fd; int yes=1; setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(yes)); struct sockaddr_in a={0}; a.sin_family=AF_INET; a.sin_port=htons(port); a.sin_addr.s_addr=htonl(INADDR_ANY); if(bind(fd,(struct sockaddr *)&a,sizeof(a))<0||listen(fd,2)<0||nb(fd)<0) { close(fd); return -1; } return fd; }
 int r_accept(int fd) { int client=accept(fd,0,0); if(client<0) return again()?-1:-2; if(nb(client)<0) { close(client); return -1; } return client; }
 int r_recv(int fd,void *data,size_t size) { int n=(int)recv(fd,data,size,0); return n<0&&again()?-2:n; }
-int r_send(int fd,const void *data,size_t size) { int n=(int)send(fd,data,size,MSG_NOSIGNAL); return n<0&&again()?-2:n; }
+int r_send(int fd,const void *data,size_t size) { if(fault("launch-send"))return -1;int n=(int)send(fd,data,size,MSG_NOSIGNAL); return n<0&&again()?-2:n; }
 void r_close_socket(int fd) { close(fd); }
+int r_close_client(int fd) { int result=close(fd);return fault("launch-close")?-1:result; }
 void r_device(RDevice *d) { *d=(RDevice){73,0,333,222,111,111,3}; }
 int r_dir(const char *path) { return mkdir(mapped(path),0700); }
 int r_directory_exists(const char *path) { struct stat s; return stat(mapped(path),&s)==0&&S_ISDIR(s.st_mode); }

@@ -1,8 +1,8 @@
 """Control-free preparation; the future launch adapter is never inferred or retried.
 
 Resident 0.1.2 does not implement this broker protocol. The installed plugin is
-left untouched. Transport fixtures exercise the client against the portable C
-candidate; they are not evidence of native app launching.
+left untouched. The disabled 0.1.3 native qualification build still refuses launching.
+Transport fixtures are not evidence of successful native app launching.
 """
 from __future__ import annotations
 
