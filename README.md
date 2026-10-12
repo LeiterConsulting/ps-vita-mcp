@@ -12,20 +12,23 @@ PS Vita MCP connects a desktop MCP client to a modded Vita. Its PC bridges combi
 
 **Pairing candidate:** [six-digit Companion pairing](docs/PAIRING.md) adds individual inspection credentials, physical approval and durable 90-day inactivity expiry. Resident 0.1.2 / Control 0.3.4 / Starter 01.06 are installed on the test Vita. Normal startup, physical code display and graceful challenge timeout passed; individual credential confirmation and the wider device gates remain open. [Candidate checks and remaining gates](docs/PAIRING-DEVICE-TESTS.md).
 
-## Status as of October 11 2026
+## Status as of October 12 2026
 
-Development has resumed toward an autonomous development loop. The current source adds a PC preparation tool and an experimental, default-disabled one-shot startup helper. The helper passed its native build, disabled staging and normal disabled boot. Its armed trial booted normally and confirmed native submission, but Control's work-power worker failed and its network service remained unavailable. Startup qualification is blocked on that defect; retained guards prevent automatic retry. DevLoop 01.04 built, staged and installed successfully; its exact native identity and 55-step live Lua reload/recovery proof passed. Control capture mapping, synthetic input and lifecycle gates remain open. [October 11 candidate evidence](docs/autonomous-candidate-validation.json) separates these results from host tests. The October 4 hardware observations below remain historical and do not qualify this candidate.
+The automatic-startup and isolated boot-diagnostic candidates are withdrawn from routine use after October 12 boot failures. The diagnostic activation hung at the initial product-manual screen and shut down; boot trouble persisted after restoring the pre-diagnostic configuration, which still included Autostart. Plugin-bypass boot reached the file manager. The pre-Autostart configuration was then restored with two exact readbacks and both experiments disabled, preserving pairing, logs and attempt guards. The operator confirmed a normal boot without plugin bypass; fresh read-only checks verified the recovered configuration, disable markers and exact Resident identity through the registered MCP. Recovery is verified. The root cause is unknown; neither experiment should be armed again under the current qualification.
+
+The October 11 native builds, 17-group host pass and normal disabled Autostart boot remain scoped historical results. The armed Autostart trial then reached native service submission, but Control's work-power worker failed and its endpoint stayed unavailable. DevLoop 01.04 separately passed installation, exact runtime identity, a 55-step live Lua reload/recovery proof and normal START+SELECT exit. Control capture mapping, synthetic input and sleep/reopen remain open. [Dated candidate evidence](docs/autonomous-candidate-validation.json) records these distinct outcomes. PC preparation and the manual Starter path remain in source; recovery did not load Control or activate another boot candidate.
 
 The October 3 baseline is retained in [the historical record](docs/BASELINE.md). [October 4 qualification](docs/QUALIFICATION.md) records the earlier Control 0.3.3 tests. [Current pairing gates](docs/PAIRING-DEVICE-TESTS.md) record the installed 0.1.2 / 0.3.4 / 01.06 candidate and its partial results. A fresh build does not inherit another package's acceptance. This is a source developer preview; no final binary release is certified.
 
 | Component | Role | Source / recorded runtime |
 | --- | --- | --- |
-| Vita DevLoop | Foreground Lua edit/run/observe/recover; ten MCP tools | 01.04 built and installed; exact runtime identity and live Lua reload/recovery passed. Control capture mapping, synthetic input and lifecycle acceptance remain open. |
-| [Vita Resident](docs/RESIDENT.md) | Boot-loaded status and verified DevLoop package inbox; four tools | 0.1.2 pairing candidate installed; startup passed, pairing qualification open |
-| [Vita Control](docs/CONTROL.md) | Background screen, managed files, app commands and bounded synthetic input; thirteen tools | 0.3.4 pairing candidate installed, ABI 2; startup passed, physical regressions open |
+| Vita DevLoop | Foreground Lua edit/run/observe/recover; ten MCP tools | 01.04 installed; exact runtime identity, live Lua reload/recovery and normal exit passed. Capture mapping, synthetic input and sleep/reopen remain open. |
+| [Vita Resident](docs/RESIDENT.md) | Boot-loaded status and verified DevLoop package inbox; four tools | 0.1.2 installed; exact registered MCP identity verified after recovered normal boot, pairing qualification open |
+| [Vita Control](docs/CONTROL.md) | Background screen, managed files, app commands and bounded synthetic input; thirteen tools | 0.3.4 pairing candidate installed, ABI 2; earlier manual startup passed, automatic worker/network startup failed; recovery did not reactivate it |
 | [Vita Workbench](workbench/README.md) | Runtime preparation, hash-pinned Lua trials, metrics, capture soak, candidate staging and file recovery; eleven tools | Developer preview; script readiness and verified input readiness are separate |
 | Control Starter | Explicit activation after normal boot, then exits | 01.06 pairing candidate installed, title `CHRS00011`; 01.04 retained as the older rollback |
-| [Automatic startup experiment](resident/autostart/README.md) | Deferred loading of the exact matched Control pair after LiveArea readiness | 0.1.0 disabled boot passed; armed native submission confirmed but Control worker/network startup failed; persistent startup unimplemented |
+| [Automatic startup experiment](resident/autostart/README.md) | Deferred loading of the exact matched Control pair after LiveArea readiness | 0.1.0 withdrawn from routine use; disabled historical boot passed, armed service failed; source retained for offline diagnosis |
+| [Boot resource diagnostic](resident/boot_diagnostic/README.md) | Isolated SDK mutex/thread probe without Control or network loads | 0.1.0 withdrawn after boot failure; resource trial not established, root cause unknown |
 | [Control Inspector](docs/INSPECTOR.md) | Optional read-only app/Shell diagnostic | 01.03; not required for the baseline |
 
 Resident, Control and Workbench share one **28-tool desktop MCP server**: four Resident, thirteen Control and eleven Workbench tools. DevLoop has its own ten-tool server. The computer speaks MCP over stdio; the Vita runs authenticated HTTP services. The existing manual Starter path keeps Control available after Starter exits, until normal reboot. DevLoop must be running for Lua operations.
@@ -55,7 +58,7 @@ cd ps-vita-mcp
 
 The build runs host C, actual MCP stdio and local FTP fixtures, then validates the ARM modules and VPKs. It never contacts the Vita. Outputs are under `dist/devloop/`, `dist/resident/`, `dist/control/` and `dist/workbench/`; reports bind exact sources and artifact hashes.
 
-Follow [the complete setup guide](docs/GETTING-STARTED.md) to install and pair the components. Native installation, boot testing and recovery remain manual. The existing path loads Control through Starter after normal boot. The separate [startup experiment](resident/autostart/README.md) defers loading and consumes an explicit one-shot opt-in; it is not qualified for routine startup across boots. The earlier direct Control boot configuration hung and remains excluded.
+Follow [the complete setup guide](docs/GETTING-STARTED.md) to install and pair the components. Native installation, boot testing and recovery remain manual. The existing path loads Control through Starter after a confirmed normal boot and inspected native state. The separate [startup experiment](resident/autostart/README.md) and boot diagnostic are retained as default-disabled source experiments for offline diagnosis; their current candidates are withdrawn from routine use. Do not activate or re-arm them. The earlier direct Control boot configuration hung and remains excluded.
 
 After DevLoop pairing, an example edit can run without rebuilding the native app:
 
@@ -79,7 +82,7 @@ flowchart LR
     Background <-->|LAN HTTP :17866| Resident[Resident in SceShell]
     Background <-->|LAN HTTP :17867| Control[Control in SceShell]
     Starter[Manual Starter activation] --> Kernel[Matched kernel helper]
-    Auto[Experimental one-shot deferred startup] -.-> Kernel
+    Auto[Withdrawn one-shot startup experiment] -.-> Kernel
     Kernel <--> Control
     DevBridge --> FTP[File manager FTP]
     FTP --> Install[Manual VPK installation]
@@ -93,7 +96,7 @@ flowchart LR
 - Input leases last 16–1000 ms and cancel on focus change. One synthetic contact per panel is supported. Stick offsets add to physical centers; readback and calibration matter. PS/power/volume are excluded.
 - Control files are confined to fresh revisions under `ux0:data/vita-control/workspace`; transfers are at most 8 MiB. System and installed-app writes are outside this API.
 - DevLoop Lua source is at most 16 KiB, with a 1 MiB allocation budget per VM and callback instruction budgets. Drawing is limited to 256 buffered commands. Script state is in RAM; assets/audio/file APIs are future work.
-- Native installation, startup confirmation and reboot recovery require an operator. Automatic startup is an opt-in one-shot experiment; persistent startup and repeated-boot behavior are unqualified. Physical touch restoration, sleep/wake, independent Wi-Fi-loss recovery and additional device combinations need qualification. Pairing uses unencrypted HTTP on a trusted LAN.
+- Native installation, startup confirmation and reboot recovery require an operator. Both current boot experiments are withdrawn from routine use after boot failures; persistent startup and repeated-boot behavior are unqualified. Physical touch restoration, sleep/wake, independent Wi-Fi-loss recovery and additional device combinations need qualification. Pairing uses unencrypted HTTP on a trusted LAN.
 - Script readiness does not prove the foreground input target. Legacy DevLoop lacks native title/PID mapping and cannot run synthetic Workbench profiles under the current safety checks.
 
 These are current implementation limits. A heartbeat or accepted API call alone does not establish a working autonomous session. [New-device acceptance](docs/BASELINE.md#acceptance-on-a-new-device) is the gate for remaining DevLoop work.
