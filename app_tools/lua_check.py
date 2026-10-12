@@ -104,6 +104,10 @@ def _docker_run(docker, image, mounts, arguments, timeout):
     command = [docker, 'run', '--rm', '--name', name, '--network', 'none',
                '--read-only', '--tmpfs', '/tmp:rw,nosuid', '--cap-drop', 'ALL',
                '--security-opt', 'no-new-privileges', '--workdir', '/workspace']
+    if os.name == 'posix':
+        # With all capabilities dropped, container root cannot bypass ordinary
+        # Linux bind-mount ownership. Write outputs as their invoking host owner.
+        command += ['--user', f'{os.getuid()}:{os.getgid()}']
     for source, target, readonly in mounts:
         if ',' in str(source):
             raise ValueError('Docker bind paths containing commas are unsupported')
@@ -205,8 +209,17 @@ def check(source_path, checks, frames=120, dt=1/60, inputs=None, *, repo=None):
     try:
         output, built, cached = _build(repo, docker, image, pins, identity)
     except (OSError, RuntimeError, subprocess.SubprocessError, ValueError) as error:
-        return {**result, 'failure_type': 'sandbox_build_unavailable',
-                'diagnostic': str(error)[:300], 'elapsed_s': round(time.monotonic()-started, 3)}
+        result.update(failure_type='sandbox_build_unavailable', diagnostic=str(error)[:300],
+                      elapsed_s=round(time.monotonic()-started, 3))
+        log = repo / 'build/host/vita-app-lua' / identity / 'build.log'
+        if log.is_file():
+            # Keep the full local evidence and a bounded useful tail in CI's
+            # returned failure, where a bare "inspect build.log" is opaque.
+            result['build_log'] = str(log)
+            with log.open('rb') as stream:
+                stream.seek(max(0, log.stat().st_size - 4000))
+                result['diagnostic_tail'] = stream.read().decode('utf-8', errors='replace')
+        return result
     attempt = output / 'checks' / uuid.uuid4().hex
     attempt.mkdir(parents=True)
     (attempt / 'source.lua').write_bytes(raw)

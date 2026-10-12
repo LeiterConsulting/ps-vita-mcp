@@ -132,7 +132,24 @@ template does not establish the correctness of future generated applications.
 As of October 12, the project/skill host checks, actual shared Lua behavior tests
 and isolated native ARM/package build passed. A plan-only music-player exercise
 made no app/device changes. A breathing-timer scene passed its helper check and
-13 supplementary cases; an incorrect-duration mutation was rejected. The new
-native app module's hardware lifecycle and physical/visual checks remain pending:
-Resident became unavailable during preflight, before any device writes. The five
-previous Lab cycles establish the baseline envelope, not this app's acceptance.
+13 supplementary cases; an incorrect-duration mutation was rejected.
+
+Two Native Paddle builds then passed registered-MCP install/launch/evaluate/exit
+cycles and GET-only reconciliation on the Vita. The second changed ball speed
+from 220 to 300 pixels/second: the old position assertion failed as expected,
+then the corrected behavioral expectation passed before version 01.03 was
+redeployed. Both cycles verified installed hashes, native identity/inventory,
+advancing frames, the app-inclusive self-test and graceful exit/absence. Each
+took about 40 seconds. No FTP, Starter, reboot or manual installation was needed
+after the physical wake. Physical controls, visual quality and prolonged use
+remain separate checks; the previous five pristine Lab cycles remain separate
+baseline evidence.
+
+## Next: keep development jobs awake
+
+The first preflight was unavailable because the Vita had slept, as the operator
+later confirmed. A next qualification slice should provide a bounded Resident
+work lease across active build/stage/run gaps, with expiry and explicit release
+on completion, cancellation, faults or client loss. Ordinary sleep settings
+should remain intact. This lease is not implemented or qualified by the app
+workflow; true sleep can still require a physical wake.

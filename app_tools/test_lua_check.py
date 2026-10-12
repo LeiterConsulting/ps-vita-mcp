@@ -14,7 +14,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from app_tools.lua_check import ROOT, _docker_run, check
+from app_tools.lua_check import ROOT, _docker_run, _identity, check
 
 
 class ContractTests(unittest.TestCase):
@@ -68,6 +68,46 @@ class ContractTests(unittest.TestCase):
         self.assertRegex(name, '^vita-app-lua-[0-9a-f]{32}$')
         self.assertEqual(seen[1], ['docker', 'rm', '--force', name])
         self.assertIn('none', seen[0])
+
+    def test_docker_uses_posix_host_owner_and_preserves_windows_defaults(self):
+        for platform, expected in (('posix', '1001:1002'), ('nt', None)):
+            with self.subTest(platform=platform):
+                with (patch('app_tools.lua_check.os.name', platform),
+                      patch('app_tools.lua_check.os.getuid', return_value=1001, create=True),
+                      patch('app_tools.lua_check.os.getgid', return_value=1002, create=True),
+                      patch('app_tools.lua_check.subprocess.run') as run):
+                    _docker_run('docker', 'pinned-image',
+                                [('/checkout', '/workspace', True), ('/owned', '/output', False)],
+                                ['cc', '-o', '/output/test'], 180)
+                command = run.call_args.args[0]
+                if expected:
+                    self.assertEqual(command[command.index('--user') + 1], expected)
+                else:
+                    self.assertNotIn('--user', command)
+                self.assertEqual(command[command.index('--cap-drop') + 1], 'ALL')
+                self.assertIn('--read-only', command)
+                self.assertEqual(command[command.index('--network') + 1], 'none')
+                self.assertIn('type=bind,source=/owned,target=/output', command)
+
+    def test_build_failure_includes_bounded_compiler_diagnostic_tail(self):
+        repo = Path(self.folder.name) / 'repository'
+        repo.mkdir()
+        image = 'vitasdk/vitasdk@sha256:' + 'a' * 64
+        (repo / 'toolchain.lock.json').write_text(json.dumps({'image': image}))
+        pins = {'fixture.c': 'b' * 64}
+        output = repo / 'build/host/vita-app-lua' / _identity(pins, image)
+        output.mkdir(parents=True)
+        message = 'cannot create /output/lua/lapi.o: Permission denied\n'
+        (output / 'build.log').write_text('x' * 6000 + '\n' + message, newline='\n')
+        with (patch('app_tools.lua_check._source_pins', return_value=pins),
+              patch('app_tools.lua_check.shutil.which', return_value='docker'),
+              patch('app_tools.lua_check._build', side_effect=RuntimeError('Shared Lua sandbox build failed'))):
+            result = check(self.source, [{'metric': 'ticks', 'min': 1}], repo=repo)
+        self.assertEqual(result['result'], 'blocked')
+        self.assertEqual(result['failure_type'], 'sandbox_build_unavailable')
+        self.assertEqual(result['build_log'], str(output / 'build.log'))
+        self.assertTrue(result['diagnostic_tail'].endswith(message))
+        self.assertLessEqual(len(result['diagnostic_tail']), 4000)
 
 
 @unittest.skipUnless(os.environ.get('VITA_APP_TEST_DOCKER') == '1',
