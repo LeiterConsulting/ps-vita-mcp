@@ -1,11 +1,13 @@
 # Portable fixed-title launch broker
 
-Resident **0.1.3 is a disabled native qualification candidate**, built separately
-from the installed 0.1.2 service. The core, strict HTTP codec, immutable store,
+Resident **0.1.3 is an installed, disabled native qualification candidate**,
+with 0.1.2 retained for rollback. The core, strict HTTP codec, immutable store,
 native instance identity and read-only app inventory are linked into its native
 module. Native submission is unconditionally refused; there is no enable file
-or API. It has not been installed or boot-tested. Control, DevLoop and the
-withdrawn boot experiments are unchanged.
+or API. The operator confirmed normal boot; read-only checks matched the exact
+plugin and proposed configuration and preserved administrator pairing and both
+experiment disable markers. Control and DevLoop were unchanged, and neither
+withdrawn boot experiment was activated.
 
 The intended later operation is one authenticated PC request to open
 `CHRS00003` (Vita DevLoop) after Resident is already healthy. The existing Resident
@@ -13,13 +15,33 @@ worker now has a dispatch boundary after response completion and successful
 socket closure. The qualification candidate keeps it disabled and its native
 callback refuses even an accidental dispatch. The core has no SDK imports, native module loaders, arbitrary
 URI/path/title inputs, installation, input injection or boot-time dispatch.
-Installed Resident 0.1.2 has no broker namespace or random native instance identity
+The retained Resident 0.1.2 rollback has no broker namespace or random native instance identity
 and must be refused by clients that require this contract.
 
 Read the [native candidate and hardware gates](../../docs/RESIDENT-LAUNCH-CANDIDATE.md)
 before any deployment. Tests cover actual Resident HTTP and real POSIX storage,
 with a separately compiled simulated launch adapter. These are host checks,
 not native filesystem durability, foreground or boot acceptance.
+
+Initial hardware checks separately passed: three exact-build broker samples
+retained one native instance with advancing time and `enabled`,
+`configured_enabled` and `blocked` all false. Inventory resolved the running file
+manager to an AppId/PID/title, with foreground/protected-UI/submission flags false.
+Fresh stdio MCP status and a 4 KiB probe with two complete readbacks passed. The
+same checks passed with DevLoop open, retaining Resident's start time. Eight
+read-only observations matched inventory's `CHRS00003` PID to the stable exact
+paused DevLoop build/PID/run and revision while frames advanced; Resident retained
+its instance and advanced its clock. These samples changed no scene and do not
+attest displayed foreground or protected UI.
+
+A subsequent bounded Lua regression accepted both rate-60/rate-120 candidates,
+selected the faster and restored the original native world paused under the
+same DevLoop build/PID/run. Lua finished inactive with the last VM retained;
+the broker kept its instance and stayed disabled and unblocked. Fresh stdio
+verified the 30-tool catalog, both script tools and 0.1.3 status. The registered
+desktop connection remains an older 28-tool process that rejects 0.1.3 and needs
+a PC refresh. Storage durability across reboot, phone credential confirmation
+and safe native launching remain open.
 
 ## Native qualification integration
 
