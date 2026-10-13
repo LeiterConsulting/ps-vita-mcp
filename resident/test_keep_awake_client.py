@@ -43,6 +43,7 @@ class Fixture:
         self.malformed = False
         self.tick_result = 0
         self.drip = ''
+        self.timeout_gets = 0
         self.lock = threading.RLock()
         self.reason = 'boot'
 
@@ -111,6 +112,11 @@ class Fixture:
             def do_GET(self):
                 with owner.lock:
                     if self.auth():
+                        if owner.timeout_gets:
+                            owner.timeout_gets -= 1
+                            time.sleep(0.3)
+                            self.close_connection = True
+                            return
                         if owner.drop_get:
                             owner.drop_get = False
                             self.close_connection = True
@@ -450,6 +456,368 @@ class ClientTests(unittest.TestCase):
                          {'method': 'GET', 'phase': 'read_headers', 'cause_type': 'TimeoutError'})
         self.assertFalse(failure['replayed'])
         self.assertNotIn(TOKEN, json.dumps(events))
+        self.assertEqual(connection.request.call_count, 2)
+
+    @staticmethod
+    def get_timeout(phase='read_headers'):
+        error = TimeoutError('fixture endpoint and token ' + TOKEN)
+        error.lease_diagnostic = {'method': 'GET', 'phase': phase, 'cause_type': 'TimeoutError'}
+        error.preflight_read_retryable = True
+        return error
+
+    def test_renewal_retries_one_actual_preflight_timeout_then_posts_original_cas_once(self):
+        keeper = self.keeper(interval=10)
+        keeper.start(BUILD, INSTANCE)
+        before, ceiling, revision = len(self.fixture.calls), self.fixture.ceiling, keeper.value['revision']
+        writes = len(self.fixture.packets)
+        self.fixture.timeout_gets = 1
+        keeper._send(30000)
+        self.assertEqual([call[0] for call in self.fixture.calls[before:]], ['GET', 'GET', 'POST'])
+        self.assertEqual(len(self.fixture.packets), writes + 1)
+        self.assertEqual(struct.unpack('<8I', self.fixture.packets[-1][:32])[2], revision)
+        self.assertEqual(self.fixture.ceiling, ceiling)
+        self.assertEqual(keeper.result['preflight_read_retries'], 1)
+        self.assertGreaterEqual(time.monotonic() - keeper.observed, 0.2)
+        events = [json.loads(line) for line in (self.folder / 'resident-keep-awake.jsonl').read_text().splitlines()]
+        retry = [event for event in events if event['kind'].startswith('lease_preflight_read_retry_')]
+        self.assertEqual([event['kind'] for event in retry],
+                         ['lease_preflight_read_retry_intent', 'lease_preflight_read_retry_outcome'])
+        self.assertTrue(retry[1]['success'])
+        self.assertEqual(retry[0]['original_cause_code'], 1)
+        self.assertEqual(retry[0]['original_phase_code'], 2)
+        self.assertTrue(all(type(value) in (int, bool) for event in retry
+                            for key, value in event.items() if key not in ('kind', 'utc')))
+        self.assertNotIn(TOKEN, json.dumps(retry))
+
+    def test_two_actual_preflight_timeouts_stop_after_two_gets_and_zero_posts(self):
+        keeper = self.keeper(interval=10)
+        keeper.start(BUILD, INSTANCE)
+        before, writes = len(self.fixture.calls), len(self.fixture.packets)
+        self.fixture.timeout_gets = 2
+        with self.assertRaises(TimeoutError):
+            keeper._send(30000)
+        self.assertEqual([call[0] for call in self.fixture.calls[before:]], ['GET', 'GET'])
+        self.assertEqual(len(self.fixture.packets), writes)
+        self.assertEqual(keeper.result['preflight_read_retries'], 1)
+
+    def test_only_trusted_get_transport_timeouts_are_eligible_for_preflight_retry(self):
+        keeper = self.keeper(interval=10)
+        keeper.start(BUILD, INSTANCE)
+        failures = [KeepAwakeRejected(401), KeepAwakeLost('configuration changed'), RuntimeError('bad JSON'),
+                    TimeoutError('unannotated'), self.get_timeout('validate_reply'),
+                    self.get_timeout('configuration_check'), self.get_timeout('owner_check')]
+        post_timeout = self.get_timeout()
+        post_timeout.lease_diagnostic['method'] = 'POST'
+        failures.append(post_timeout)
+        writes = len(self.fixture.packets)
+        for failure in failures:
+            with self.subTest(failure=type(failure).__name__, diagnostic=getattr(failure, 'lease_diagnostic', None)):
+                with patch.object(self.client, 'request', side_effect=failure) as requested, \
+                        self.assertRaises(type(failure)):
+                    keeper._send(30000)
+                self.assertEqual(requested.call_count, 1)
+        self.assertEqual(len(self.fixture.packets), writes)
+        self.assertEqual(keeper.result['preflight_read_retries'], 0)
+
+    def test_retried_observation_drift_blocks_post_without_changing_original_revision(self):
+        keeper = self.keeper(interval=10)
+        keeper.start(BUILD, INSTANCE)
+        original, writes, revision = self.client.request, len(self.fixture.packets), keeper.value['revision']
+        cases = [('resident_build_id', 'f' * 64), ('instance_id', 'f' * 32), ('lease_id', 'f' * 32),
+                 ('job_id', 'f' * 32), ('revision', revision + 1), ('active', False), ('tick_result', -1),
+                 ('tick_count', keeper.value['tick_count'] - 1),
+                 ('clock_ms', keeper.value['clock_ms'] - 1),
+                 ('session_remaining_ms', keeper.value['session_remaining_ms'] + 1000)]
+        for key, changed in cases:
+            calls = []
+            def request(method, body=None, **kwargs):
+                calls.append(method)
+                if len(calls) == 1:
+                    raise self.get_timeout()
+                return original(method, body, **kwargs) | {key: changed}
+            with self.subTest(key=key), patch.object(self.client, 'request', side_effect=request), \
+                    self.assertRaises(KeepAwakeLost):
+                keeper._send(30000)
+            self.assertEqual(calls, ['GET', 'GET'])
+            self.assertEqual(keeper.value['revision'], revision)
+            self.assertEqual(len(self.fixture.packets), writes)
+
+    def test_second_read_rejection_schema_failure_or_timeout_never_triggers_another_read(self):
+        keeper = self.keeper(interval=10)
+        keeper.start(BUILD, INSTANCE)
+        writes = len(self.fixture.packets)
+        for second in [KeepAwakeRejected(401), RuntimeError('invalid JSON'), self.get_timeout('read_body')]:
+            with self.subTest(second=type(second).__name__):
+                with patch.object(self.client, 'request', side_effect=[self.get_timeout(), second]) as requested, \
+                        self.assertRaises(type(second)):
+                    keeper._send(30000)
+                self.assertEqual(requested.call_count, 2)
+        self.assertEqual(len(self.fixture.packets), writes)
+
+    def test_cancellation_and_budget_expiry_block_retry_or_post_after_each_durable_boundary(self):
+        keeper = self.keeper(interval=10)
+        keeper.start(BUILD, INSTANCE)
+        original_request, original_record = self.client.request, keeper.record
+        writes, old_observed, old_started = len(self.fixture.packets), keeper.observed, keeper.started
+        for boundary in ('first_timeout', 'retry_intent', 'second_read', 'retry_outcome'):
+            for mode in ('stop', 'ttl', 'job'):
+                calls = []
+                keeper.end.clear()
+                keeper.observed, keeper.started = old_observed, old_started
+                def disturb():
+                    if mode == 'stop':
+                        keeper.end.set()
+                    elif mode == 'ttl':
+                        keeper.observed -= 31
+                    else:
+                        keeper.started -= 61
+                def request(method, body=None, **kwargs):
+                    calls.append(method)
+                    if len(calls) == 1:
+                        if boundary == 'first_timeout':
+                            disturb()
+                        raise self.get_timeout()
+                    value = original_request(method, body, **kwargs)
+                    if boundary == 'second_read':
+                        disturb()
+                    return value
+                def record(kind, **fields):
+                    original_record(kind, **fields)
+                    if ((boundary == 'retry_intent' and kind == 'lease_preflight_read_retry_intent')
+                            or (boundary == 'retry_outcome' and kind == 'lease_preflight_read_retry_outcome')):
+                        disturb()
+                with self.subTest(boundary=boundary, mode=mode), \
+                        patch.object(self.client, 'request', side_effect=request), \
+                        patch.object(keeper, 'record', side_effect=record), self.assertRaises(KeepAwakeLost):
+                    keeper._send(30000)
+                self.assertEqual(calls, ['GET'] if boundary in ('first_timeout', 'retry_intent') else ['GET', 'GET'])
+                self.assertEqual(len(self.fixture.packets), writes)
+        keeper.observed, keeper.started = old_observed, old_started
+
+    def test_retry_intent_storage_failure_prevents_the_fresh_read_and_post(self):
+        keeper = self.keeper(interval=10)
+        keeper.start(BUILD, INSTANCE)
+        original_record, writes = keeper.record, len(self.fixture.packets)
+        def record(kind, **fields):
+            if kind == 'lease_preflight_read_retry_intent':
+                raise OSError('fixture journal unavailable')
+            original_record(kind, **fields)
+        with patch.object(self.client, 'request', side_effect=self.get_timeout()) as requested, \
+                patch.object(keeper, 'record', side_effect=record), self.assertRaises(OSError):
+            keeper._send(30000)
+        self.assertEqual(requested.call_count, 1)
+        self.assertEqual(len(self.fixture.packets), writes)
+
+    def test_known_http_rejection_with_lost_body_is_not_retryable(self):
+        keeper = self.keeper(interval=10)
+        keeper.start(BUILD, INSTANCE)
+        writes = len(self.fixture.packets)
+        for status_code in (401, 403, 409, 503):
+            connection = unittest.mock.Mock()
+            connection.getresponse.return_value.status = status_code
+            connection.getresponse.return_value.read.side_effect = TimeoutError('fixture body lost')
+            with self.subTest(status=status_code), patch('http.client.HTTPConnection', return_value=connection), \
+                    self.assertRaises(TimeoutError) as raised:
+                keeper._send(30000)
+            self.assertFalse(raised.exception.preflight_read_retryable)
+            self.assertEqual(connection.request.call_count, 1)
+        self.assertEqual(len(self.fixture.packets), writes)
+
+    def test_known_non_json_headers_with_lost_body_are_not_retryable(self):
+        keeper = self.keeper(interval=10)
+        keeper.start(BUILD, INSTANCE)
+        writes = len(self.fixture.packets)
+        connection = unittest.mock.Mock()
+        response = connection.getresponse.return_value
+        response.status = 200
+        response.getheader.return_value = 'text/plain'
+        response.read.side_effect = TimeoutError('fixture body lost')
+        with patch('http.client.HTTPConnection', return_value=connection), self.assertRaises(TimeoutError) as raised:
+            keeper._send(30000)
+        self.assertFalse(raised.exception.preflight_read_retryable)
+        self.assertEqual(connection.request.call_count, 1)
+        self.assertEqual(len(self.fixture.packets), writes)
+
+    def test_post_connect_cancellation_or_expiry_is_known_unsubmitted_and_closes_socket(self):
+        keeper = self.keeper(interval=10)
+        keeper.start(BUILD, INSTANCE)
+        original_http = http_client = __import__('http.client', fromlist=['HTTPConnection']).HTTPConnection
+        writes, old_observed, old_started = len(self.fixture.packets), keeper.observed, keeper.started
+        for mode in ('stop', 'ttl', 'job'):
+            connections = []
+            keeper.end.clear()
+            keeper.observed, keeper.started = old_observed, old_started
+            class DelayedPostConnection(http_client):
+                def connect(connection):
+                    super().connect()
+                    connection.original_socket = connection.sock
+                    connections.append(connection)
+                    # The first connection is preflight GET; the second is POST.
+                    if len(connections) == 2:
+                        time.sleep(0.03)
+                        if mode == 'stop':
+                            keeper.end.set()
+                        elif mode == 'ttl':
+                            keeper.observed -= 31
+                        else:
+                            keeper.started -= 61
+            with self.subTest(mode=mode), patch('http.client.HTTPConnection', DelayedPostConnection), \
+                    self.assertRaises(KeepAwakeLost) as raised:
+                keeper._send(30000)
+            self.assertNotIsInstance(raised.exception, KeepAwakeUnknown)
+            self.assertEqual(failure_diagnostic(raised.exception)['phase'], 'before_submission')
+            self.assertEqual(len(connections), 2)
+            self.assertEqual(connections[-1].original_socket.fileno(), -1)
+            self.assertEqual(len(self.fixture.packets), writes)
+            self.assertEqual(keeper.result['reconciled_renewals'], 0)
+        keeper.observed, keeper.started = old_observed, old_started
+
+    def test_endpoint_drift_after_timeout_or_retry_read_stops_without_post(self):
+        keeper = self.keeper(interval=10)
+        keeper.start(BUILD, INSTANCE)
+        original, writes = self.client.request, len(self.fixture.packets)
+        for boundary in ('first_timeout', 'second_read'):
+            calls = []
+            def request(method, body=None, **kwargs):
+                calls.append(method)
+                if len(calls) == 1:
+                    if boundary == 'first_timeout':
+                        self.config['host'] = '127.0.0.2'
+                    raise self.get_timeout()
+                value = original(method, body, **kwargs)
+                self.config['host'] = '127.0.0.2'
+                return value
+            try:
+                with self.subTest(boundary=boundary), patch.object(self.client, 'request', side_effect=request), \
+                        self.assertRaises(KeepAwakeLost):
+                    keeper._send(30000)
+                self.assertEqual(calls, ['GET'] if boundary == 'first_timeout' else ['GET', 'GET'])
+                self.assertEqual(len(self.fixture.packets), writes)
+            finally:
+                self.config['host'] = '127.0.0.1'
+
+    def test_retry_outcome_journal_failure_prevents_post_after_the_fresh_read(self):
+        keeper = self.keeper(interval=10)
+        keeper.start(BUILD, INSTANCE)
+        original_request, original_record = self.client.request, keeper.record
+        calls, writes = [], len(self.fixture.packets)
+        def request(method, body=None, **kwargs):
+            calls.append(method)
+            if len(calls) == 1:
+                raise self.get_timeout()
+            return original_request(method, body, **kwargs)
+        def record(kind, **fields):
+            if kind == 'lease_preflight_read_retry_outcome':
+                raise OSError('fixture journal unavailable')
+            original_record(kind, **fields)
+        with patch.object(self.client, 'request', side_effect=request), patch.object(keeper, 'record', side_effect=record), \
+                self.assertRaises(OSError):
+            keeper._send(30000)
+        self.assertEqual(calls, ['GET', 'GET'])
+        self.assertEqual(len(self.fixture.packets), writes)
+        self.assertEqual(keeper.result['preflight_read_retries'], 1)
+
+    def test_retry_does_not_apply_to_begin_end_direct_status_or_native_effect_fresh_checks(self):
+        keeper = self.keeper(interval=10)
+        keeper.start(BUILD, INSTANCE)
+        revision, writes = keeper.value['revision'], len(self.fixture.packets)
+        calls = [lambda: self.client.mutate(revision, 30000, 60000, INSTANCE, LEASE, JOB, BUILD),
+                 lambda: self.client.mutate(revision, 0, 0, INSTANCE, LEASE, JOB, BUILD),
+                 lambda: self.client.mutate(revision, 30000, 0, INSTANCE, LEASE, JOB, BUILD),
+                 self.client.status, lambda: keeper.check(fresh=True)]
+        for call in calls:
+            with patch.object(self.client, 'request', side_effect=self.get_timeout()) as requested, \
+                    self.assertRaises(TimeoutError):
+                call()
+            self.assertEqual(requested.call_count, 1)
+        self.assertEqual(len(self.fixture.packets), writes)
+
+    def test_lost_accepted_post_after_preflight_retry_is_reconciled_with_one_post_only(self):
+        keeper = self.keeper(interval=10)
+        keeper.start(BUILD, INSTANCE)
+        original, calls, writes = self.client.request, [], len(self.fixture.packets)
+        self.fixture.drop = True
+        def request(method, body=None, **kwargs):
+            calls.append(method)
+            if len(calls) == 1:
+                raise self.get_timeout('send_request')
+            return original(method, body, **kwargs)
+        with patch.object(self.client, 'request', side_effect=request):
+            keeper._send(30000)
+        self.assertEqual(calls, ['GET', 'GET', 'POST', 'GET'])
+        self.assertEqual(len(self.fixture.packets), writes + 1)
+        self.assertEqual(keeper.result['preflight_read_retries'], 1)
+        self.assertEqual(keeper.result['reconciled_renewals'], 1)
+
+    def test_unaccepted_post_after_retry_stays_unknown_without_replay(self):
+        keeper = self.keeper(interval=10)
+        keeper.start(BUILD, INSTANCE)
+        original, calls, writes = self.client.request, [], len(self.fixture.packets)
+        previous = keeper.value['revision']
+        self.fixture.drop_without_apply = True
+        def request(method, body=None, **kwargs):
+            calls.append(method)
+            if len(calls) == 1:
+                raise self.get_timeout()
+            return original(method, body, **kwargs)
+        with patch.object(self.client, 'request', side_effect=request), self.assertRaises(KeepAwakeUnknown):
+            keeper._send(30000)
+        self.assertEqual(calls, ['GET', 'GET', 'POST', 'GET'])
+        self.assertEqual(len(self.fixture.packets), writes + 1)
+        self.assertEqual(keeper.value['revision'], previous)
+        self.assertEqual(keeper.result['reconciled_renewals'], 0)
+
+    def test_stale_retry_observation_cannot_authorize_post(self):
+        keeper = self.keeper(interval=10)
+        keeper.start(BUILD, INSTANCE)
+        original, calls, writes = self.client.request, [], len(self.fixture.packets)
+        def request(method, body=None, **kwargs):
+            calls.append(method)
+            if len(calls) == 1:
+                raise self.get_timeout()
+            value = original(method, body, **kwargs) | {'remaining_ms': 1}
+            time.sleep(0.01)
+            return value
+        with patch.object(self.client, 'request', side_effect=request), self.assertRaises(KeepAwakeLost):
+            keeper._send(30000)
+        self.assertEqual(calls, ['GET', 'GET'])
+        self.assertEqual(len(self.fixture.packets), writes)
+
+    def test_renewal_receipt_journal_checks_original_attempt_lifetime_stop_and_job_budget(self):
+        keeper = self.keeper(interval=10)
+        keeper.start(BUILD, INSTANCE)
+        original_request, original_record = self.client.request, keeper.record
+        for mode in ('lifetime', 'journal_lifetime', 'stop', 'job'):
+            calls, writes, previous = [], len(self.fixture.packets), keeper.value['revision']
+            old_started = keeper.started
+            keeper.end.clear()
+            def request(method, body=None, **kwargs):
+                calls.append(method)
+                if len(calls) == 1:
+                    if mode == 'lifetime':
+                        time.sleep(0.08)
+                    raise self.get_timeout()
+                value = original_request(method, body, **kwargs)
+                return value | {'remaining_ms': 50} if method == 'POST' and mode in ('lifetime', 'journal_lifetime') else value
+            def record(kind, **fields):
+                original_record(kind, **fields)
+                if kind == 'lease_receipt':
+                    if mode == 'stop':
+                        keeper.end.set()
+                    elif mode == 'job':
+                        keeper.started -= 61
+                    elif mode == 'journal_lifetime':
+                        time.sleep(0.08)
+            with self.subTest(mode=mode), patch.object(self.client, 'request', side_effect=request), \
+                    patch.object(keeper, 'record', side_effect=record), self.assertRaises(KeepAwakeLost):
+                keeper._send(30000)
+            self.assertEqual(calls, ['GET', 'GET', 'POST'])
+            self.assertEqual(len(self.fixture.packets), writes + 1)
+            self.assertEqual(keeper.value['revision'], previous)  # No health publication after expiry.
+            keeper.started = old_started
+            keeper.end.clear()
+            keeper.value = self.client.status()  # Inspect accepted effect without replay for next case.
+            keeper.observed = time.monotonic()
 
     def test_post_read_failure_journals_unknown_reply_without_replay(self):
         keeper = self.keeper(interval=10)
@@ -457,11 +825,11 @@ class ClientTests(unittest.TestCase):
         original = self.client.request
         connection = unittest.mock.Mock()
         connection.getresponse.return_value.read.side_effect = TimeoutError('fixture secret ' + TOKEN)
-        def request(method, body=None):
+        def request(method, body=None, **kwargs):
             if method == 'GET':
-                return original(method, body)
+                return original(method, body, **kwargs)
             with patch('http.client.HTTPConnection', return_value=connection):
-                return original(method, body)
+                return original(method, body, **kwargs)
         with patch.object(self.client, 'request', side_effect=request), self.assertRaises(KeepAwakeUnknown):
             keeper._send(30000)
         self.assertEqual(len(self.fixture.packets), 1)

@@ -1,7 +1,47 @@
 # Native installation and lifecycle
 
-Status date: October 12 2026. Resident 0.1.6 is now installed; its partial
-hardware results are recorded below. The corrected Resident 0.1.5 previously
+Status date: October 13, 2026. Resident **0.1.7** is running with its exact build
+verified. Current-build installation, redeployment and an uninterrupted
+keeper-protected native application cycle remain unqualified; the power and
+transport trials made no native app effects or POST replays.
+
+Current PC source passed one **90-second hold at one-minute standby** with
+eight renewals, no retries and confirmed end at revision 41, tick count 377.
+After 75 quiet seconds and one unreachable status GET, the operator confirmed
+usual normal automatic sleep before touching the Vita. This qualifies the
+bounded hold and explicit-release sleep, separately from retained earlier
+failures. Full suspension, physical TTL sleep and broad reliability remain open.
+
+Renewal-only preflight recovery passed 58 lease, eight deadline and 26
+transport-client tests. It allows one eligible GET retry while preserving
+ownership, revision and lifetime checks; POSTs are never replayed and native
+effect freshness reads remain strict. The current hold needed zero retries.
+Its localhost/in-memory controlled harness passed. The controlled Vita attempt
+stopped when the fresh upstream GET timed out: no renewal POST, exactly two
+begin/end POSTs and confirmed end at revision 43, tick 399. The relay used a
+4.5-second upstream budget versus a five-second local budget. Later
+unchecked/checked Wi-Fi power-saving comparisons stopped on read-only baselines
+with zero POSTs. The comparison is inconclusive; the operator restored the
+original checked setting. Controlled recovery remains unqualified. Current host stdio/file-MCP checks and
+all 41 native-lifecycle PC tests passed.
+[CI run 38456106601](https://github.com/LeiterConsulting/ps-vita-mcp/actions/runs/38456106601)
+passed all 33 host groups at code commit `2a32d08`; all 34 required artifact
+files were independently size/hash-verified. This later documentation-only
+checkpoint preserves that PC and native code; CI ran on the named code commit.
+These host results do not qualify a native application
+cycle. Native plugin bytes are unchanged; restart the PC MCP for registered
+jobs to load the new keeper.
+[Current transport evidence](RESIDENT-TRANSPORT.md).
+
+The native runner starts its keeper after local package/plan validation, plan
+claim, durable payload archiving and the initial idle status read. Those steps
+are outside its lease. The command wrapper separately protects one host command;
+planning, build tooling and Lua sessions do not automatically share a lease.
+A continuous work session needs future explicit injection or borrowing from
+one outer owner; independent nested keepers would contend for ownership.
+[Current lease coverage](RESIDENT-KEEP-AWAKE.md#what-is-protected-automatically).
+
+The historical 0.1.6 results are recorded below. The corrected Resident 0.1.5 previously
 passed boot loading and exact device-binary verification after a user-confirmed normal boot.
 Its fresh native instance was unblocked and reported the installer ready, with
 Promoter unloaded. Five fixed-Lab install/launch/evaluate/graceful-exit cycles
@@ -25,9 +65,11 @@ source, Resident plugin, lab package and 27 passing host groups. It records
 staging, the five passed native cycles across two builds and the remaining
 hardware gates separately.
 
-## Resident 0.1.6 hardware check
+<a id="resident-016-hardware-check"></a>
 
-The current keep-awake candidate passed normal boot and bounded power tests;
+## Historical Resident 0.1.6 hardware check
+
+That keep-awake candidate passed normal boot and bounded power tests;
 it does not inherit 0.1.5 installation acceptance. A native execution at
 21:52:59 UTC verified all eight files in stage
 `14ee990ff41641eda253a9cef7a4f498`, then stopped at `install_rejected` after ten
@@ -79,15 +121,23 @@ Separately, one controlled live proxy fault passed exact-owner reconciliation
 of an accepted renewal whose reply was deliberately dropped, with three total
 POSTs (start, renewal, end), tick progress and confirmed end without replay.
 That proof qualifies lease reply-loss handling only; it does not qualify native
-installation or physical Wi-Fi interruption. A separate current-build 90-second
+installation or physical Wi-Fi interruption. A separate 0.1.6 90-second
 hold at restored one-minute standby ended cleanly, followed by operator-confirmed
 normal automatic sleep. That passes sleep after explicit lease end; physical
-sleep after TTL expiry, full suspension and lease cancellation, and real Wi-Fi
-loss remain separate. A later 90-second continuity trial passed seven renewals
-and confirmed end while Power-button/display sleep and wake worked normally.
-Renewal continued, so full suspension and cancellation during it were not
-established. These observations do not alter the native installation or cycle
-limitations above.
+sleep after TTL expiry, full suspension and lease cancellation remain pending.
+A later 90-second continuity trial passed seven renewals and confirmed end while
+Power-button/display sleep and wake worked normally. Renewal continued, so full
+suspension and cancellation during it were not established.
+
+A physical Wi-Fi interruption stopped the PC keeper without replay; the original
+hold remains `failed_or_interrupted`. After the operator manually reconnected
+Wi-Fi, two GET-only observations found both services responding on the same
+build/instance, the original lease inactive at revision 66, ownership cleared
+and tick count 559 stable. The retained reason was `listener_lost`; first cause
+and exact cancellation timing remain unknown. Separate fresh stdio checks then
+exposed all 40 tools and passed lease status/begin/renew/end. Automatic Wi-Fi
+reassociation and repeated recovery remain unqualified. These power-service
+checks add no application effects or native installation/cycle acceptance.
 
 Explicit cross-build ownership adoption is queued future work. It must pin
 the old Resident build, verified install receipt, immutable stage and hashes;

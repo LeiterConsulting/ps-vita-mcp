@@ -1,9 +1,20 @@
 # PS Vita MCP
 
-**Resident 0.1.6 is installed for qualification.** Bounded keep-awake checks
-passed on hardware; transport reliability and a complete native development
-cycle remain open. Accepted 0.1.5 is retained for rollback.
-[Current results and limits](docs/RESIDENT-KEEP-AWAKE.md).
+**Resident 0.1.7 is running on the Vita with its exact build verified.** The
+current PC keeper passed a 90-second hold at one-minute standby with eight
+renewals, confirmed release and operator-confirmed normal sleep afterward.
+It also supports one guarded renewal-status GET retry. Its controlled hardware
+test stopped safely before renewal when the fresh read also timed out. Broad transport
+reliability and a complete current-build native development cycle remain open.
+Rollbacks are retained. [Current results and limits](docs/RESIDENT-TRANSPORT.md).
+
+The source catalog contains **42 tools**. A registered Resident subset passed
+status, diagnostics and begin/renew/end after the previous PC restart. The new
+keeper still needs a PC MCP restart before in-process jobs use it.
+[CI run 38456106601](https://github.com/LeiterConsulting/ps-vita-mcp/actions/runs/38456106601)
+passed all 33 host groups at code commit `2a32d08`, with all 34 required artifact
+files independently size/hash-verified. This later documentation-only checkpoint
+preserves that PC and native code; CI ran on the named code commit.
 
 **Develop and inspect PlayStation Vita homebrew through MCP on real hardware.**
 
@@ -20,9 +31,49 @@ six-digit approval. Native code display and graceful challenge timeout passed;
 successful individual credential confirmation remains pending.
 [Pairing contract and device gates](docs/PAIRING.md).
 
-## Status as of October 12 2026
+## Status as of October 13 2026
 
-**Keep-awake candidate:** Resident 0.1.6 passed normal boot, the fresh 40-tool
+**Current source:** The keeper can retry one eligible preflight GET timeout
+during an owned renewal. It preserves the original revision, owner, conservative
+TTL and fixed session deadline, and checks cancellation and expiry again after
+connecting before POST bytes are sent. POSTs are never replayed. Direct status,
+begin/end and native effect freshness checks remain strict.
+
+All **92 focused client tests** passed: 58 lease, eight deadline and 26 transport
+tests. Current host checks also passed 20 actual stdio checks, 16 file-MCP checks,
+41 native-lifecycle PC tests, six probe smoke cases and six Windows TCP-info
+tests. The named code commit also passed the 33-group CI run above.
+
+On the exact installed 0.1.7, current PC source passed **90 seconds at one-minute
+standby**, with eight renewals and confirmed end at revision 41. After 75 quiet
+seconds, the operator confirmed normal automatic sleep before touching the
+Vita. No timeout occurred, so that hold did not exercise the new retry path.
+The controlled localhost harness passed. On hardware, the injected timeout
+triggered one fresh GET, but the upstream read also timed out. No renewal POST
+was sent; begin/end were the only two POSTs and cleanup confirmed end at
+revision 43. Later unchecked/checked Wi-Fi power-saving comparisons stopped on
+their read-only baselines with zero POSTs. The comparison is inconclusive, and
+the operator restored the original checked setting. Recovery remains
+unqualified despite passing host CI.
+
+Lease coverage is per job: the command wrapper protects one host command, and
+native execution starts its keeper after local preparation and initial status.
+Planning, builds and Lua sessions do not share one automatic work-session lease.
+A continuous session still needs explicit borrowing from one outer lease owner.
+[Current coverage](docs/RESIDENT-KEEP-AWAKE.md#what-is-protected-automatically).
+
+Earlier holds failed on preflight GET timeouts; their receipts are retained.
+The PC deadline helper now applies the remaining five-second budget before
+connect, send and each raw read, correcting an observed 5.63-second receive.
+Native queued replies do not prove PC receipt, and the intermittent delivery
+cause remains unknown. Current-build physical normal boot, physical TTL-expiry
+sleep, full suspension and native-cycle qualification remain open. Native plugin
+bytes are unchanged by these PC changes.
+[Reusable probes](docs/RESIDENT-TRANSPORT.md#public-pc-probes) and
+[dated qualification](docs/resident-transport-validation.json) are public;
+raw receipts and iPhone implementation remain private.
+
+**Historical 0.1.6 checks:** Resident 0.1.6 passed normal boot, the fresh 40-tool
 MCP catalog and status/begin/renew/end checks. Bounded hardware passes cover an
 isolated 120-second hold at one-minute standby, renewal during a verified slow
 4 KiB transfer, native 30-second expiry after PC keeper loss, and one controlled
@@ -30,16 +81,28 @@ accepted-renewal reply drop reconciled without replay. A separate 90-second hold
 ended cleanly and the operator confirmed normal automatic sleep afterward. All 41 PC client tests,
 41 native-lifecycle host tests and the actual C integration test passed.
 
+**Historical 0.1.6 Wi-Fi interruption:** The PC keeper stopped without replay.
+After the operator manually reconnected Wi-Fi, both services responded on the
+same build/instance.
+The old lease was inactive at revision 66, ownership cleared and tick count 559
+stable. Its retained reason was `listener_lost`; the first cancellation cause and
+exact timing remain unknown. Separate fresh stdio checks exposed all 40 tools
+and passed lease status/begin/renew/end.
+
 **Remaining blockers:** Intermittent HTTP timeouts still interrupt production
 freshness checks. A launch-only probe passed self-test and acknowledged exit,
 with later absence confirmed, but its original result remains unconfirmed.
 Current-build installation/redeployment and an uninterrupted keeper-protected
 native cycle are unqualified; the earlier install rejection's exact cause is
 unknown. Physical sleep after TTL expiry, full suspension and lease cancellation,
-and real Wi-Fi loss remain pending. Power-button/display sleep and wake worked
-while the keeper continued renewing; that observation does not establish full
-suspension. One-minute standby is restored, and automatic sleep after explicit
-end passed separately.
+automatic Wi-Fi reassociation and repeated Wi-Fi recovery remain unqualified.
+Power-button/display sleep and wake worked while the keeper continued renewing;
+that observation does not establish full suspension. One-minute standby was
+restored for those 0.1.6 trials, and automatic sleep after explicit end passed
+separately. Earlier October 13 probes used 30-minute standby. An earlier
+one-minute hold failed; current source later passed the bounded
+one-minute hold and explicit-release sleep. TTL sleep and cancellation during full suspension remain
+unqualified under 0.1.7.
 [Detailed trials and pending gates](docs/RESIDENT-KEEP-AWAKE.md#interim-hardware-results)
 and [dated validation record](docs/resident-keep-awake-validation.json).
 
@@ -57,7 +120,7 @@ Vita. Standalone title deployment and visual/physical acceptance remain separate
 **Native lifecycle baseline:** Corrected Resident 0.1.5 previously passed five
 fixed-Lab install → launch → evaluate → graceful exit cycles across two builds,
 plus same-build journal durability after a normal reboot without replay.
-Those results are historical and do not qualify installation on current 0.1.6.
+Those results are historical and do not qualify installation on current 0.1.7.
 Three PC tools provide exact-package preview, journaled execution and GET-only
 reconciliation for the owned `VMCP00001` development slot.
 [Architecture, ownership limits and qualification](docs/NATIVE-LIFECYCLE.md).
@@ -84,7 +147,7 @@ source developer preview; no final binary release is certified.
 | Component | Role | Source / recorded runtime |
 | --- | --- | --- |
 | Vita DevLoop | Foreground Lua edit/run/observe/recover; ten MCP tools | 01.04 installed; exact runtime identity, live Lua reload/recovery and normal exit passed. Capture mapping, synthetic input and sleep/reopen remain open. |
-| [Vita Resident](docs/RESIDENT.md) | Boot-loaded status, verified package inbox and managed inspection and bounded keep-awake leases; eleven source tools | Two-second-budget 0.1.6 installed after normal boot; lease operations, isolated 120-second power hold, renewal during verified slow transfer and keeper-loss TTL expiry passed. Upload HTTP reply uncertain; later native staging verified, install rejected before launch; exact runtime reason unavailable. PC host tests passed; broader qualification incomplete. Earlier build's online/sleep passes and 0.1.5 native Lab qualification remain historical evidence; rollbacks retained |
+| [Vita Resident](docs/RESIDENT.md) | Boot-loaded status, verified package inbox and managed inspection and bounded keep-awake leases and transport diagnostics; thirteen source tools | 0.1.7 exact running build and post-restart registered subset verified. Current PC source passed one 90-second hold at one-minute standby and normal sleep after release. Controlled renewal recovery, broad transport reliability and native redeployment remain unqualified; earlier failed holds are retained. Earlier lease/native results are historical; rollbacks retained |
 | [Vita Control](docs/CONTROL.md) | Background screen, managed files, app commands and bounded synthetic input; thirteen tools | 0.3.4 pairing candidate installed, ABI 2; earlier manual startup passed, automatic worker/network startup failed; recovery did not reactivate it |
 | [Vita Workbench](workbench/README.md) | Lua iteration, native lifecycle candidate, runtime preparation, input trials, metrics, staging and file recovery; sixteen tools | Developer preview; native lifecycle, script readiness and verified input readiness have separate qualification |
 | [Launch broker candidate](resident/launch_broker/README.md) | Durable fixed-title launch protocol and PC client | 0.1.4 identity/clock continuity passed with the broker disabled; earlier 0.1.3 PID correlation is historical; storage/reboot and launch-policy gates pending |
@@ -94,7 +157,7 @@ source developer preview; no final binary release is certified.
 | [Boot resource diagnostic](resident/boot_diagnostic/README.md) | Isolated SDK mutex/thread probe without Control or network loads | 0.1.0 withdrawn after boot failure; resource trial not established, root cause unknown |
 | [Control Inspector](docs/INSPECTOR.md) | Optional read-only app/Shell diagnostic | 01.03; not required for the baseline |
 
-Resident, Control and Workbench source now share one **40-tool desktop MCP server**: eleven Resident, thirteen Control and sixteen Workbench tools. DevLoop has its own ten-tool server. The computer speaks MCP over stdio; the Vita runs authenticated HTTP services. Restart the PC MCP connection after updating its source to discover new tools. The three native lifecycle tools require Resident 0.1.5 and the dedicated lab qualification; corrected 0.1.5 passed five native Lab cycles and a GET-only normal-reboot durability check, while the original unknown attempt remains retained without replay; retained 0.1.4 does not implement that namespace. The existing manual Starter path keeps Control available after Starter exits, until normal reboot. DevLoop must be running for Lua operations.
+Resident, Control and Workbench source now share one **42-tool desktop MCP server**: thirteen Resident, thirteen Control and sixteen Workbench tools. DevLoop has its own ten-tool server. The computer speaks MCP over stdio; the Vita runs authenticated HTTP services. Restart the PC MCP connection after updating its source to discover new tools. The three native lifecycle tools require Resident 0.1.5 and the dedicated lab qualification; corrected 0.1.5 passed five native Lab cycles and a GET-only normal-reboot durability check, while the original unknown attempt remains retained without replay; retained 0.1.4 does not implement that namespace. The existing manual Starter path keeps Control available after Starter exits, until normal reboot. DevLoop must be running for Lua operations.
 
 After the PC Resident MCP was restarted, the actual registered catalog exposed all **36 tools**. Direct Resident status, an unexecuted native preview and GET-only reconciliation of the completed post-reboot job passed. These read-only checks are separate from the five mutating cycles run through fresh stdio sessions. [Qualification details](docs/NATIVE-LIFECYCLE.md#registered-mcp-readiness-pass).
 
@@ -155,7 +218,7 @@ The [Lua interface](SCRIPTING.md) covers drawing, input observations, metrics an
 ```mermaid
 flowchart LR
     Client[MCP client] <-->|stdio| DevBridge[DevLoop bridge: 10 tools]
-    Client <-->|stdio| Background[Resident Control and Workbench: 40 tools]
+    Client <-->|stdio| Background[Resident Control and Workbench: 42 tools]
     DevBridge <-->|LAN HTTP :17865| DevLoop[Foreground Lua app]
     Background <-->|LAN HTTP :17866| Resident[Resident in SceShell]
     Background <-->|LAN HTTP :17867| Control[Control in SceShell]
@@ -176,7 +239,7 @@ flowchart LR
 - Control files are confined to fresh revisions under `ux0:data/vita-control/workspace`; transfers are at most 8 MiB. System and installed-app writes are outside this API.
 - DevLoop Lua source is at most 16 KiB, with a 1 MiB allocation budget per VM and callback instruction budgets. Drawing is limited to 256 buffered commands. Script state is in RAM; assets/audio/file APIs are future work.
 - Script sessions evaluate at most eight candidates with 120 seconds aggregate warmup/measurement, excluding requests and restoration. They use the local operation lock and revision/hash guards, without a remote scene lease. Lost mutation replies stop iteration without replay; another remote client's request race remains possible. Without qualified Control, these jobs cannot keep the screen awake, change brightness, capture the foreground or inject input.
-- Accepted-path native installation, startup confirmation and reboot recovery require an operator. The fixed Lifecycle Lab path passed five cycles across two builds and same-build normal-reboot journal durability without replay. Extension to DevLoop, automatic Control bootstrap and interrupted-native/power-cut recovery remain unqualified. Both current boot experiments are withdrawn from routine use after boot failures. Physical touch restoration, sleep/wake, independent Wi-Fi-loss recovery and additional device combinations need qualification. Pairing uses unencrypted HTTP on a trusted LAN.
+- Accepted-path native installation, startup confirmation and reboot recovery require an operator. The fixed Lifecycle Lab path passed five cycles across two builds and same-build normal-reboot journal durability without replay. Extension to DevLoop, automatic Control bootstrap and interrupted-native/power-cut recovery remain unqualified. Both current boot experiments are withdrawn from routine use after boot failures. Physical touch restoration, sleep/wake, automatic Wi-Fi reassociation and repeated interruption recovery and additional device combinations need qualification. Pairing uses unencrypted HTTP on a trusted LAN.
 - Script readiness does not prove the foreground input target. Legacy DevLoop lacks native title/PID mapping and cannot run synthetic Workbench profiles under the current safety checks.
 
 These are current implementation limits. A heartbeat or accepted API call alone does not establish a working autonomous session. [New-device acceptance](docs/BASELINE.md#acceptance-on-a-new-device) is the gate for remaining DevLoop work.

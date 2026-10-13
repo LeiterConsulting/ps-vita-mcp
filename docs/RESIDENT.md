@@ -1,26 +1,81 @@
 # Background status and verified uploads
 
-**Resident 0.1.6 is installed after a confirmed normal boot; qualification is
-incomplete.** The SceShell user plugin provides background status, a bounded
-upload inbox and managed-file inspection on port **17866**. The PC MCP bridge is
-`resident/bridge.py`. Its separate port **17869** serves bounded keep-awake leases
-without changing saved sleep or brightness settings.
+**As of October 13, 2026, Resident 0.1.7 is running with its exact build verified.**
+The SceShell user plugin serves background status, a bounded upload inbox and
+managed-file inspection on port **17866**. Port **17869** serves bounded
+keep-awake leases and administrator-only transport diagnostics. The PC bridge
+is `resident/bridge.py`; leases do not change saved sleep or brightness settings.
 
-Hardware passes cover fresh MCP lease operations, an isolated 120-second hold
+Current PC source passed a **90-second hold at one-minute standby**: eight
+renewals, no retries, confirmed end at revision 41 and tick count 377. After
+75 quiet seconds and one unreachable status GET, the operator confirmed normal
+automatic sleep before touching the Vita. Network unavailability alone is not
+proof of sleep. The earlier failed holds remain retained; this bounded pass
+does not establish broad reliability or the intermittent delivery cause.
+
+The keeper can make one additional GET after an eligible renewal-preflight
+transport timeout, preserving ownership, original revision, local TTL and fixed
+session deadline. POSTs are never replayed; native-effect freshness reads remain
+strict. The current hold did not exercise that retry. A localhost/in-memory
+controlled harness passed its one-withheld-GET case. The Vita attempt stopped
+when the fresh upstream GET also timed out, sending no renewal POST and only
+begin/end, with confirmed end at revision 43, tick 399. Its relay's 4.5-second
+upstream budget was shorter than the local five-second budget; the recovery
+remains unqualified. Later unchecked/checked Wi-Fi power-saving comparisons
+stopped on read-only baselines with zero POSTs. The comparison is inconclusive;
+the operator restored the original checked setting and reconnected Wi-Fi.
+Registered power and transport reads passed on the same build and instance,
+with the lease inactive at revision 43, tick 399. All 92 focused client tests and current host
+stdio, file-MCP and 41 native-lifecycle PC tests passed.
+[CI run 38456106601](https://github.com/LeiterConsulting/ps-vita-mcp/actions/runs/38456106601)
+passed all 33 host groups at code commit `2a32d08`, with all 34 required artifact
+files independently size/hash-verified. This later documentation-only checkpoint
+preserves that PC and native code; CI ran on the named code commit.
+Restart the PC MCP to load the new keeper into registered jobs.
+
+Registered main/power/diagnostic status and record reads and begin/renew/end
+passed after the previous restart. Enabled metadata lists 42 names; this is
+separate from qualification of every tool. Authorization, missing-record and
+ring-preservation checks passed on hardware. Native plugin bytes are unchanged.
+Physical normal boot, TTL sleep, full-suspend cancellation and current-build
+native installation/deployment remain unqualified.
+[Current diagnostic validation](resident-transport-validation.json),
+[transport guide](RESIDENT-TRANSPORT.md) and
+[recovery contract](RESIDENT-KEEP-AWAKE.md#renewal-preflight-recovery).
+
+The command wrapper protects one host command, and native execution starts its
+keeper after local preparation and initial status. Planning, builds and Lua
+sessions do not automatically share a work-session lease. Continuous coverage
+needs future explicit borrowing from one outer owner, avoiding nested keepers.
+[Current coverage](RESIDENT-KEEP-AWAKE.md#what-is-protected-automatically).
+
+Historical **0.1.6** hardware passes cover fresh MCP lease operations, an isolated
+120-second hold
 at one-minute standby, renewal during a verified slow 4 KiB transfer, native
 30-second expiry after PC keeper loss and one controlled lost-renewal reply
 reconciled without replay. A launch-only probe passed self-test and acknowledged
 exit, with later absence confirmed. A separate 90-second hold ended cleanly,
 followed by operator-confirmed normal automatic sleep.
 
+A physical Wi-Fi interruption stopped the PC keeper without replay. After the
+operator manually reconnected Wi-Fi, both services responded on the same
+build/instance: the old lease was inactive at revision 66, ownership cleared and
+tick count 559 stable. Its retained `listener_lost` reason does not establish the
+first cancellation cause or exact timing. Separate fresh stdio checks exposed
+all 40 tools and passed lease status/begin/renew/end.
+
 Intermittent HTTP timeouts still interrupt freshness checks, and the launch-only
 job's original result remains unconfirmed. Current-build installation/redeployment
 and an uninterrupted keeper-protected native cycle remain unqualified; the
 historical install rejection's exact cause is unknown. Physical sleep after TTL
-expiry, full suspension and lease cancellation, and real Wi-Fi interruption remain
-pending. Power-button/display sleep and wake worked while renewal continued;
-full suspension was not established. One-minute standby is restored, and automatic
-sleep after explicit end passed separately.
+expiry, full suspension and lease cancellation, automatic Wi-Fi reassociation
+and repeated Wi-Fi recovery remain unqualified. Power-button/display sleep and
+wake worked while renewal continued; full suspension was not established.
+One-minute standby was restored for those 0.1.6 trials, and automatic sleep after
+explicit end passed separately. Earlier October 13 probes used 30-minute
+standby; an earlier one-minute hold failed, while current source later passed
+the bounded one-minute hold and explicit-release sleep under 0.1.7. TTL sleep and full-suspend
+cancellation remain separate unqualified gates.
 [Exact installed identity, detailed trials and pending gates](RESIDENT-KEEP-AWAKE.md)
 and [dated validation record](resident-keep-awake-validation.json).
 
@@ -41,7 +96,7 @@ From the repository root, with Docker Desktop running:
 
 The accepted predecessor is the corrected Resident 0.1.5 [native lifecycle candidate](NATIVE-LIFECYCLE.md), retained after normal-boot and exact-binary verification; five fixed-Lab install/launch/evaluate/graceful-exit cycles across two native builds passed on hardware, with same-build normal-reboot journal durability passed without replay, and accepted 0.1.4 is retained for rollback. The candidate adds owned Lifecycle Lab installation and fixed-title launching. The legacy DevLoop launch broker remains disabled. The historical 0.1.4 normal-boot and read-only inspection results above do not qualify the new build. The build runs the actual C HTTP/storage service under sanitizers with host adapters, MCP stdio fixtures, first-install FTP fixtures and update fixtures. It validates the ARM module's identity, imports, lifecycle, unresolved symbols and source fingerprint. Outputs are `dist/resident/vita_resident.suprx` and `dist/resident/build-report.json`. Building does not contact the Vita.
 
-The combined public source bridge exposes eleven Resident tools, thirteen [Control tools](CONTROL.md) and sixteen [Workbench tools](../workbench/README.md), for 40 total. Three native lifecycle tools require Resident 0.1.5 and target only the dedicated `VMCP00001` lab; retained 0.1.4 does not implement that namespace. Script-preparation/session tools run on the PC through the existing foreground DevLoop API; they do not add native capabilities to installed Resident. Three inspection tools introduced in 0.1.4 are documented in [Managed files](MANAGED-FILES.md): `vita_resident_list_inbox`, `vita_resident_file_info` and `vita_resident_read_file`. They inspect permitted inbox attempts and retained parts without changing files. Older supported versions, including the 0.1.3 rollback, do not implement them. The original Resident subset retains these four operations:
+The combined public source bridge exposes thirteen Resident tools, thirteen [Control tools](CONTROL.md) and sixteen [Workbench tools](../workbench/README.md), for 42 total. Three native lifecycle tools require Resident 0.1.5 and target only the dedicated `VMCP00001` lab; retained 0.1.4 does not implement that namespace. Script-preparation/session tools run on the PC through the existing foreground DevLoop API; they do not add native capabilities to installed Resident. Three inspection tools introduced in 0.1.4 are documented in [Managed files](MANAGED-FILES.md): `vita_resident_list_inbox`, `vita_resident_file_info` and `vita_resident_read_file`. They inspect permitted inbox attempts and retained parts without changing files. Older supported versions, including the 0.1.3 rollback, do not implement them. The original Resident subset retains these four operations:
 
 | Tool | Operation |
 | --- | --- |

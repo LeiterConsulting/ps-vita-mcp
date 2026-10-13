@@ -36,7 +36,9 @@ def main():
                               'resident/test_bridge.py', 'resident/test_files_bridge.py', 'resident/control/test_bridge.py',
                               'resident/control/test_staging.py', 'workbench/test_mcp.py']]
     checks.append(('launch-broker-http', [sys.executable, 'tests/test_launch_broker_http.py']))
-    checks.append(('resident-keep-awake-pc', [sys.executable, '-m', 'unittest', 'resident.test_keep_awake_client']))
+    checks.append(('resident-keep-awake-pc', [sys.executable, '-m', 'unittest', 'resident.test_keep_awake_client', 'resident.test_http_deadline', 'tools.test_resident_tcp_info']))
+    checks.append(('resident-keep-awake-transport-pc', [sys.executable, '-m', 'unittest', 'resident.test_keep_awake_transport_client']))
+    checks.append(('resident-transport-probe', [sys.executable, 'tools/probe_resident_transport.py', '--smoke']))
     checks.append(('native-lifecycle-pc', [sys.executable, '-m', 'unittest', 'workbench.test_native_lifecycle']))
     checks.append(('vita-app-projects', [sys.executable, '-m', 'unittest',
                                        'tools.test_vita_app', 'app_slot.test_native_slot',

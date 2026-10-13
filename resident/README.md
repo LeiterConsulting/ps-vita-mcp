@@ -1,25 +1,82 @@
 # Vita Resident
 
-**Resident 0.1.6 is installed after a confirmed normal boot; qualification is
-incomplete.** It adds a bounded keep-awake lease for active development jobs.
-The combined source catalog exposes 40 tools: eleven Resident, thirteen Control
-and sixteen Workbench. Leases do not change saved brightness or sleep settings.
+**As of October 13, 2026, Resident 0.1.7 is running with its exact build verified.**
+The current PC keeper passed a 90-second hold at one-minute standby with eight
+renewals, confirmed end at revision 41 and tick count 377. After 75 quiet
+seconds and one unreachable status GET, the operator confirmed usual normal
+sleep before touching the Vita. This qualifies the bounded hold and sleep after
+explicit release, separately from earlier retained failures.
 
-Hardware passes cover fresh MCP lease operations, an isolated 120-second hold
+Renewal-only preflight recovery is implemented: one eligible GET transport
+timeout can trigger one guarded fresh GET before renewal. Original ownership,
+revision, conservative TTL and session deadline remain pinned; POSTs are never
+replayed. The current hold needed zero retries, so the retry path remains a
+separate gate. Its localhost/in-memory controlled harness passed one withheld
+GET, one retry, one renewal and exactly three forwarded POSTs with confirmed
+end. The controlled Vita attempt stopped when its fresh upstream GET timed out:
+no renewal POST, two begin/end POSTs and confirmed end at revision 43, tick 399.
+The relay used a 4.5-second upstream budget versus the local five-second budget;
+this limits comparison with the production deadline. Later unchecked/checked
+Wi-Fi power-saving comparisons stopped on read-only baselines with zero POSTs.
+The comparison is inconclusive; the original checked setting was physically
+restored. Registered power and transport reads then passed on the same build
+and instance, with the lease inactive at revision 43, tick 399. Recovery remains
+unqualified.
+[Recovery contract and evidence](../docs/RESIDENT-KEEP-AWAKE.md#renewal-preflight-recovery).
+
+All 92 focused client tests passed (58 lease, eight deadline, 26 transport),
+as did current host stdio, file-MCP and 41 native-lifecycle PC tests.
+[CI run 38456106601](https://github.com/LeiterConsulting/ps-vita-mcp/actions/runs/38456106601)
+passed all 33 host groups at code commit `2a32d08`; all 34 required artifact
+files were independently size/hash-verified. This later documentation-only
+checkpoint preserves that PC and native code, rather than claiming CI ran on
+the later commit. Native plugin bytes, saved settings
+and the 42-tool catalog are unchanged. Restart the PC Resident MCP so registered
+jobs load the new keeper; no Vita reboot is required.
+
+Registered main/power/diagnostic reads and begin/renew/end passed after the
+previous restart. Enabled metadata lists 42 names (13 Resident, 13 Control,
+16 Workbench); this does not qualify every operation. Administrator rejection,
+missing-record and ring-preservation checks passed separately. Broad transport
+reliability, physical normal boot, TTL sleep, full-suspend cancellation and
+current-build native installation/deployment remain unqualified. Earlier
+native queued replies did not establish PC receipt or the timeout cause.
+[Current validation](../docs/resident-transport-validation.json) and
+[transport guide](../docs/RESIDENT-TRANSPORT.md).
+
+The command wrapper protects one host command. Native execution starts its
+keeper after local preparation and initial status; planning, build tooling and
+Lua sessions do not automatically share a continuous lease. A future work
+session needs explicit borrowing from one outer owner, avoiding nested keepers.
+[Lease coverage](../docs/RESIDENT-KEEP-AWAKE.md#what-is-protected-automatically).
+
+Historical **0.1.6** hardware passes cover fresh MCP lease operations, an isolated
+120-second hold
 at one-minute standby, renewal during a verified slow 4 KiB transfer, native
 30-second expiry after PC keeper loss and one controlled lost-renewal reply
 reconciled without replay. A separate launch-only probe passed self-test and
 acknowledged graceful exit; later read-only checks confirmed closure. A separate
 90-second hold ended cleanly, followed by operator-confirmed normal automatic sleep.
 
+A physical Wi-Fi interruption stopped the PC keeper without replay. After the
+operator manually reconnected Wi-Fi, both services responded on the same
+build/instance: the old lease was inactive at revision 66, ownership cleared and
+tick count 559 stable. Its retained `listener_lost` reason does not establish the
+first cancellation cause or exact timing. Separate fresh stdio checks exposed
+all 40 tools and passed lease status/begin/renew/end.
+
 Intermittent HTTP timeouts remain a blocker: the launch-only job's original
 result is unconfirmed, and current-build installation/redeployment and an
 uninterrupted keeper-protected native cycle remain unqualified. The earlier
 install rejection's exact runtime cause is unknown. Physical sleep after TTL
-expiry, full suspension and lease cancellation, and real Wi-Fi interruption remain
-pending. Power-button/display sleep and wake worked while renewal continued;
-full suspension was not established. One-minute standby is restored, and automatic
-sleep after explicit end passed separately.
+expiry, full suspension and lease cancellation, automatic Wi-Fi reassociation
+and repeated Wi-Fi recovery remain unqualified. Power-button/display sleep and
+wake worked while renewal continued; full suspension was not established.
+One-minute standby was restored for those 0.1.6 trials, and automatic sleep
+after explicit end passed separately. Earlier October 13 probes used 30-minute
+standby; an earlier one-minute hold failed, while current source later passed
+the bounded one-minute hold and explicit-release sleep under 0.1.7. TTL sleep and full-suspend
+cancellation remain separate unqualified gates.
 [Detailed evidence and pending gates](../docs/RESIDENT-KEEP-AWAKE.md) and
 [dated validation record](../docs/resident-keep-awake-validation.json).
 
