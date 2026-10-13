@@ -4,7 +4,7 @@ This guide covers DevLoop alone. For background status, screen readback, managed
 
 The initial host qualification uses Windows, PowerShell 7, Python 3.13 and Docker Desktop running Linux containers. Other hosts are not yet qualified. A homebrew-enabled Vita is needed to install the app; the tested prototype device runs firmware 3.65. This guide does not change firmware or install homebrew support.
 
-The source builds experimental candidate **01.04**, title ID **CHRS00003**, with native title/PID, run and build telemetry. Its device qualification is pending. Historical 01.02/01.03 runtimes remain compatible with script-only Workbench work; synthetic profiles require installed 01.04, an exact expected build pin and matching fresh captures. [Autonomous readiness](AUTONOMOUS-DEVLOOP.md). Keep a copy of a working package before updating an existing DevLoop installation.
+The source builds experimental candidate **01.04**, title ID **CHRS00003**, with native title/PID, run and build telemetry. Exact native identity, live Lua reload/recovery and normal exit passed on the test device. Control capture mapping, synthetic input and sleep/reopen qualification remain pending. Historical 01.02/01.03 runtimes remain compatible with script-only Workbench work; synthetic profiles require installed 01.04, an exact expected build pin and matching fresh captures. [Autonomous readiness](AUTONOMOUS-DEVLOOP.md). Keep a copy of a working package before updating an existing DevLoop installation.
 
 ## Build from a checkout
 

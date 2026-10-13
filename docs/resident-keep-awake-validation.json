@@ -1,0 +1,669 @@
+{
+  "as_of": "2026-10-12",
+  "candidate_version": "0.1.6",
+  "installed_version": "0.1.6 two-second native HTTP-budget candidate; qualification incomplete",
+  "host_tests": "passed: final 41 PC keep-awake client tests, fresh root 41 native-lifecycle host tests including rejection diagnostics, and actual C integration test; hardware qualification incomplete",
+  "native_build": "passed",
+  "device_update": "two-second-budget candidate installed; operator confirmed normal boot and LiveArea at one-minute standby; exact identity passed",
+  "live_keep_awake": "short MCP operations, isolated 120-second power hold, renewal during a verified 35-second transfer, keeper-loss native TTL expiry and one controlled accepted-renewal reply-loss reconciliation passed; separate native launch/self-test/acknowledged exit and later GET-only absence observed, but that job remained unconfirmed after a keeper freshness timeout; second probe stopped before lease or native mutation; broader HTTP reliability, uninterrupted native cycle, installation and physical qualification incomplete",
+  "live_expiry_and_normal_sleep": "native 30-second TTL expiry after PC keeper loss passed; current-build normal automatic sleep after explicit end passed by 90-second renewed hold, confirmed end, GET-only observer and direct operator confirmation; physical sleep after TTL expiry remains pending",
+  "physical_manual_sleep_wake": "partial: operator-reported Power-button/display sleep and wake worked while keeper continued renewing; full suspension and cancellation during full suspension not established",
+  "physical_wifi_loss": "pending",
+  "sleep_settings_changed": true,
+  "iphone_code_published": false,
+  "plugin_sha256": "dd8da21847f5341bc70112f86176e2f864c92b10aaeb3400ec9855751a6b1ef8",
+  "resident_build_id": "47ece86ad3b5258b6a52b4aaffefb8046e5af48c69f49a763001bf36bd815240",
+  "host_test_counts": {
+    "c-service-tests.log": [
+      "10",
+      "1",
+      "10",
+      "21",
+      "13",
+      "6"
+    ],
+    "mcp-tests.log": [],
+    "files-mcp-tests.log": [],
+    "ftp-tests.log": [
+      "14"
+    ],
+    "update-tests.log": [
+      "3"
+    ],
+    "native-lifecycle-pc-tests.log": [
+      "41"
+    ],
+    "keep-awake-pc-tests.log": [
+      "41"
+    ],
+    "native-build.log": [],
+    "absolute-deadline-c-integration.log": [
+      "1"
+    ],
+    "script-session-catalog-tests.log": [
+      "6"
+    ]
+  },
+  "test_log_sha256": {
+    "c-service-tests.log": "fbd16a9240a2b9db6cd39e13350f3e5dd9e6dabdcd390771aa9bec347df0be51",
+    "mcp-tests.log": "808274b523a0395f966a0a595f3d4937ff4760ea15ecd37b00e4bc5c69c70f2d",
+    "files-mcp-tests.log": "4f93d93675505180aab06a8a16469a5ea675a8eade28c5cb4e76194a6344c75e",
+    "ftp-tests.log": "c168c5c2c9ea31552c50cca87deae16d97c4bf54b0aebfa76f2e15b18e035780",
+    "update-tests.log": "d457d87b61303814f011ae502dfc31b2bf0a2c7f969161f8eba4b208ecb4fc11",
+    "native-lifecycle-pc-tests.log": "d3ace8a32c08561870787c760f88c1fd53090a8b41bec3ef74980e860b9336c6",
+    "keep-awake-pc-tests.log": "6b73bf085dd098eccd1d5b075e68639e5fb32371d091a146509d135910a78829",
+    "native-build.log": "fac9fb9fbd2606285b6dc9b663b80a6e7223b9d2bc49b45c3398fc8e34eb8ac2",
+    "absolute-deadline-c-integration.log": "93cd153ece233ccbe4ceac57e2bb5fc3d8e5bf9ef9daeac243d3ee4cfc7c65c9",
+    "script-session-catalog-tests.log": "f0077490ff3dd6696ceda0e188e419cbbea81c997dbeba7a171a9736318a6990"
+  },
+  "operator_standby_minutes": 1,
+  "operator_current_standby_minutes": 1,
+  "operator_standby_restore_pending": false,
+  "sleep_settings_change_scope": "operator temporarily selected 30-minute standby for diagnostics and has restored the original one-minute setting; the current-build 90-second hold and explicit-end automatic-sleep confirmation used one minute; no lease changed saved settings",
+  "sleep_settings_changed_by_service": false,
+  "short_live_mcp_trial": {
+    "result": "passed",
+    "transport": "actual fresh stdio MCP",
+    "tool_count": 40,
+    "operations": [
+      "status",
+      "begin",
+      "renew",
+      "end"
+    ],
+    "resident_build_id": "47ece86ad3b5258b6a52b4aaffefb8046e5af48c69f49a763001bf36bd815240",
+    "initial_lease_inactive": true,
+    "successful_ticks_observed": true,
+    "end_confirmed": true,
+    "tick_growth_after_end": false,
+    "evidence": "evidence/resident/keep-awake-tools-20261012T212356Z/proof.json"
+  },
+  "first_sustained_hold": {
+    "result": "failed_or_interrupted",
+    "planned_duration_s": 180,
+    "elapsed_s_approx": 37,
+    "operator_standby_minutes": 1,
+    "failure": "renewal POST reply unconfirmed; keeper stopped",
+    "automatic_replay": false,
+    "operator_confirmed_full_sleep": true,
+    "sleep_timing": "unknown",
+    "cause": "unknown; relative order of sleep, listener loss and renewal interruption is not established",
+    "evidence": "evidence/resident/keep-awake-hold-20261012T205953Z/proof.json",
+    "resident_build_id": "ed4abe7bbf3f5cb6f52899d4bcace5483dd2fd19b193e7e6034fb1338ffd04d4",
+    "evidence_tier": "historical previous 300 ms native-budget build; does not qualify current build"
+  },
+  "after_physical_wake": {
+    "observed_utc": "2026-10-12T21:07:38.105703+00:00",
+    "same_power_instance": true,
+    "revision": 7,
+    "active": false,
+    "tick_count": 53,
+    "last_tick_ms": 163057,
+    "tick_result": 0,
+    "reason": "listener_lost",
+    "interpretation": "inactive recovered lease observed; does not establish interruption cause or sleep timing",
+    "evidence": "evidence/resident/keep-awake-after-wake-20261012.json",
+    "resident_build_id": "ed4abe7bbf3f5cb6f52899d4bcace5483dd2fd19b193e7e6034fb1338ffd04d4",
+    "evidence_tier": "historical previous 300 ms native-budget build; does not qualify current build"
+  },
+  "extended_standby_transport_baseline": {
+    "result": "passed",
+    "planned_duration_s": 120,
+    "operator_standby_minutes": 30,
+    "samples": 33,
+    "renewals": 11,
+    "keeper_errors": [],
+    "end": "ended",
+    "qualification_scope": "transport and renewal continuity only; does not prove protection beyond the original one-minute standby timeout",
+    "evidence": "evidence/resident/keep-awake-hold-20261012T210805Z/proof.json",
+    "resident_build_id": "ed4abe7bbf3f5cb6f52899d4bcace5483dd2fd19b193e7e6034fb1338ffd04d4",
+    "evidence_tier": "historical previous 300 ms native-budget build; does not qualify current build"
+  },
+  "one_minute_retest": {
+    "result": "passed bounded online trial on previous build; broader qualification pending",
+    "planned_duration_s": 180,
+    "operator_standby_minutes": 1,
+    "native_build": "previous d8ca plugin / ed4abe build; 300 ms connection budget",
+    "pc_socket_timeout_s": 5,
+    "pc_absolute_http_deadline": "not yet implemented for this trial",
+    "samples": 48,
+    "renewals": 16,
+    "keeper_errors": [],
+    "end": "ended",
+    "finished_utc": "2026-10-12T21:13:49.121162+00:00",
+    "qualification_scope": "bounded remote availability beyond saved standby timeout with updated PC timeout and diagnostics; first uncertain-renewal failure remains retained with cause unknown",
+    "evidence": "evidence/resident/keep-awake-hold-20261012T211048Z/proof.json",
+    "resident_build_id": "ed4abe7bbf3f5cb6f52899d4bcace5483dd2fd19b193e7e6034fb1338ffd04d4",
+    "evidence_tier": "historical previous 300 ms native-budget build; does not qualify current build"
+  },
+  "after_end_status_only_observer": {
+    "duration_s": 95,
+    "lease_renewals": 0,
+    "last_online_s_after_observer_start": 6.304,
+    "first_both_ports_unreachable_s_after_end_approx": 25,
+    "paired_port_timeout_observations": 7,
+    "physical_full_sleep_confirmation": "passed; operator confirmed full sleep and physically woke into FTP",
+    "qualification_scope": "GET-only port observations plus subsequent operator confirmation of full automatic sleep on the previous build; does not establish a new full configured standby interval starting at release",
+    "evidence": "evidence/resident/keep-awake-observe-20261012T211355Z/proof.json",
+    "resident_build_id": "ed4abe7bbf3f5cb6f52899d4bcace5483dd2fd19b193e7e6034fb1338ffd04d4",
+    "evidence_tier": "historical previous 300 ms native-budget build; does not qualify current build"
+  },
+  "first_priority": "instrument transport phases and response-budget edge; qualify an uninterrupted keeper-protected native cycle; design explicit pinned cross-build ownership adoption before qualifying installation/redeployment; confirm physical sleep after TTL expiry, full suspension and lease cancellation, and real Wi-Fi loss; explicit-end automatic sleep and original standby restoration passed separately",
+  "pending_hardware_gates": [
+    "diagnostic GET transport reliability and production freshness checks remain unqualified",
+    "uninterrupted keeper-protected native cycle: launch-only self-test/acknowledged exit and later absence observed, but original job remained unconfirmed after final freshness GET timeout",
+    "native installation and redeployment under current Resident build: verified staging passed, install request rejected with exact runtime reason unavailable",
+    "explicit cross-build ownership adoption is future work only; current permissions unchanged",
+    "physical normal sleep after native TTL expiry on current build; explicit-end automatic sleep passed separately",
+    "physical full suspension and lease cancellation during full suspension; button/display sleep-wake observed while renewal continued",
+    "physical Wi-Fi interruption and recovery"
+  ],
+  "first_candidate": {
+    "plugin_sha256": "8d75572f6fedafeb27d053ba0b3f693bd9821a97336aa398d4eefa725ff37bb4",
+    "normal_boot": "passed",
+    "exact_config_and_plugin_readback": "passed",
+    "keep_awake_endpoint": "unavailable; no lease started",
+    "worker_start_result": "0x80028023 SCE_KERNEL_ERROR_ILLEGAL_PRIORITY",
+    "cause": "worker priority 0x38 rejected; corrected to existing qualified user priority 0x40"
+  },
+  "ci_first_run": {
+    "run": 38306873777,
+    "result": "failed stale 36-tool fixture assertion; corrected to 40 and all 13 targeted tests passed"
+  },
+  "host_tests_artifact_sha256": "dd8da21847f5341bc70112f86176e2f864c92b10aaeb3400ec9855751a6b1ef8",
+  "host_evidence_directory": "evidence/resident/build-20261012T2111076476973Z",
+  "ci_second_run": {
+    "run": 38307561642,
+    "result": "failed stale Resident-tool count7; corrected to11, six script-session tests passed"
+  },
+  "previous_short_live_mcp_trial": {
+    "result": "passed",
+    "transport": "actual stdio MCP",
+    "tool_count": 40,
+    "operations": [
+      "status",
+      "begin",
+      "renew",
+      "end"
+    ],
+    "initial_lease_inactive": true,
+    "successful_ticks_observed": true,
+    "end_confirmed": true,
+    "tick_growth_after_end": false,
+    "evidence": "evidence/resident/keep-awake-tools-20261012T205940Z/proof.json",
+    "resident_build_id": "ed4abe7bbf3f5cb6f52899d4bcace5483dd2fd19b193e7e6034fb1338ffd04d4"
+  },
+  "previous_installed_candidate": {
+    "plugin_sha256": "d8ca07cfb6ef6e367ed792b08f4bfe134053e609dfeb10a20c8845aff508c45a",
+    "resident_build_id": "ed4abe7bbf3f5cb6f52899d4bcace5483dd2fd19b193e7e6034fb1338ffd04d4",
+    "native_connection_budget_ms": 300,
+    "qualification_scope": "historical bounded online pass and operator-confirmed automatic sleep after explicit end; first uncertain renewal remains retained"
+  },
+  "latest_sustained_hold": {
+    "result": "failed_or_interrupted",
+    "planned_duration_s": 120,
+    "elapsed_s_approx": 40,
+    "started_utc": "2026-10-12T21:24:00.648664+00:00",
+    "finished_utc": "2026-10-12T21:24:40.125277+00:00",
+    "operator_standby_minutes": 1,
+    "resident_build_id": "47ece86ad3b5258b6a52b4aaffefb8046e5af48c69f49a763001bf36bd815240",
+    "samples": 9,
+    "confirmed_renewals_before_lost_reply": 2,
+    "failure": {
+      "method": "POST",
+      "phase": "read_headers",
+      "cause_type": "TimeoutError",
+      "pc_absolute_http_deadline_s": 5
+    },
+    "uncertain_renewal_expected_revision": 6,
+    "cleanup_status_revision": 7,
+    "cleanup_status_same_owner_active": true,
+    "uncertain_renewal_was_accepted": true,
+    "cleanup_end_revision": 8,
+    "cleanup_end_confirmed": true,
+    "tick_count_at_end": 42,
+    "automatic_post_replay": false,
+    "interpretation": "native two-second budget alone did not eliminate a lost renewal reply; reply-loss cause and sleep state are not established by this trial",
+    "evidence": "evidence/resident/keep-awake-hold-20261012T212400Z/proof.json",
+    "journal": "evidence/resident/keep-awake-hold-20261012T212400Z/resident-keep-awake.jsonl"
+  },
+  "installed_candidate": {
+    "plugin_sha256": "dd8da21847f5341bc70112f86176e2f864c92b10aaeb3400ec9855751a6b1ef8",
+    "resident_build_id": "47ece86ad3b5258b6a52b4aaffefb8046e5af48c69f49a763001bf36bd815240",
+    "native_connection_budget_ms": 2000,
+    "pc_socket_timeout_s": 5,
+    "native_build_and_host_checks": "passed; evidence/resident/build-20261012T2111076476973Z",
+    "pc_absolute_http_deadline": "five-second absolute total HTTP deadline passed 34 PC host tests and actual C integration, then used in the current interrupted live hold; subsequent reconciliation change not covered",
+    "device_activation": "installed after operator-confirmed normal boot; LiveArea ready, one-minute standby confirmed",
+    "qualification_scope": "normal boot, four MCP operations, isolated 120-second power hold, renewal during verified slow transfer and keeper-loss native TTL expiry passed; broader transport, native execution and physical qualification incomplete",
+    "staging": {
+      "read_back_checks_per_file": 2,
+      "pairing_preserved": true,
+      "active_config_unchanged_by_staging": true,
+      "accepted015_rollback_preserved": true
+    }
+  },
+  "pc_renewal_reconciliation": {
+    "status": "implemented; final 41 PC client tests, fresh root rerun of 41 native-lifecycle tests in 67.202s, and actual C integration test passed; controlled live reply-loss adoption passed; broader qualification incomplete",
+    "native_update_required": false,
+    "scope": "one GET to reconcile an uncertain RENEW only; no mutation replay",
+    "acceptance_requires": [
+      "expected revision plus one",
+      "same exact lease/job owner",
+      "same pinned build and power instance",
+      "session deadline does not extend the original ceiling",
+      "active healthy lease with fresh sufficient time"
+    ],
+    "live_acceptance": "one controlled live accepted-renewal reply drop reconciled with one GET and exact-owner adoption without replay; physical Wi-Fi loss and general transport reliability remain unqualified"
+  },
+  "ci_current_pre_reconciliation": {
+    "commit": "5f18a25",
+    "run": 38309974498,
+    "result": "passed",
+    "artifact_files_hashed": 32,
+    "scope": "before subsequent PC renewal-reconciliation change"
+  },
+  "additional_diagnostic_holds": [
+    {
+      "result": "failed_or_interrupted",
+      "started_utc": "2026-10-12T21:32:26.425826+00:00",
+      "finished_utc": "2026-10-12T21:32:37.521630+00:00",
+      "elapsed_s_approx": 11,
+      "operator_standby_minutes": 1,
+      "operator_conditions": "operator used or moved Vita; not a controlled idle trial",
+      "controlled_idle_trial": false,
+      "failure": "diagnostic GET read timeout",
+      "failure_type": "TimeoutError",
+      "samples": 0,
+      "renewals": 0,
+      "end_confirmed": true,
+      "qualification_scope": "retained transport failure; does not establish native power-tick failure or sleep transition",
+      "evidence": "evidence/resident/keep-awake-hold-20261012T213226Z/proof.json"
+    },
+    {
+      "result": "failed_or_interrupted",
+      "started_utc": "2026-10-12T21:35:16.148810+00:00",
+      "finished_utc": "2026-10-12T21:35:38.154862+00:00",
+      "elapsed_s_approx": 22,
+      "operator_standby_minutes": 1,
+      "operator_conditions": "controlled idle trial",
+      "controlled_idle_trial": true,
+      "failure": "diagnostic GET read timeout",
+      "failure_type": "TimeoutError",
+      "samples": 3,
+      "renewals": 0,
+      "end_confirmed": true,
+      "qualification_scope": "retained transport failure; does not establish native power-tick failure or sleep transition",
+      "evidence": "evidence/resident/keep-awake-hold-20261012T213516Z/proof.json",
+      "keeper_stopped_before_first_renewal_submission": true,
+      "keeper_error": {
+        "method": null,
+        "phase": "local_lease_check",
+        "cause_type": "KeepAwakeLost"
+      }
+    }
+  ],
+  "isolated_power_hold": {
+    "result": "passed",
+    "started_utc": "2026-10-12T21:40:51.562771+00:00",
+    "operator_standby_minutes": 1,
+    "method": "confirmed background renewal receipts, no additional diagnostic HTTP polling; local check(fresh=False)",
+    "background_renewal_receipts_observed": true,
+    "production_freshness_checks_changed": false,
+    "qualification_scope": "bounded power and renewal continuity beyond unchanged one-minute standby; does not qualify broader HTTP reliability or production freshness checks before native effects",
+    "evidence": "evidence/resident/keep-awake-hold-20261012T214051Z/proof.json",
+    "duration_s": 120,
+    "finished_utc": "2026-10-12T21:42:53.323728+00:00",
+    "samples": 39,
+    "renewals": 11,
+    "reconciled_renewals": 0,
+    "keeper_errors": [],
+    "end": "ended"
+  },
+  "slow_transfer_trial": {
+    "result": "failed_or_interrupted",
+    "started_utc": "2026-10-12T21:42:54.040280+00:00",
+    "finished_utc": "2026-10-12T21:43:37.639424+00:00",
+    "operator_standby_minutes": 1,
+    "bytes_sent": 4096,
+    "chunks": 32,
+    "chunk_bytes": 128,
+    "chunk_spacing_s": 1.1,
+    "send_duration_s_approx": 35,
+    "renewals": 3,
+    "reconciled_renewals": 0,
+    "keeper_errors": [],
+    "end": "ended",
+    "upload_attempt": "3ef08dfc021240bc81aae9a10297a2db",
+    "upload_target": "ux0:data/vita-resident/inbox/3ef08dfc021240bc81aae9a10297a2db/probe.bin",
+    "upload_sha256": "c8f5d0341d54d951a71b136e6e2afcb14d11ed8489a7ae126a8fee0df6ecf193",
+    "upload_reply": "five-second response deadline timed out",
+    "publication_outcome": "confirmed exact published payload by later read-only stat/hash/full readback",
+    "upload_replayed": false,
+    "readback_performed": true,
+    "native_cycle_started": false,
+    "qualification_scope": "background renewal during exact published and read-back 4 KiB transfer over about 35 seconds; original HTTP reply unknown, broader reliability and native execution not qualified",
+    "evidence": "evidence/resident/keep-awake-slow-20261012T214254Z/proof.json",
+    "read_only_reconciliation": {
+      "observed_utc": "2026-10-12T21:48:23.344339+00:00",
+      "device_mutations": 0,
+      "effect_replays": 0,
+      "published_payload_confirmed": true,
+      "bytes": 4096,
+      "full_file_hash_verified": true,
+      "expected_sha256": "c8f5d0341d54d951a71b136e6e2afcb14d11ed8489a7ae126a8fee0df6ecf193",
+      "consistency": "Matching hash and size observations before and after; not an atomic snapshot"
+    },
+    "original_http_201_reply": "unknown; original response timeout retained"
+  },
+  "after_latest_end": {
+    "service_ports": "both connection timeouts after end",
+    "physical_full_sleep_confirmation": "not confirmed for this earlier trial; later current-build 90-second explicit-end trial passed separately",
+    "qualification_scope": "network observation only; does not establish sleep"
+  },
+  "native_response_budget_edge": {
+    "finding": "a lease POST may commit near its two-second connection deadline and leave no time to write response headers",
+    "source": "resident/keep_awake/service.c",
+    "observed_periodic_delay_cause": "not established",
+    "next_step": "phase instrumentation; do not attribute hardware periodic delays to this edge without evidence"
+  },
+  "operator_current_standby_changed_utc_approx": "restored to one minute before 2026-10-12T22:18:42+00:00 hold",
+  "keeper_process_loss_ttl_expiry": {
+    "result": "passed",
+    "started_utc": "2026-10-12T21:47:02.688712+00:00",
+    "expired_observed_utc": "2026-10-12T21:47:42.941930+00:00",
+    "operator_standby_minutes": 1,
+    "ttl_ms": 30000,
+    "process_exit": "os._exit; no lease end request",
+    "same_power_instance": true,
+    "instance_id": "955b387f8dd6800315e7678941f513b0",
+    "revision": 32,
+    "active": false,
+    "reason": "lease_expired",
+    "observation_errors": [
+      "TimeoutError",
+      "TimeoutError"
+    ],
+    "qualification_scope": "native TTL expiry after PC keeper loss; does not confirm physical sleep",
+    "evidence": "evidence/resident/keep-awake-death-20261012T214702Z/proof.json"
+  },
+  "native_preview_readiness": {
+    "result": "declined before execution",
+    "raw_coordinator_result": "failed_or_interrupted",
+    "started_utc": "2026-10-12T21:46:55.220252+00:00",
+    "ready": false,
+    "occupied_slots": 1,
+    "guard_result": -12004,
+    "device_mutations": 0,
+    "execute_called": false,
+    "qualification_scope": "read-only preview refusal; no native cycle attempted",
+    "operator_next_step": "close all application cards; awaiting readiness",
+    "evidence": "evidence/resident/keep-awake-native-20261012T214655Z/proof.json"
+  },
+  "native_install_trial": {
+    "result": "blocked",
+    "started_utc": "2026-10-12T21:52:59.163627+00:00",
+    "finished_utc": "2026-10-12T21:53:08.474864+00:00",
+    "operator_standby_minutes_reported_by_harness": 1,
+    "operator_actual_current_standby_minutes": 30,
+    "harness_standby_label_note": "operator temporarily selected 30 minutes before this run; the harness label is not proof of the current setting",
+    "preview_ready": true,
+    "stage_attempt": "14ee990ff41641eda253a9cef7a4f498",
+    "manifest_sha256": "53023226e39ef069f84d280b470a28c758e75607c86f666e315cc3a6cd448711",
+    "staged_files": 8,
+    "all_staged_files_verified": true,
+    "mutation_submissions": 10,
+    "mutation_submission_breakdown": {
+      "create_stage": 1,
+      "publish_file": 8,
+      "install": 1
+    },
+    "failure_code": "install_rejected",
+    "http_status": null,
+    "runtime_rejection_reason": null,
+    "reason_unavailable": "the client version retained install_rejected but discarded HTTP status and error body",
+    "install_operation_attempt": "e9004f231a9c43869dcc6b564cab68b9",
+    "launch_started": false,
+    "keeper_end": "ended",
+    "keeper_renewals": 0,
+    "keeper_errors": [],
+    "read_only_followup": {
+      "service_blocked": false,
+      "idle_guard_ready": true,
+      "active_attempt": null,
+      "original_attempt_http_status": 404,
+      "claim_observed": false
+    },
+    "likely_source_constraint": "verified install ownership receipts are scoped to Resident build and 0.1.5 receipts were not migrated to 0.1.6; likely explanation, not exact runtime reason",
+    "qualification_scope": "eight-file staging verified; current-build installation and redeployment not qualified; this trial did not launch, with later launch-only evidence recorded separately",
+    "evidence": "evidence/resident/keep-awake-native-20261012T215259Z/proof.json",
+    "journal": "evidence/workbench/native-lifecycle-20261012T215300Z-e03be640/journal.jsonl"
+  },
+  "launch_only_probe": {
+    "status": "completed with original overall result unconfirmed; later read-only absence and lease expiry confirmed",
+    "started_utc": "2026-10-12T21:58:05.115012+00:00",
+    "finished_utc": "2026-10-12T21:58:38.062192+00:00",
+    "scope": "launch/self-test/exit only; no install/redeploy qualification",
+    "evidence": "evidence/workbench/native-launch-only-20261012T215805Z-bf7f2d34/report.json",
+    "original_job_result": "unconfirmed",
+    "install_submissions": 0,
+    "launch_attempt": "fc9670653c214fc683bf6d3b4254687f",
+    "launch_submissions": 1,
+    "native_launch_result": 0,
+    "installed_verified": false,
+    "evaluation": {
+      "samples": 25,
+      "selftest_passed": true,
+      "checksum": 2727420034,
+      "first_frame": 14,
+      "last_frame": 620,
+      "runtime_identity": {
+        "title_id": "VMCP00001",
+        "version": "01.03",
+        "native_build_id": "c450ef59c0038599ebf2f401f6dc8dcff15f2fd7d350da6c54480286b774c1d4",
+        "pid": 996399,
+        "run": "0b8c607779092318d6c4e38485832015",
+        "revision": 1
+      }
+    },
+    "graceful_exit": {
+      "acknowledged": true,
+      "revision": 2,
+      "pid": 996399,
+      "run": "0b8c607779092318d6c4e38485832015"
+    },
+    "failure_type": "Unconfirmed",
+    "failure_code": "resident_keep_awake_lost_during_native_effect",
+    "failure_transport": {
+      "method": "GET",
+      "phase": "read_headers",
+      "cause_type": "TimeoutError"
+    },
+    "keeper_renewals": 1,
+    "keeper_reconciled_renewals": 0,
+    "keeper_errors": [
+      "TimeoutError",
+      "TimeoutError"
+    ],
+    "immediate_keeper_end": "unconfirmed; expires within 30 seconds of last accepted renewal",
+    "read_only_reconciliation": {
+      "observed_utc": "2026-10-12T22:01:48.902841+00:00",
+      "device_mutations": 0,
+      "effect_replays": 0,
+      "native_absence": {
+        "exited": true,
+        "native_idle_samples": 2
+      },
+      "power": {
+        "app": "Vita Resident Keep Awake",
+        "protocol": 1,
+        "resident_build_id": "47ece86ad3b5258b6a52b4aaffefb8046e5af48c69f49a763001bf36bd815240",
+        "instance_id": "955b387f8dd6800315e7678941f513b0",
+        "clock_ms": 1630027,
+        "revision": 37,
+        "port": 17869,
+        "active": false,
+        "lease_id": null,
+        "job_id": null,
+        "remaining_ms": 0,
+        "session_remaining_ms": 0,
+        "last_tick_ms": 1445787,
+        "tick_count": 313,
+        "tick_result": 0,
+        "reason": "lease_expired",
+        "status": 200,
+        "error": null
+      },
+      "native_lab_left_running": false,
+      "original_job_result_retained": true,
+      "observation_errors": []
+    },
+    "qualification_scope": "native launch, 25-sample self-test, acknowledged graceful exit and later two-sample absence proven; original overall result retained unconfirmed; no installation/redeployment or uninterrupted keeper-protected native-cycle acceptance",
+    "accepted_applications_changed": false,
+    "boot_configuration_changed": false
+  },
+  "cross_build_adoption_proposal": {
+    "status": "queued future work; not implemented",
+    "permissions_broadened": false,
+    "required_pins": [
+      "old Resident build",
+      "verified old install receipt",
+      "immutable old stage and manifest hashes",
+      "all eight installed-file hashes"
+    ],
+    "validation": "read-only exact match of all eight installed files before adoption",
+    "receipt": "distinct new adoption receipt binding prior evidence to new Resident build; preserve old records"
+  },
+  "pc_native_rejection_diagnostics": {
+    "status": "implemented; all 41 native-lifecycle host tests passed in fresh root rerun, including six targeted real-HTTP tests; device rejection acceptance pending",
+    "retained_fields": [
+      "http_status",
+      "reason",
+      "category"
+    ],
+    "reason_scope": "35 fixed source-derived HTTP status/reason pairs, strict exact identity/shape/protocol, native namespace only and not Lab",
+    "arbitrary_response_text_retained": false,
+    "historical_reply_recovered": false,
+    "device_acceptance": "pending",
+    "full_suite_tests": 41,
+    "fresh_root_log": "passed 41 tests in 67.202 seconds; refreshed count and hash retained",
+    "root_test_duration_s": 67.202
+  },
+  "ci_source_pre_rejection_diagnostics": {
+    "commit": "c7671385dc1b0c312c98f6d23715051e42c21856",
+    "run": 38313311499,
+    "result": "passed",
+    "scope": "pushed source before rejection-diagnostics patch"
+  },
+  "host_log_receipt_scope": "Native-lifecycle log count and SHA-256 now bind the fresh root 41-test rerun in 67.202 seconds; other log receipts remain tied to the recorded build or later explicitly scoped reruns.",
+  "controlled_lost_renewal_reply": {
+    "result": "passed",
+    "started_utc": "2026-10-12T22:06:55.037545+00:00",
+    "finished_utc": "2026-10-12T22:06:58.215607+00:00",
+    "proof_sha256": "58a2302d7ab5f79416cbaa1856c507b4e11f498eb05d5ddffee3f895963a8e1c",
+    "evidence_visibility": "private helper and original proof remain ignored; sanitized facts and proof hash only are public",
+    "pc_client_sha256": "866de3d662a9c085fd321ddbf629307c87a560d9e20ecd352eba5b4637afafb7",
+    "pc_source_unchanged": true,
+    "resident_build_id": "47ece86ad3b5258b6a52b4aaffefb8046e5af48c69f49a763001bf36bd815240",
+    "forwarded_posts": 3,
+    "post_operations": [
+      "start",
+      "renew",
+      "end"
+    ],
+    "deliberate_accepted_renewal_reply_drops": 1,
+    "reconciliation_gets": 1,
+    "exact_owner_adoptions": 1,
+    "begin_revision": 38,
+    "adopted_revision": 39,
+    "begin_tick_count": 314,
+    "adopted_tick_count": 316,
+    "original_session_deadline_unchanged": true,
+    "upstream_failures": [],
+    "no_effect_replay": true,
+    "keeper_end": "ended",
+    "scope": "controlled lease reply-loss reconciliation on real Vita only; no app, install or saved-setting writes; not physical Wi-Fi loss or general HTTP reliability"
+  },
+  "launch_only_followup_probe": {
+    "result": "blocked",
+    "started_utc": "2026-10-12T22:07:25.275163+00:00",
+    "finished_utc": "2026-10-12T22:07:31.565334+00:00",
+    "failure_type": "TimeoutError",
+    "failure_code": "transport_or_local_failure",
+    "lease_started": false,
+    "native_mutation_submissions": 0,
+    "launch_started": false,
+    "keeper_end": "not_started",
+    "keeper_renewals": 0,
+    "qualification_scope": "separate pre-effect transport failure; lease and native trial not started; no successful-repeat acceptance",
+    "evidence": "evidence/workbench/native-launch-only-20261012T220725Z-a8fa3025/report.json"
+  },
+  "native_install_diagnostic_preparation": {
+    "result": "not_started; first preview GET failed",
+    "failure_type": "LifecycleTransport",
+    "plan_claim_created": false,
+    "journal_created": false,
+    "lease_started": false,
+    "native_mutation_submissions": 0,
+    "install_submitted": false,
+    "historical_runtime_rejection_reason_recovered": false,
+    "evidence_visibility": "private structured no-mutation record retained by root; no public private-evidence link",
+    "qualification_scope": "no new installation or runtime-rejection acceptance; exact historical cause remains unknown"
+  },
+  "current_build_explicit_end_automatic_sleep": {
+    "result": "passed",
+    "resident_build_id": "47ece86ad3b5258b6a52b4aaffefb8046e5af48c69f49a763001bf36bd815240",
+    "power_instance_id": "955b387f8dd6800315e7678941f513b0",
+    "operator_standby_minutes": 1,
+    "operator_setting_restored": true,
+    "hold_duration_s": 90,
+    "hold_samples": 30,
+    "hold_renewals": 8,
+    "hold_reconciled_renewals": 0,
+    "hold_errors": [],
+    "hold_end": "ended",
+    "hold_finished_utc": "2026-10-12T22:20:15.766484+00:00",
+    "hold_local_receipt": "evidence/resident/keep-awake-hold-20261012T221842Z/proof.json",
+    "hold_receipt_sha256": "42c1a57b86d1b4fc93671788edc626902052cb6efca15df8a2cf02138a3f7647",
+    "observer_requested_duration_s": 95,
+    "observer_renewals": 0,
+    "observer_online_samples": 0,
+    "observer_paired_port_timeouts": 8,
+    "observer_local_receipt": "evidence/resident/keep-awake-observe-20261012T222042Z/proof.json",
+    "observer_receipt_sha256": "05b88decd9bf40c44d8c9c8a3a300818abdcf0a3cb24c1c7f5c62937c5fea87d",
+    "operator_confirmation": "Yes\u2014it entered normal sleep; left untouched until physical-state reply",
+    "operator_confirmation_source": "direct response in this chat after lease release and read-only observer",
+    "operator_subsequent_physical_wake": "confirmed LiveArea ready",
+    "post_wake_identity": "same Resident build and power-worker instance confirmed by subsequent lease begin; reported by root after the combined receipt was recorded",
+    "combined_local_receipt": "evidence/resident/keep-awake-physical-sleep-20261012T222403Z/proof.json",
+    "combined_receipt_sha256": "892f027dd1421cb3a23e15a9c07e58561e96b3a697ff7d3a43015782ad5a46f5",
+    "qualification_scope": "current-build normal automatic sleep after explicit end passed; physical sleep after TTL expiry, full suspension and lease cancellation, and real Wi-Fi loss remain separate; no full fresh configured interval from release is established"
+  },
+  "ci_source_with_rejection_diagnostics": {
+    "commit": "74bbbc1317da279689ebdd27ba7498c48c5ed411",
+    "run": 38315537719,
+    "result": "passed",
+    "host_groups": 31,
+    "artifact_files_hash_verified": 32,
+    "scope": "exact committed source with diagnostics; later documentation/source-manifest refresh requires separate exact-head CI"
+  },
+  "power_button_display_sleep_wake_observation": {
+    "result": "partial physical observation; keeper-continuity trial passed",
+    "hold_duration_s": 90,
+    "hold_samples": 29,
+    "keeper_renewals": 7,
+    "keeper_reconciled_renewals": 0,
+    "keeper_errors": [],
+    "keeper_end": "ended",
+    "started_utc": "2026-10-12T22:25:11.559233+00:00",
+    "finished_utc": "2026-10-12T22:26:42.563129+00:00",
+    "operator_action": "pressed Power, waited approximately ten seconds, woke using PS/Power",
+    "operator_report": "button/display sleep and wake worked normally",
+    "keeper_continued_renewing": true,
+    "full_suspension_established": false,
+    "lease_cancellation_during_full_suspension_established": false,
+    "local_receipt": "evidence/resident/keep-awake-hold-20261012T222511Z/proof.json",
+    "receipt_sha256": "aca28c2f9ad55ee2306bae16305d3b351dfce8cc435481df83d5b9807efa5102",
+    "qualification_scope": "partial Power-button/display sleep-wake observation plus 90-second keeper continuity; full suspension and lease cancellation during it not established; real Wi-Fi-loss test remains pending"
+  }
+}

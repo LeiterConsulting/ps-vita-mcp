@@ -4,6 +4,8 @@
 #include "pairing.h"
 #include "files.h"
 #include "launch_broker/service.h"
+#include "native_install/service.h"
+#include "keep_awake/service.h"
 
 static unsigned char buffer[R_CHUNK];
 static char headers[4097];
@@ -12,9 +14,12 @@ static PRState pairing_state;
 static char phone_token[33];
 static LBDeferred launch_deferred;
 static int launch_response_complete;
+static NIDeferred native_deferred;
+static int native_response_complete;
 static void error(int socket,int status,const char *reason);
 static uint64_t started,heartbeat,requests,uploads;
 static uint64_t idle_deadline,total_deadline;
+static int keep_awake_start_result=-1;
 
 typedef struct {
     char method[8],path[128],authorization[48],digest[65],mime[64];
@@ -167,7 +172,7 @@ static void download(int socket,const Request *request) {
 }
 static void status(int socket) {
     RDevice d; r_device(&d);
-    R_SNPRINTF(reply,sizeof(reply),"{\"app\":\"Vita Resident\",\"protocol\":1,\"version\":\"" R_VERSION "\",\"build_id\":\"%s\",\"port\":17866,\"started_ms\":%llu,\"uptime_ms\":%llu,\"heartbeat\":%llu,\"requests\":%llu,\"uploads\":%llu,\"battery_percent\":%d,\"charging\":%d,\"clocks_mhz\":[%d,%d,%d,%d],\"network_state\":%d,\"keep_awake\":false,\"max_upload_bytes\":%u,\"process\":\"SceShell user plugin\"}",R_BUILD_ID,(unsigned long long)started,(unsigned long long)(r_now()-started),(unsigned long long)heartbeat,(unsigned long long)requests,(unsigned long long)uploads,d.battery,d.charging,d.cpu,d.bus,d.gpu,d.xbar,d.network,R_MAX_FILE);
+    R_SNPRINTF(reply,sizeof(reply),"{\"app\":\"Vita Resident\",\"protocol\":1,\"version\":\"" R_VERSION "\",\"build_id\":\"%s\",\"port\":17866,\"started_ms\":%llu,\"uptime_ms\":%llu,\"heartbeat\":%llu,\"requests\":%llu,\"uploads\":%llu,\"battery_percent\":%d,\"charging\":%d,\"clocks_mhz\":[%d,%d,%d,%d],\"network_state\":%d,\"keep_awake\":%s,\"keep_awake_protocol\":1,\"keep_awake_start_result\":%d,\"keep_awake_port\":17869,\"max_upload_bytes\":%u,\"process\":\"SceShell user plugin\"}",R_BUILD_ID,(unsigned long long)started,(unsigned long long)(r_now()-started),(unsigned long long)heartbeat,(unsigned long long)requests,(unsigned long long)uploads,d.battery,d.charging,d.cpu,d.bus,d.gpu,d.xbar,d.network,rka_active()?"true":"false",keep_awake_start_result,R_MAX_FILE);
     respond(socket,200,reply);
 }
 static void storage_request(int socket,const Request *request,int admin,size_t initial_size) {
@@ -207,9 +212,71 @@ static void launch_request(int socket,const Request *request,int admin,
     R_MEMSET(body,0,sizeof(body));
     launch_response_complete=respond(socket,code,reply);
 }
+typedef struct {
+    int socket;
+    const unsigned char *initial;
+    size_t size,offset;
+} NativeStream;
+static int native_read(void *ctx,void *out,size_t capacity) {
+    NativeStream *stream=ctx;
+    if(timed())return -1;
+    if(stream->offset<stream->size) {
+        size_t count=stream->size-stream->offset;
+        if(count>capacity)count=capacity;
+        R_MEMCPY(out,stream->initial+stream->offset,count);stream->offset+=count;
+        return (int)count;
+    }
+    while(!timed()) {
+        int count=r_recv(stream->socket,out,capacity);
+        if(count>0) { idle_deadline=r_now()+5000;return count; }
+        if(count!=-2)return count;
+        r_delay(5);
+    }
+    return -1;
+}
+static void native_request(int socket,const Request *request,int admin,
+                           const unsigned char *initial,size_t initial_size) {
+    if(!admin) { error(socket,403,"Desktop administrator required");return; }
+    if(initial_size>request->length) { error(socket,400,"Body exceeds content length");return; }
+    if(!R_STRCMP(request->method,"PUT")) {
+        if(!request->has_length||!request->length||!hex(request->digest,64)) {
+            error(socket,400,"Native file length and digest required");return;
+        }
+        if(!request->has_mime||R_STRCMP(request->mime,"application/octet-stream")) {
+            error(socket,415,"Native file octet stream required");return;
+        }
+        NativeStream stream={socket,initial,initial_size,0};
+        int code=ni_upload(admin,request->method,request->path,request->length,
+                           request->digest,native_read,&stream,reply,sizeof(reply));
+        if(!code) { error(socket,404,"Unknown native lifecycle route");return; }
+        respond(socket,code,reply);return;
+    }
+    char body[NI_MAX_BODY+1];size_t used=initial_size;
+    if(request->length>NI_MAX_BODY) { error(socket,413,"Native request exceeds bound");return; }
+    if(!R_STRCMP(request->method,"GET")) {
+        if(request->length||used) { error(socket,400,"GET body is not supported");return; }
+    } else if(!R_STRCMP(request->method,"POST")) {
+        if(!request->has_length) { error(socket,400,"Native content length required");return; }
+        if(!request->has_mime||R_STRNCMP(request->mime,"application/json",16)||
+           (request->mime[16]&&request->mime[16]!=';')) { error(socket,415,"Native JSON required");return; }
+    } else { error(socket,405,"Method not supported");return; }
+    R_MEMCPY(body,initial,used);
+    while(used<request->length&&!timed()) {
+        int got=r_recv(socket,body+used,request->length-used);
+        if(got>0) { used+=(unsigned)got;idle_deadline=r_now()+5000; }
+        else if(got==-2)r_delay(5);else break;
+    }
+    if(used!=request->length) { R_MEMSET(body,0,sizeof(body));error(socket,408,"Incomplete native request");return; }
+    body[used]=0;
+    int code=ni_request(admin,request->method,request->path,body,used,reply,sizeof(reply),&native_deferred);
+    R_MEMSET(body,0,sizeof(body));
+    if(!code) { error(socket,404,"Unknown native lifecycle route");return; }
+    native_response_complete=respond(socket,code,reply);
+}
 static void client(int socket,const char token[33]) {
     phone_token[0]=0;
     R_MEMSET(&launch_deferred,0,sizeof(launch_deferred));launch_response_complete=0;
+    R_MEMSET(&native_deferred,0,sizeof(native_deferred));native_response_complete=0;
     size_t used=0,header_size=0; idle_deadline=r_now()+5000; total_deadline=r_now()+120000;
     while(used<sizeof(headers)-1&&!timed()) {
         int n=r_recv(socket,headers+used,sizeof(headers)-1-used);
@@ -228,6 +295,11 @@ static void client(int socket,const char token[33]) {
     if(result) { error(socket,result,"Invalid request framing"); return; }
     const char *bearer=request.has_auth&&R_STRLEN(request.authorization)==39&&!R_STRNCMP(request.authorization,"Bearer ",7)?request.authorization+7:"";
     int admin=*bearer&&equal_token(bearer,token);
+    if(!R_STRCMP(request.path,"/native-lifecycle")||!R_STRNCMP(request.path,"/native-lifecycle/",18)) {
+        if(admin)requests++;
+        native_request(socket,&request,admin,(const unsigned char *)headers+header_size,used-header_size);
+        return;
+    }
     if(!R_STRCMP(request.path,"/storage")||!R_STRNCMP(request.path,"/storage/",9)) {
         if(admin)requests++;
         storage_request(socket,&request,admin,used-header_size);
@@ -279,10 +351,14 @@ void r_service(const char token[33]) {
     if(!r_directory_exists("ux0:data/vita-resident/inbox")) { r_log("inbox missing",-1); r_network_end(); return; }
     if(!pr_init(&pairing_state,pr_platform_io(),R_PORT,17867,R_BUILD_ID))r_log("Phone pairing unavailable; legacy auth preserved",-1);
     rlb_init();
+    ni_init();
+    keep_awake_start_result=rka_start(token);
+    r_log("keep-awake worker start",keep_awake_start_result);
     int listener=-1; uint64_t previous=started;
     r_log("worker ready",0);
     while(r_running()) {
         uint64_t now=r_now(); if(now-previous>=500) { heartbeat++; previous=now; }
+        ni_tick();
         if(!r_network_ready()) { if(listener>=0) r_close_socket(listener); listener=-1; r_delay(100); continue; }
         if(listener<0) { listener=r_listen(); r_log("listener",listener); if(listener<0) { r_delay(1000); continue; } }
         int socket=r_accept(listener);
@@ -291,10 +367,13 @@ void r_service(const char token[33]) {
             int closed=r_close_client(socket);
             /* Only this serialized boundary may dispatch; initialization never does. */
             rlb_after_response(&launch_deferred,launch_response_complete&&closed==0);
+            ni_after_response(&native_deferred,native_response_complete&&closed==0);
+            ni_tick();
         }
         else if(socket==-2) { r_close_socket(listener); listener=-1; }
         r_delay(25);
     }
     if(listener>=0) r_close_socket(listener);
+    rka_stop();
     r_network_end(); r_log("worker stopped",0);
 }

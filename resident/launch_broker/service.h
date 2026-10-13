@@ -2,7 +2,7 @@
 #define VITA_LAUNCH_SERVICE_H
 #include <stddef.h>
 #include "http.h"
-#define R_VERSION "0.1.4"
+#define R_VERSION "0.1.6"
 int r_close_client(int socket); /* close result gates deferred dispatch */
 
 /* One serialized Resident worker; initialization never dispatches a launch. */

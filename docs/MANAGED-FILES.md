@@ -1,20 +1,21 @@
 # Resident managed inbox inspection
 
-As of October 12, 2026, Resident **0.1.4** is installed on the test Vita. It
+The corrected Resident **0.1.5** is currently boot-loaded and exact-binary verified, with a fresh unblocked, installer-ready native instance and Promoter unloaded. Five fixed-Lab install/launch/evaluate/graceful-exit cycles across two native builds passed on hardware; same-build journal durability passed after a normal reboot without replay; the earlier unknown receipt is retained without replay. [Current incident](NATIVE-LIFECYCLE.md#october-12-native-promotion-incident). The following historical Resident **0.1.4** results remain rollback evidence. It
 passed a user-confirmed normal boot, initial read-only inbox inspection and a
-separate DevLoop coexistence/upload check. Fresh actual stdio MCP exposes all
-33 tools and works with the native service. The registered desktop MCP connection
-has now been restarted and also exposes all 33 tools; direct registered-tool
+separate DevLoop coexistence/upload check. The earlier October 12 fresh-stdio
+and registered MCP checks exposed the 33 tools available at that point; direct registered-tool
 calls passed exact 0.1.4 status, managed attempt listing, size/SHA-256 and a
 complete 4096-byte read with independent full-file hash verification. Resident 0.1.3 and
 0.1.2 rollback plugins and saved administrator pairing are preserved. The
 existing upload and published-file verification tools remain compatible with
-older supported versions; these three inspection tools require 0.1.4.
+older supported versions; these three inspection tools were introduced in 0.1.4.
 
 This is the first implemented slice of the [file-service roadmap](FILE-SERVICE-ROADMAP.md).
 It inspects the existing inbox through Resident's background HTTP worker,
 without Control, Starter or FTP. It adds no file writes, deletion, installation,
-launching or configuration updates. Native launch submission stays disabled.
+launching or configuration updates. The legacy launch broker stays disabled;
+the separate 0.1.5 [native lifecycle candidate](NATIVE-LIFECYCLE.md) targets only
+the owned Lifecycle Lab and still requires hardware qualification.
 
 ## Desktop tools
 

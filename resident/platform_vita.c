@@ -1,5 +1,6 @@
 #include "platform.h"
 #include "launch_broker/service.h"
+#include "keep_awake/service.h"
 #include <psp2/kernel/modulemgr.h>
 #include <psp2/kernel/rng.h>
 #include <psp2/rtc.h>
@@ -107,6 +108,7 @@ int module_start(SceSize args,const void *arg) {
 int module_stop(SceSize args,const void *arg) {
     (void)args; (void)arg; __atomic_store_n(&running,0,__ATOMIC_RELEASE);
     if(thread>=0) { SceUInt timeout=5000000; int result=sceKernelWaitThreadEnd(thread,0,&timeout); if(result<0) { r_log("worker retained after join timeout",result); return SCE_KERNEL_STOP_CANCEL; } sceKernelDeleteThread(thread); thread=-1; }
+    if(rka_stop()<0) { r_log("keep-awake worker retained after join timeout",-1); return SCE_KERNEL_STOP_CANCEL; }
     if(network_owned) { r_log("network pool retained until shell exits",0); return SCE_KERNEL_STOP_CANCEL; }
     return SCE_KERNEL_STOP_SUCCESS;
 }

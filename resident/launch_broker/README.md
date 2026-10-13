@@ -1,8 +1,12 @@
 # Portable fixed-title launch broker
 
-Resident **0.1.4 is installed with native launching disabled**, with 0.1.3 and 0.1.2 retained for rollback. The broker core, strict HTTP codec, immutable store, native instance identity and read-only app inventory were introduced in 0.1.3 and remain linked into its successor. Native submission is unconditionally refused; there is no enable file or API. Current 0.1.4 [partial hardware qualification](../../docs/managed-files-validation.json) passed normal boot, exact plugin/configuration, managed inbox inspection and bounded DevLoop coexistence with a fresh 4 KiB upload and verified readbacks. Administrator pairing and both experiment disable markers are preserved. Neither withdrawn boot experiment was activated, and these checks made no Control, input, power or Lua changes.
+The corrected Resident **0.1.5 is currently boot-loaded** after a confirmed normal boot and exact device-binary verification; its separate native lifecycle instance is fresh, unblocked and installer-ready with Promoter unloaded. Promotion and launch remain pending, and the earlier unknown promotion receipt is retained without replay. [Current incident](../../docs/NATIVE-LIFECYCLE.md#october-12-native-promotion-incident). Resident 0.1.4, 0.1.3 and 0.1.2 are retained for rollback. The broker core, strict HTTP codec, immutable store, native instance identity and read-only app inventory were introduced in 0.1.3 and remain linked into its successor. Native submission is unconditionally refused; there is no enable file or API. Historical 0.1.4 [partial hardware qualification](../../docs/managed-files-validation.json) passed normal boot, exact plugin/configuration, managed inbox inspection and bounded DevLoop coexistence with a fresh 4 KiB upload and verified readbacks. Administrator pairing and both experiment disable markers are preserved. Neither withdrawn boot experiment was activated, and these checks made no Control, input, power or Lua changes.
 
-The intended later operation is one authenticated PC request to open
+This legacy DevLoop broker remains disabled in the Resident 0.1.5 source; the
+separate [native lifecycle candidate](../../docs/NATIVE-LIFECYCLE.md) targets only
+the owned Lifecycle Lab, with five native Lab cycles across two builds passed and same-build normal-reboot journal durability passed without replay.
+
+The intended later legacy-broker operation is one authenticated PC request to open
 `CHRS00003` (Vita DevLoop) after Resident is already healthy. The existing Resident
 worker now has a dispatch boundary after response completion and successful
 socket closure. The qualification candidate keeps it disabled and its native
@@ -32,8 +36,8 @@ selected the faster and restored the original native world paused under the
 same DevLoop build/PID/run. Lua finished inactive with the last VM retained;
 the broker kept its instance and stayed disabled and unblocked. Fresh stdio
 verified the historical 30-tool catalog, both script tools and 0.1.3 status. The
-current source exposes 33 tools and fresh stdio verified installed 0.1.4. The
-registered desktop MCP connection has now been restarted and exposes all 33 tools.
+current source exposes 40 tools, including sixteen Workbench tools. The earlier
+October 12 fresh-stdio and registered 33-tool checks verified installed 0.1.4.
 Direct registered-tool calls passed exact installed 0.1.4 status, managed listing,
 file information and a complete 4096-byte read with full-file hash verification. Storage durability across reboot, phone credential confirmation
 and safe native launching remain open.
