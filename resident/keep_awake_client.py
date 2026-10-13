@@ -71,6 +71,19 @@ def _annotate(error, method, phase, cause=None):
     return error
 
 
+_PREFLIGHT_TIMEOUT_PHASES = {'send_request': 1, 'read_headers': 2, 'read_body': 3}
+
+
+def _preflight_timeout_phase(error):
+    """Only an actual GET transport timeout can authorize one fresh read."""
+    diagnostic = getattr(error, 'lease_diagnostic', None)
+    if (isinstance(error, TimeoutError) and getattr(error, 'preflight_read_retryable', False) is True
+            and isinstance(diagnostic, dict)
+            and diagnostic.get('method') == 'GET' and diagnostic.get('cause_type') == 'TimeoutError'):
+        return _PREFLIGHT_TIMEOUT_PHASES.get(diagnostic.get('phase'), 0)
+    return 0
+
+
 def pack(revision, ttl_ms, max_duration_ms, instance_id, lease_id, job_id):
     if (type(revision) is not int or not 0 <= revision < 0xffffffff
             or type(ttl_ms) is not int or ttl_ms != 0 and not 5000 <= ttl_ms <= TTL_MS
@@ -126,7 +139,7 @@ class KeepAwakeClient:
         if self.provider() != self.endpoint:
             raise KeepAwakeLost('Resident endpoint configuration changed')
 
-    def request(self, method, body=None):
+    def request(self, method, body=None, *, before_send=None):
         try:
             self.check_endpoint()
         except Exception as error:
@@ -174,6 +187,11 @@ class KeepAwakeClient:
             connection.sock = DeadlineSocket(connection.sock, remaining_timeout)
             connected_socket[0] = connection.sock
             check_deadline()
+            if before_send is not None:
+                phase = 'before_submission'
+                before_send()
+                check_deadline()
+                phase = 'send_request'
             connection.request(method, path, body, {'Authorization': 'Bearer ' + self.endpoint['token'],
                                                    'Content-Type': 'application/octet-stream', 'Connection': 'close'})
             check_deadline()
@@ -202,8 +220,15 @@ class KeepAwakeClient:
                 timeout_error.__cause__ = error
                 error = timeout_error
             if method == 'POST':
+                if phase == 'before_submission':
+                    _annotate(error, method, phase)
+                    raise error
                 wrapped = KeepAwakeUnknown('Resident lease reply unconfirmed; never replay the mutation')
                 raise _annotate(wrapped, method, phase, error) from error
+            error.preflight_read_retryable = (isinstance(error, TimeoutError)
+                and phase in _PREFLIGHT_TIMEOUT_PHASES
+                and (response is None or response.status == 200
+                    and response.getheader('Content-Type', '').split(';')[0] == 'application/json'))
             _annotate(error, method, phase)
             raise error
         finally:
@@ -218,11 +243,55 @@ class KeepAwakeClient:
         return self.request('GET')
 
     def mutate(self, revision, ttl_ms, max_duration_ms, instance_id, lease_id, job_id, resident_build_id,
-               *, cancelled=None):
+               *, cancelled=None, renewal_guard=None, retry_record=None):
         body = pack(revision, ttl_ms, max_duration_ms, instance_id, lease_id, job_id)
         if not hex_pin(resident_build_id, 64):
             raise ValueError('Pin the exact Resident build ID')
-        before = self.status()
+        if ((renewal_guard is None) != (retry_record is None)
+                or renewal_guard is not None and (not ttl_ms or max_duration_ms
+                    or not callable(renewal_guard) or not callable(retry_record))):
+            raise ValueError('Guarded fresh-read recovery is only available for owned renewals')
+
+        def guard(observation=None, observed_at=None):
+            if cancelled is not None and cancelled():
+                raise _annotate(KeepAwakeLost('Resident keeper stopped during lease preflight'),
+                                'POST', 'before_submission')
+            if renewal_guard is not None:
+                renewal_guard(observation, observed_at)
+
+        if renewal_guard is not None:
+            guard()
+        observed_at = time.monotonic()
+        try:
+            before = self.status()
+        except Exception as error:
+            original_phase = _preflight_timeout_phase(error)
+            if renewal_guard is None or not original_phase:
+                raise
+            guard()
+            retry_record('lease_preflight_read_retry_intent', retry_number=1, original_phase_code=original_phase,
+                         original_cause_code=1, method_code=1, expected_revision=revision, device_mutations=0)
+            guard()  # Durable logging may consume the remaining lifetime.
+            observed_at = time.monotonic()
+            before = None
+            try:
+                before = self.status()
+                guard(before, observed_at)
+            except Exception as retry_error:
+                cause_code = {'TimeoutError': 1, 'KeepAwakeLost': 2, 'KeepAwakeRejected': 3,
+                              'RuntimeError': 4, 'OSError': 5}.get(type(retry_error).__name__, 0)
+                retry_record('lease_preflight_read_retry_outcome', retry_number=1, success=False,
+                             original_phase_code=original_phase, original_cause_code=1,
+                             phase_code=_preflight_timeout_phase(retry_error), cause_code=cause_code,
+                             method_code=1, expected_revision=revision, device_mutations=0)
+                raise
+            retry_record('lease_preflight_read_retry_outcome', retry_number=1, success=True,
+                         original_phase_code=original_phase, original_cause_code=1, method_code=1,
+                         expected_revision=revision, observed_revision=before['revision'],
+                         clock_ms=before['clock_ms'], remaining_ms=before['remaining_ms'],
+                         session_remaining_ms=before['session_remaining_ms'], device_mutations=0)
+        if renewal_guard is not None:
+            guard(before, observed_at)
         if (before['instance_id'] != instance_id or before['resident_build_id'] != resident_build_id
                 or before['revision'] != revision):
             raise _annotate(KeepAwakeLost('Resident lease instance, build or revision changed before mutation'),
@@ -232,10 +301,9 @@ class KeepAwakeClient:
                 raise _annotate(KeepAwakeLost('Another Resident work lease is active'), 'GET', 'owner_check')
         elif (not before['active'] or before['lease_id'] != lease_id or before['job_id'] != job_id):
             raise _annotate(KeepAwakeLost('Resident work lease owner changed or expired'), 'GET', 'owner_check')
-        if cancelled is not None and cancelled():
-            raise _annotate(KeepAwakeLost('Resident keeper stopped during lease preflight'),
-                            'POST', 'before_submission')
-        value = self.request('POST', body)
+        guard(before, observed_at)
+        value = self.request('POST', body, **({'before_send': lambda: guard(before, observed_at)}
+                                            if renewal_guard is not None else {}))
         if (value['instance_id'] != instance_id or value['resident_build_id'] != resident_build_id
                 or value['revision'] != revision + 1 or value['active'] != bool(ttl_ms)
                 or max_duration_ms and value['session_remaining_ms'] > max_duration_ms
@@ -273,7 +341,7 @@ class ResidentKeeper:
         self.session_deadline_ms = None
         self.result = {'enabled': False, 'ttl_ms': TTL_MS, 'max_duration_ms': max_duration_ms,
                        'job_id': job_id, 'lease_id': self.lease_id, 'renewals': 0,
-                       'reconciled_renewals': 0, 'errors': []}
+                       'reconciled_renewals': 0, 'preflight_read_retries': 0, 'errors': []}
 
     def record(self, kind, **fields):
         self.folder.mkdir(parents=True, exist_ok=True)
@@ -327,6 +395,37 @@ class ResidentKeeper:
         self.result['reconciled_renewals'] += 1
         return observed, observed_at
 
+    def _renewal_guard(self, observation=None, observed_at=None):
+        """Fresh GETs never reset the old confirmed TTL or the fixed job budget."""
+        if self.end.is_set():
+            raise KeepAwakeLost('Resident keeper stopped before renewal submission')
+        self._check_local()
+        if observation is not None:
+            self._pin(observation)
+            now = time.monotonic()
+            if (observation['revision'] != self.value['revision']
+                    or observation['tick_count'] < self.value['tick_count'] or observed_at is None
+                    or now < observed_at
+                    or (now - observed_at) * 1000 >= observation['remaining_ms']
+                    or (now - observed_at) * 1000 >= observation['session_remaining_ms']):
+                raise KeepAwakeLost('Resident renewal preflight is no longer fresh or unchanged')
+
+    def _retry_record(self, kind, **fields):
+        if kind == 'lease_preflight_read_retry_outcome':
+            self.result['preflight_read_retries'] += 1
+        self.record(kind, **fields)
+
+    def _renewal_receipt_lifetime(self, receipt, sent_at):
+        self.client.check_endpoint()
+        self._pin(receipt)
+        now = time.monotonic()
+        if (self.end.is_set() or receipt['tick_count'] < self.value['tick_count']
+                or now < sent_at or now < self.started
+                or (now - sent_at) * 1000 >= receipt['remaining_ms']
+                or (now - sent_at) * 1000 >= receipt['session_remaining_ms']
+                or (now - self.started) * 1000 >= self.max_duration_ms):
+            raise KeepAwakeLost('Resident renewal receipt lifetime expired before publication')
+
     def _send(self, ttl_ms, duration_ms=0):
         value = self.value
         self.record('lease_intent', revision=value['revision'], ttl_ms=ttl_ms, max_duration_ms=duration_ms,
@@ -337,13 +436,19 @@ class ResidentKeeper:
             if ttl_ms and self.end.is_set():
                 raise KeepAwakeLost('Resident keeper stopped before lease submission')
             sent_at = time.monotonic()
+            renewal = bool(ttl_ms) and duration_ms == 0
             receipt = self.client.mutate(value['revision'], ttl_ms, duration_ms, self.expected_instance,
                                          self.lease_id, self.job_id, self.expected_build,
-                                         cancelled=self.end.is_set if ttl_ms else None)
+                                         cancelled=self.end.is_set if ttl_ms else None,
+                                         **({'renewal_guard': self._renewal_guard,
+                                             'retry_record': self._retry_record} if renewal else {}))
             phase = 'receipt_check'
             self._pin(receipt, owned=bool(ttl_ms))
             phase = 'receipt_journal'
             self.record('lease_receipt', receipt=receipt)
+            if renewal:
+                phase = 'receipt_check'
+                self._renewal_receipt_lifetime(receipt, sent_at)
         except Exception as error:
             self.record('lease_unconfirmed_or_rejected', ttl_ms=ttl_ms, failure_type=type(error).__name__,
                         replayed=False, **failure_diagnostic(error, phase=phase,

@@ -1,42 +1,50 @@
 # Background status and verified uploads
 
-**As of October 13, 2026, Resident 0.1.7 is running with its exact build verified;
-qualification is incomplete.** The SceShell user plugin provides background
-status, a bounded
-upload inbox and managed-file inspection on port **17866**. The PC MCP bridge is
-`resident/bridge.py`. Its separate port **17869** serves bounded keep-awake leases
-without changing saved sleep or brightness settings.
+**As of October 13, 2026, Resident 0.1.7 is running with its exact build verified.**
+The SceShell user plugin serves background status, a bounded upload inbox and
+managed-file inspection on port **17866**. Port **17869** serves bounded
+keep-awake leases and administrator-only transport diagnostics. The PC bridge
+is `resident/bridge.py`; leases do not change saved sleep or brightness settings.
 
-Resident **0.1.7** adds two administrator-only, read-only diagnostic
-routes on port 17869. It retains the existing request budget, lease policy and
-boot path. Authorization, missing-record and ring-preservation checks passed
-on hardware. Direct registered main, power and diagnostic status calls passed;
-the source catalog and current enabled-tool metadata list 42 tools. This is
-metadata enumeration, not runtime qualification of every tool. The existing
-registered process still needs a restart to load the PC deadline correction.
-[Transport diagnostics](RESIDENT-TRANSPORT.md).
+Current PC source passed a **90-second hold at one-minute standby**: eight
+renewals, no retries, confirmed end at revision 41 and tick count 377. After
+75 quiet seconds and one unreachable status GET, the operator confirmed normal
+automatic sleep before touching the Vita. Network unavailability alone is not
+proof of sleep. The earlier failed holds remain retained; this bounded pass
+does not establish broad reliability or the intermittent delivery cause.
 
-A planned 90-second hold stopped after 36.44 seconds on the third renewal's
-preflight GET timeout. Only two renewals were submitted successfully; no third
-renewal POST followed. All 12 native records show complete queued responses
-and successful closes. The matching GET queued 596 bytes within 1 ms, which
-does not prove PC receipt or identify the failure's cause. Cleanup confirmed
-release at revision 4; no application effects or mutation replays occurred.
-The physical normal-boot gate, current-build sleep and broad transport reliability
-remain unqualified. A subsequent hold failed after 85.01 seconds with six
-renewals; Python received zero bytes despite the matching native reply being
-fully queued. Eight paired client/raw-socket GETs and four TCP-info GETs passed
-separately, without establishing the failed reply's cause.
+The keeper can make one additional GET after an eligible renewal-preflight
+transport timeout, preserving ownership, original revision, local TTL and fixed
+session deadline. POSTs are never replayed; native-effect freshness reads remain
+strict. The current hold did not exercise that retry. A localhost/in-memory
+controlled harness passed its one-withheld-GET case. The Vita attempt stopped
+when the fresh upstream GET also timed out, sending no renewal POST and only
+begin/end, with confirmed end at revision 43, tick 399. Its relay's 4.5-second
+upstream budget was shorter than the local five-second budget; the recovery
+remains unqualified. Later unchecked/checked Wi-Fi power-saving comparisons
+stopped on read-only baselines with zero POSTs. The comparison is inconclusive;
+the operator restored the original checked setting and reconnected Wi-Fi.
+Registered power and transport reads passed on the same build and instance,
+with the lease inactive at revision 43, tick 399. All 92 focused client tests and current host
+stdio, file-MCP and 41 native-lifecycle PC tests passed. Current-source CI remains
+pending; `caf5008` passed 33 groups with 34 artifact files verified before this
+recovery change. Restart the PC MCP to load the new keeper into registered jobs.
 
-The public PC deadline correction reapplies the remaining five-second budget
-before connect, send and each raw read. All 75 focused client tests and six
-private probe smoke cases passed. One instrumented fresh-process 90-second
-hold then passed with eight renewals, no errors and confirmed end. All 22
-connections returned bytes; the maximum observed connection was 3108.34 ms.
-This single pass at 30-minute standby does not establish the failed replies'
-cause, broad reliability, physical sleep or native-cycle acceptance. Native
-plugin bytes and mutation retry policy are unchanged.
-[Current validation](resident-transport-validation.json).
+Registered main/power/diagnostic status and record reads and begin/renew/end
+passed after the previous restart. Enabled metadata lists 42 names; this is
+separate from qualification of every tool. Authorization, missing-record and
+ring-preservation checks passed on hardware. Native plugin bytes are unchanged.
+Physical normal boot, TTL sleep, full-suspend cancellation and current-build
+native installation/deployment remain unqualified.
+[Current diagnostic validation](resident-transport-validation.json),
+[transport guide](RESIDENT-TRANSPORT.md) and
+[recovery contract](RESIDENT-KEEP-AWAKE.md#renewal-preflight-recovery).
+
+The command wrapper protects one host command, and native execution starts its
+keeper after local preparation and initial status. Planning, builds and Lua
+sessions do not automatically share a work-session lease. Continuous coverage
+needs future explicit borrowing from one outer owner, avoiding nested keepers.
+[Current coverage](RESIDENT-KEEP-AWAKE.md#what-is-protected-automatically).
 
 Historical **0.1.6** hardware passes cover fresh MCP lease operations, an isolated
 120-second hold
@@ -61,8 +69,10 @@ expiry, full suspension and lease cancellation, automatic Wi-Fi reassociation
 and repeated Wi-Fi recovery remain unqualified. Power-button/display sleep and
 wake worked while renewal continued; full suspension was not established.
 One-minute standby was restored for those 0.1.6 trials, and automatic sleep after
-explicit end passed separately. The operator confirms current standby is
-30 minutes; those results do not qualify sleep under 0.1.7.
+explicit end passed separately. Earlier October 13 probes used 30-minute
+standby; an earlier one-minute hold failed, while current source later passed
+the bounded one-minute hold and explicit-release sleep under 0.1.7. TTL sleep and full-suspend
+cancellation remain separate unqualified gates.
 [Exact installed identity, detailed trials and pending gates](RESIDENT-KEEP-AWAKE.md)
 and [dated validation record](resident-keep-awake-validation.json).
 

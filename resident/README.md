@@ -1,38 +1,51 @@
 # Vita Resident
 
-**As of October 13, 2026, Resident 0.1.7 is running with its exact build verified;
-qualification is incomplete.** It provides a bounded keep-awake lease for active
-development jobs.
-The combined source catalog exposes 42 tools: thirteen Resident, thirteen Control
-and sixteen Workbench. Leases do not change saved brightness or sleep settings.
+**As of October 13, 2026, Resident 0.1.7 is running with its exact build verified.**
+The current PC keeper passed a 90-second hold at one-minute standby with eight
+renewals, confirmed end at revision 41 and tick count 377. After 75 quiet
+seconds and one unreachable status GET, the operator confirmed usual normal
+sleep before touching the Vita. This qualifies the bounded hold and sleep after
+explicit release, separately from earlier retained failures.
 
-Its two read-only diagnostic tools passed authorization, missing-record and
-ring-preservation checks on hardware. Direct registered main, power and
-diagnostic status calls passed; current enabled-tool metadata lists all 42
-names. Metadata enumeration does not qualify every tool or confirm the existing
-process loaded the PC correction; its restart is pending. Exact running identity does not confirm the physical
-normal-boot gate. [Contract and qualification](../docs/RESIDENT-TRANSPORT.md).
+Renewal-only preflight recovery is implemented: one eligible GET transport
+timeout can trigger one guarded fresh GET before renewal. Original ownership,
+revision, conservative TTL and session deadline remain pinned; POSTs are never
+replayed. The current hold needed zero retries, so the retry path remains a
+separate gate. Its localhost/in-memory controlled harness passed one withheld
+GET, one retry, one renewal and exactly three forwarded POSTs with confirmed
+end. The controlled Vita attempt stopped when its fresh upstream GET timed out:
+no renewal POST, two begin/end POSTs and confirmed end at revision 43, tick 399.
+The relay used a 4.5-second upstream budget versus the local five-second budget;
+this limits comparison with the production deadline. Later unchecked/checked
+Wi-Fi power-saving comparisons stopped on read-only baselines with zero POSTs.
+The comparison is inconclusive; the original checked setting was physically
+restored. Registered power and transport reads then passed on the same build
+and instance, with the lease inactive at revision 43, tick 399. Recovery remains
+unqualified.
+[Recovery contract and evidence](../docs/RESIDENT-KEEP-AWAKE.md#renewal-preflight-recovery).
 
-A planned 90-second hold stopped after 36.44 seconds on a PC preflight GET
-timeout, after two successful renewals. All 12 native replies were fully queued
-and closed successfully, but queueing does not prove PC receipt or identify the
-failure cause. Cleanup confirmed release; no application effects or mutation
-replays occurred. A later direct registered record read also timed out.
-Current-build broad transport reliability and physical sleep remain unqualified.
-A second hold stopped after 85.01 seconds with six renewals and zero Python
-reply bytes, despite complete native reply queueing; cleanup confirmed end.
-Eight paired client/raw-socket GETs and four TCP-info GETs passed separately.
-The timeout cause remains unknown.
+All 92 focused client tests passed (58 lease, eight deadline, 26 transport),
+as did current host stdio, file-MCP and 41 native-lifecycle PC tests. Full CI for
+this source is pending. CI at `caf5008` passed 33 groups and 34 verified artifact
+files before renewal recovery was added. Native plugin bytes, saved settings
+and the 42-tool catalog are unchanged. Restart the PC Resident MCP so registered
+jobs load the new keeper; no Vita reboot is required.
 
-The public PC deadline helper now applies the remaining five-second budget
-before connect, send and every raw read. Its 75 focused client tests and six
-private probe smoke cases passed. One instrumented fresh-process 90-second
-hold then passed with eight renewals, no errors and confirmed end. All 22
-connections returned bytes, with at most 3108.34 ms per connection. This is
-one pass at 30-minute standby, not a delivery-cause fix, broad reliability,
-physical sleep or native-cycle qualification. Native plugin bytes and no-replay
-policy are unchanged.
-[Current validation](../docs/resident-transport-validation.json).
+Registered main/power/diagnostic reads and begin/renew/end passed after the
+previous restart. Enabled metadata lists 42 names (13 Resident, 13 Control,
+16 Workbench); this does not qualify every operation. Administrator rejection,
+missing-record and ring-preservation checks passed separately. Broad transport
+reliability, physical normal boot, TTL sleep, full-suspend cancellation and
+current-build native installation/deployment remain unqualified. Earlier
+native queued replies did not establish PC receipt or the timeout cause.
+[Current validation](../docs/resident-transport-validation.json) and
+[transport guide](../docs/RESIDENT-TRANSPORT.md).
+
+The command wrapper protects one host command. Native execution starts its
+keeper after local preparation and initial status; planning, build tooling and
+Lua sessions do not automatically share a continuous lease. A future work
+session needs explicit borrowing from one outer owner, avoiding nested keepers.
+[Lease coverage](../docs/RESIDENT-KEEP-AWAKE.md#what-is-protected-automatically).
 
 Historical **0.1.6** hardware passes cover fresh MCP lease operations, an isolated
 120-second hold
@@ -57,8 +70,10 @@ expiry, full suspension and lease cancellation, automatic Wi-Fi reassociation
 and repeated Wi-Fi recovery remain unqualified. Power-button/display sleep and
 wake worked while renewal continued; full suspension was not established.
 One-minute standby was restored for those 0.1.6 trials, and automatic sleep
-after explicit end passed separately. Current standby is operator-confirmed at
-30 minutes; those results do not qualify 0.1.7 physical sleep.
+after explicit end passed separately. Earlier October 13 probes used 30-minute
+standby; an earlier one-minute hold failed, while current source later passed
+the bounded one-minute hold and explicit-release sleep under 0.1.7. TTL sleep and full-suspend
+cancellation remain separate unqualified gates.
 [Detailed evidence and pending gates](../docs/RESIDENT-KEEP-AWAKE.md) and
 [dated validation record](../docs/resident-keep-awake-validation.json).
 

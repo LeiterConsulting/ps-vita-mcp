@@ -1,20 +1,42 @@
 # Native installation and lifecycle
 
-Status date: October 13 2026. Resident **0.1.7** is running with its exact build
-verified through registered tools. No native application effects were attempted
-during its initial diagnostic checks. A planned 90-second lease hold stopped
-after 36.44 seconds on a preflight GET timeout; cleanup confirmed release with
-no replay. Native records show the matching reply fully queued, which does not
-establish PC receipt or identify the timeout cause. Current-build installation,
-redeployment and an uninterrupted keeper-protected cycle remain unqualified.
-A later hold also stopped after 85.01 seconds, with six successful renewals and
-confirmed cleanup. Python received zero reply bytes despite complete native
-queueing. A PC deadline correction passed 75 focused client tests and one
-instrumented fresh-process 90-second lease hold with eight renewals and confirmed
-end at 30-minute standby. This is separate from native-cycle acceptance and
-does not establish broad delivery reliability or physical sleep. No native app effects were
-added, native plugin bytes are unchanged and no mutation retry was introduced.
+Status date: October 13, 2026. Resident **0.1.7** is running with its exact build
+verified. Current-build installation, redeployment and an uninterrupted
+keeper-protected native application cycle remain unqualified; the power and
+transport trials made no native app effects or POST replays.
+
+Current PC source passed one **90-second hold at one-minute standby** with
+eight renewals, no retries and confirmed end at revision 41, tick count 377.
+After 75 quiet seconds and one unreachable status GET, the operator confirmed
+usual normal automatic sleep before touching the Vita. This qualifies the
+bounded hold and explicit-release sleep, separately from retained earlier
+failures. Full suspension, physical TTL sleep and broad reliability remain open.
+
+Renewal-only preflight recovery passed 58 lease, eight deadline and 26
+transport-client tests. It allows one eligible GET retry while preserving
+ownership, revision and lifetime checks; POSTs are never replayed and native
+effect freshness reads remain strict. The current hold needed zero retries.
+Its localhost/in-memory controlled harness passed. The controlled Vita attempt
+stopped when the fresh upstream GET timed out: no renewal POST, exactly two
+begin/end POSTs and confirmed end at revision 43, tick 399. The relay used a
+4.5-second upstream budget versus a five-second local budget. Later
+unchecked/checked Wi-Fi power-saving comparisons stopped on read-only baselines
+with zero POSTs. The comparison is inconclusive; the operator restored the
+original checked setting. Controlled recovery remains unqualified. Current host stdio/file-MCP checks and
+all 41 native-lifecycle PC tests passed; current-source full CI remains pending.
+CI at `caf5008` passed 33 host groups with 34 artifact files verified before
+this recovery change. These host results do not qualify a native application
+cycle. Native plugin bytes are unchanged; restart the PC MCP for registered
+jobs to load the new keeper.
 [Current transport evidence](RESIDENT-TRANSPORT.md).
+
+The native runner starts its keeper after local package/plan validation, plan
+claim, durable payload archiving and the initial idle status read. Those steps
+are outside its lease. The command wrapper separately protects one host command;
+planning, build tooling and Lua sessions do not automatically share a lease.
+A continuous work session needs future explicit injection or borrowing from
+one outer owner; independent nested keepers would contend for ownership.
+[Current lease coverage](RESIDENT-KEEP-AWAKE.md#what-is-protected-automatically).
 
 The historical 0.1.6 results are recorded below. The corrected Resident 0.1.5 previously
 passed boot loading and exact device-binary verification after a user-confirmed normal boot.

@@ -1,19 +1,18 @@
 # PS Vita MCP
 
-**Resident 0.1.7 is running on the Vita with its exact build verified.** Its
-read-only transport diagnostics passed authorization, missing-record and ring
-preservation checks. Two bounded holds stopped on PC GET timeouts; cleanup
-confirmed release. After the PC deadline correction, one fresh-process
-90-second hold passed at 30-minute standby. Transport reliability
-and a complete native development cycle remain open. Earlier plugins are
-retained for rollback. [Current results and limits](docs/RESIDENT-TRANSPORT.md).
+**Resident 0.1.7 is running on the Vita with its exact build verified.** The
+current PC keeper passed a 90-second hold at one-minute standby with eight
+renewals, confirmed release and operator-confirmed normal sleep afterward.
+It also supports one guarded renewal-status GET retry. Its controlled hardware
+test stopped safely before renewal when the fresh read also timed out. Broad transport
+reliability and a complete current-build native development cycle remain open.
+Rollbacks are retained. [Current results and limits](docs/RESIDENT-TRANSPORT.md).
 
-The source catalog and current enabled-tool metadata contain **42 tools**.
-Direct registered Resident status, power status and diagnostic status calls
-passed. Metadata enumeration does not qualify every tool or establish that the
-existing MCP process has loaded the new PC correction; its restart is pending. The ARM
-build, all 32 host groups and remote CI passed for the candidate before the
-subsequent PC deadline correction.
+The source catalog contains **42 tools**. A registered Resident subset passed
+status, diagnostics and begin/renew/end after the previous PC restart. The new
+keeper still needs a PC MCP restart before in-process jobs use it. CI passed
+33 host groups at `caf5008`, with all 34 artifact files verified; that result
+predates the new renewal recovery.
 
 **Develop and inspect PlayStation Vita homebrew through MCP on real hardware.**
 
@@ -32,27 +31,45 @@ successful individual credential confirmation remains pending.
 
 ## Status as of October 13 2026
 
-**Current hardware check:** Two planned 90-second holds stopped after 36.44
-and 85.01 seconds on renewal-preflight GET timeouts. Native records show complete
-queued replies; the second failure returned zero bytes to Python. Both owners
-were ended without replay or application effects. The endpoint failure's cause
-remains unknown. Eight paired client/raw-socket GETs and four TCP-info GETs
-passed, but these bounded observations do not qualify sustained reliability.
+**Current source:** The keeper can retry one eligible preflight GET timeout
+during an owned renewal. It preserves the original revision, owner, conservative
+TTL and fixed session deadline, and checks cancellation and expiry again after
+connecting before POST bytes are sent. POSTs are never replayed. Direct status,
+begin/end and native effect freshness checks remain strict.
 
-The public PC deadline helper now applies the remaining five-second budget
-before connect, send and each raw read. All 75 focused client tests and six
-private probe smoke cases passed. One instrumented fresh-process hold then
-passed 90 seconds with eight renewals, no errors and confirmed end. All 22
-connections returned bytes within the five-second budget. This single pass
-at unchanged 30-minute standby does not establish the earlier failures' cause,
-broad reliability, one-minute sleep or a native cycle. The native plugin bytes
-are unchanged. Current-build
-physical normal boot, sleep and native-cycle qualification remain open.
-[Reusable PC transport probes and usage](docs/RESIDENT-TRANSPORT.md#public-pc-probes)
-are public; raw receipts and iPhone implementation remain private. Latest-source
-CI is pending after the new 33-group configuration; the earlier 32-group pass
-remains historical.
-[Current diagnostic evidence](docs/resident-transport-validation.json).
+All **92 focused client tests** passed: 58 lease, eight deadline and 26 transport
+tests. Current host checks also passed 20 actual stdio checks, 16 file-MCP checks,
+41 native-lifecycle PC tests, six probe smoke cases and six Windows TCP-info
+tests. Current-source CI remains pending.
+
+On the exact installed 0.1.7, current PC source passed **90 seconds at one-minute
+standby**, with eight renewals and confirmed end at revision 41. After 75 quiet
+seconds, the operator confirmed normal automatic sleep before touching the
+Vita. No timeout occurred, so that hold did not exercise the new retry path.
+The controlled localhost harness passed. On hardware, the injected timeout
+triggered one fresh GET, but the upstream read also timed out. No renewal POST
+was sent; begin/end were the only two POSTs and cleanup confirmed end at
+revision 43. Later unchecked/checked Wi-Fi power-saving comparisons stopped on
+their read-only baselines with zero POSTs. The comparison is inconclusive, and
+the operator restored the original checked setting. Recovery remains
+unqualified; current-source CI is pending.
+
+Lease coverage is per job: the command wrapper protects one host command, and
+native execution starts its keeper after local preparation and initial status.
+Planning, builds and Lua sessions do not share one automatic work-session lease.
+A continuous session still needs explicit borrowing from one outer lease owner.
+[Current coverage](docs/RESIDENT-KEEP-AWAKE.md#what-is-protected-automatically).
+
+Earlier holds failed on preflight GET timeouts; their receipts are retained.
+The PC deadline helper now applies the remaining five-second budget before
+connect, send and each raw read, correcting an observed 5.63-second receive.
+Native queued replies do not prove PC receipt, and the intermittent delivery
+cause remains unknown. Current-build physical normal boot, physical TTL-expiry
+sleep, full suspension and native-cycle qualification remain open. Native plugin
+bytes are unchanged by these PC changes.
+[Reusable probes](docs/RESIDENT-TRANSPORT.md#public-pc-probes) and
+[dated qualification](docs/resident-transport-validation.json) are public;
+raw receipts and iPhone implementation remain private.
 
 **Historical 0.1.6 checks:** Resident 0.1.6 passed normal boot, the fresh 40-tool
 MCP catalog and status/begin/renew/end checks. Bounded hardware passes cover an
@@ -80,8 +97,10 @@ automatic Wi-Fi reassociation and repeated Wi-Fi recovery remain unqualified.
 Power-button/display sleep and wake worked while the keeper continued renewing;
 that observation does not establish full suspension. One-minute standby was
 restored for those 0.1.6 trials, and automatic sleep after explicit end passed
-separately. The operator confirms current standby is 30 minutes; those results
-do not qualify physical sleep under 0.1.7.
+separately. Earlier October 13 probes used 30-minute standby. An earlier
+one-minute hold failed; current source later passed the bounded
+one-minute hold and explicit-release sleep. TTL sleep and cancellation during full suspension remain
+unqualified under 0.1.7.
 [Detailed trials and pending gates](docs/RESIDENT-KEEP-AWAKE.md#interim-hardware-results)
 and [dated validation record](docs/resident-keep-awake-validation.json).
 
@@ -126,7 +145,7 @@ source developer preview; no final binary release is certified.
 | Component | Role | Source / recorded runtime |
 | --- | --- | --- |
 | Vita DevLoop | Foreground Lua edit/run/observe/recover; ten MCP tools | 01.04 installed; exact runtime identity, live Lua reload/recovery and normal exit passed. Capture mapping, synthetic input and sleep/reopen remain open. |
-| [Vita Resident](docs/RESIDENT.md) | Boot-loaded status, verified package inbox and managed inspection and bounded keep-awake leases and transport diagnostics; thirteen source tools | 0.1.7 exact running build verified; authenticated read-only diagnostics preserve the ring. Planned 90-second hold stopped at 36.44 seconds on a PC GET timeout despite complete native reply queueing; cleanup confirmed end. Sustained transport, current-build sleep and native redeployment remain unqualified. Earlier lease/native results are historical; rollbacks retained |
+| [Vita Resident](docs/RESIDENT.md) | Boot-loaded status, verified package inbox and managed inspection and bounded keep-awake leases and transport diagnostics; thirteen source tools | 0.1.7 exact running build and post-restart registered subset verified. Current PC source passed one 90-second hold at one-minute standby and normal sleep after release. Controlled renewal recovery, broad transport reliability and native redeployment remain unqualified; earlier failed holds are retained. Earlier lease/native results are historical; rollbacks retained |
 | [Vita Control](docs/CONTROL.md) | Background screen, managed files, app commands and bounded synthetic input; thirteen tools | 0.3.4 pairing candidate installed, ABI 2; earlier manual startup passed, automatic worker/network startup failed; recovery did not reactivate it |
 | [Vita Workbench](workbench/README.md) | Lua iteration, native lifecycle candidate, runtime preparation, input trials, metrics, staging and file recovery; sixteen tools | Developer preview; native lifecycle, script readiness and verified input readiness have separate qualification |
 | [Launch broker candidate](resident/launch_broker/README.md) | Durable fixed-title launch protocol and PC client | 0.1.4 identity/clock continuity passed with the broker disabled; earlier 0.1.3 PID correlation is historical; storage/reboot and launch-policy gates pending |
