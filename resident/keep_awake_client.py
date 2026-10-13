@@ -21,6 +21,7 @@ import uuid
 
 from resident.launch_client import configuration
 from resident.lifecycle_client import hex_pin
+from resident.http_deadline import DeadlineSocket
 from workbench.native_package import json_object
 
 APP = 'Vita Resident Keep Awake'
@@ -154,16 +155,23 @@ class KeepAwakeClient:
                 except OSError:
                     pass
 
-        def check_deadline():
-            if expired.is_set() or time.monotonic() >= deadline:
+        def remaining_timeout():
+            remaining = deadline - time.monotonic()
+            if expired.is_set() or remaining <= 0:
                 raise TimeoutError('Resident lease absolute HTTP deadline expired')
+            return remaining
+
+        def check_deadline():
+            remaining_timeout()
 
         watchdog = threading.Timer(self.timeout, interrupt)
         watchdog.daemon = True
         watchdog.start()
         response = None
         try:
+            connection.timeout = remaining_timeout()
             connection.connect()
+            connection.sock = DeadlineSocket(connection.sock, remaining_timeout)
             connected_socket[0] = connection.sock
             check_deadline()
             connection.request(method, path, body, {'Authorization': 'Bearer ' + self.endpoint['token'],

@@ -1,10 +1,10 @@
 {
-  "as_of": "2026-10-12",
-  "recorded_utc": "2026-10-13T03:06:30.417297+00:00",
+  "as_of": "2026-10-13",
+  "recorded_utc": "2026-10-13T17:36:38.221708+00:00",
   "candidate_version": "0.1.7",
-  "installed_version": "0.1.6",
-  "device_acceptance": "candidate staged and read-back verified; manual config copy, normal reboot and runtime qualification pending",
-  "scope": "Keep-awake-port numeric transport diagnostics only; no mutation retry or power/listener policy change",
+  "installed_version": "0.1.7",
+  "device_acceptance": "exact running 0.1.7 identity and read-only diagnostics verified; one corrected fresh-process 90-second hold passed at 30-minute standby; physical normal boot, broad reliability, current-build sleep and native cycles remain unqualified",
+  "scope": "Keep-awake numeric diagnostics and PC remaining-deadline correction; no mutation retry or native power/listener policy change",
   "candidate_plugin": {
     "bytes": 74743,
     "sha256": "986527244c745b978a596f260b1ddbe2311cbe9eb7ba9558ca8e581284b9ec8e",
@@ -45,13 +45,43 @@
       "files-mcp-tests.log": "a82ae249953c88deb13134dea8d59bbc6a79b7e1d388fcb4558e1e7167f2c5ff",
       "ftp-tests.log": "dfe181f36693a3fbfd763b0a8f1d3c800a1fbe5c5954547adee6d5b995c02348",
       "update-tests.log": "d5c434f5f52b831ba4edc9ffde735ff37eca5925745065ba6a4697352e31d336",
-      "native-lifecycle-pc-tests.log": "d99c783b972073d7e3909e448eb317c15503f4b74903e8a41b2620967e802ee9",
-      "keep-awake-pc-tests.log": "8d5b0eaa69cc7ce5d4cc96e46d72544c0557ce298b80f4113748c8e0e4652003",
-      "keep-awake-transport-pc-tests.log": "e9059451c61bb1403b9677e47cf2e99d1d8b298cd309d53b864c299c47d3eb4b",
+      "native-lifecycle-pc-tests.log": "12feb67671fa95b419145905ea4454de8ba7878a0f9a0426c281e24b52aa5c89",
+      "keep-awake-pc-tests.log": "cae669210fb31b14e24a9105277c4be6823418de83cc6bd074dd283058a5155f",
+      "keep-awake-transport-pc-tests.log": "cae669210fb31b14e24a9105277c4be6823418de83cc6bd074dd283058a5155f",
       "native-build.log": "b309d1d2a6d611a80021a86f9f3f60190cbea61922a9ccb5e0f436fb8ddabb05"
     },
-    "build_report_sha256": "3bdb4531be4107c8da790397e90747659e2220d3a11d55a1d5625fd72421236a",
-    "metadata_refresh": "Removed trailing blank line in PC client;26 client tests rerun and source manifest refreshed. Native build ID and plugin bytes unchanged; original staged report retained."
+    "build_report_sha256": "e32965157a8f824f29a846f7dcaf07db26c6a976e6467f2e5818679e241812b0",
+    "metadata_refresh": "PC deadline correction and public probe publication; source manifest refreshed against unchanged native artifacts. Historical native/C and unchanged staging logs retained; current75focused client tests and20stdio/16file/41lifecyclePC checks supply updated host logs.",
+    "source_manifest_evidence": "evidence/resident/pc-deadline-source-20261013T172756Z",
+    "refresh_provenance_sha256": "3e266e2d62cb34e4c87618d1591a50c1af0752cf7fc18fb6de830ff19ea40467",
+    "combined_pc_test_log_note": "keep-awake-pc-tests.log and keep-awake-transport-pc-tests.log both contain the same combined75-case run; counts are not additive.",
+    "source_byte_provenance": {
+      "native_input_files": 40,
+      "installed_working_bytes_build_id": "1a626d099f643cf50c7ad64ddbdfd40c44eb65c7e2371102a5c6195472a7bc4a",
+      "published_lf_fingerprint_only": "5e7c68a32232c5b751d95c07976ade83a51c6496875f9efeaa9b17bd8cc4d408",
+      "published_lf_fingerprint_hardware_qualified": false,
+      "line_ending_variants": [
+        {
+          "path": "resident/service.c",
+          "native_build_working_bytes_sha256": "ef64012ed064af74b055599827e5aeb1e0d531f6dfb8d684c5a3efc0b331d076",
+          "published_lf_sha256": "2f1241840a4d2297ef24a47b7e65331fd68c07927b9bef15345ceb8d9bcd66d7",
+          "difference": "CRLF working bytes versus repository LF policy only"
+        },
+        {
+          "path": "resident/test_keep_awake_integration.py",
+          "native_build_working_bytes_sha256": "62f1e90296894eee0b75e6368a217a829ca0d01a6b19a4b4071057e2a3ed52c1",
+          "published_lf_sha256": "1b58d5bf17dc991e79dd26f54a6642cfdbabb3b76dafb8a3669a15efddd65cec",
+          "difference": "CRLF working bytes versus repository LF policy only"
+        },
+        {
+          "path": "resident/test_service.py",
+          "native_build_working_bytes_sha256": "85b6da95117a60925f2c85f799b30c904d2f33e66bb185a71cf42b61dcdb79bc",
+          "published_lf_sha256": "f934bb6324b4179d72ec2a4c5b14ece16591f3573415d4e42fd92b0478285abe",
+          "difference": "CRLF working bytes versus repository LF policy only"
+        }
+      ],
+      "note": "Installed hardware and retained binary bind the original working bytes. Git publishes canonical LF; rebuilding that checkout yields a different fingerprint and does not inherit hardware qualification. No C bytes or installed binary were changed in this PC correction."
+    }
   },
   "host_checks": {
     "actual_c_transport_tests": 16,
@@ -77,22 +107,15 @@
     "record_bytes_host": 144
   },
   "hardware_gates": [
-    "Stage and read back exact candidate and rollback with active config/pairing unchanged",
-    "Normal reboot and exact installed0.1.7 build identity",
-    "Administrator-only diagnostic retrieval and retained ring integrity",
-    "Bounded lease hold, PC/native phase correlation and unchanged release/sleep behavior",
-    "Reproduce intermittent failure before selecting transport behavior changes"
+    "Direct operator confirmation of normal boot; runtime identity alone is insufficient",
+    "Restart the existing registered MCP process to load and verify the PC deadline correction",
+    "Extend the single corrected 90-second hold to repeated reliability checks; endpoint failure cause remains unknown",
+    "Qualify protection beyond the configured standby interval separately from the current 30-minute-standby test",
+    "Current-build physical automatic sleep; physical TTL sleep and full-suspension cancellation remain separate gates",
+    "Qualify transport reliability before native installation/redeployment tests"
   ],
   "native_redeploy_gate": "Cross-build ownership adoption remains unimplemented; no new native app effects were attempted",
   "privacy": "Public PC/Vita source and protocol guides only; iPhone source/signing/build artifacts remain private",
-  "live_preflight": {
-    "installed_main_service": "0.1.6 responded",
-    "ftp": "initial greeting/read timeouts; later1208-byte config retrieval passed with exact accepted hash",
-    "lease_port": "GET timed out",
-    "device_writes": "fresh setup only; active configuration and pairing unchanged",
-    "staging_attempted": true,
-    "live_mutations": "staging only; no lease or native app operations"
-  },
   "staging": {
     "state": "passed",
     "prepared_utc": "2026-10-13T02:58:52.817848+00:00",
@@ -110,5 +133,267 @@
     "recovery": "same attempt completed with fresh FTP sessions; original plugin STOR not repeated",
     "plugin_upload_replays": 0,
     "original_build_report_sha256": "0e670f2d75429240a3c4d98dcdce0b50da13e7f8df3077c1e2e1b3c63eafcd48"
+  },
+  "remote_ci": {
+    "run_id": "38340297125",
+    "source_commit": "22ea7fbe77f39faf1c99253f5e3a1126f620c594",
+    "result": "passed",
+    "scope": "candidate source before the subsequent PC remaining-deadline correction and hardware-documentation update"
+  },
+  "historical_staging_preflight": {
+    "installed_main_service": "0.1.6 responded",
+    "ftp": "initial greeting/read timeouts; later1208-byte config retrieval passed with exact accepted hash",
+    "lease_port": "GET timed out",
+    "device_writes": "fresh setup only; active configuration and pairing unchanged",
+    "staging_attempted": true,
+    "live_mutations": "staging only; no lease or native app operations",
+    "scope": "before 0.1.7 activation; retained original preflight"
+  },
+  "hardware_checks": {
+    "exact_running_identity": "passed; Resident 0.1.7 / build 1a626d099f643cf50c7ad64ddbdfd40c44eb65c7e2371102a5c6195472a7bc4a",
+    "physical_normal_boot_operator_confirmation": false,
+    "registered_tools": "direct main status, power status and diagnostic status passed; later direct record read timed out",
+    "source_tool_catalog": 42,
+    "current_registered_full_catalog_enumerated": true,
+    "administrator_rejection_status": 401,
+    "zero_sequence_absence": "not_found",
+    "ring_preservation": {
+      "result": "passed",
+      "diagnostic_reads": 13,
+      "count_before": 12,
+      "count_after": 12,
+      "oldest_seq_before": "0000000000000001",
+      "oldest_seq_after": "0000000000000001",
+      "newest_seq_before": "000000000000000c",
+      "newest_seq_after": "000000000000000c",
+      "overwritten_before": 0,
+      "overwritten_after": 0,
+      "separate_authorization_and_absence_checks": "passed with same bounds"
+    },
+    "hold": {
+      "planned_seconds": 90,
+      "result": "stopped_on_failure",
+      "keeper_failed_after_seconds": 36.44,
+      "cleanup_confirmed_after_seconds": 38.6,
+      "renewals": 2,
+      "failure_method": "GET",
+      "failure_phase": "read_headers",
+      "failure_type": "TimeoutError",
+      "third_renewal_post_submitted": false,
+      "cleanup": "confirmed end revision3to4; tick39",
+      "native_records": 12,
+      "native_outcomes": "all complete responses queued and successful closes; no receive/send deadlines, would-block calls or socket errors",
+      "matching_sequence": "0000000000000009",
+      "matching_header_bytes_queued": 116,
+      "matching_body_bytes_queued": 480,
+      "matching_completion_offset_ms": 0,
+      "listener_generation": 1,
+      "listen_failures": 0,
+      "accept_failures": 0,
+      "max_worker_gap_ms": 27,
+      "network_observation": "latest loss predates hold; no observed transition during hold",
+      "interpretation": "local queueing does not prove PC receipt; read_headers includes the post-parse absolute-deadline check; unsynchronized clocks and no request IDs limit correlation; cause unknown"
+    },
+    "later_registered_record_read": {
+      "sequence": "0000000000000009",
+      "result": "timed out",
+      "device_mutations": 0
+    },
+    "device_app_effects": 0,
+    "mutation_replays": 0,
+    "current_standby_minutes": 30,
+    "standby_confirmation": "operator confirmed 30 minutes; unchanged during probes and cadence hold",
+    "physical_sleep": "unqualified; remaining awake after release at 30-minute standby does not qualify one-minute sleep behavior",
+    "pc_receive_probe": "Bounded A/B and TCP-info GETs passed; original cadence hold failed; one corrected fresh-process 90-second hold passed with unchanged 30-minute standby",
+    "packet_capture": "PktMon status access denied by driver; no capture and no host network setting changes",
+    "local_receipt_sha256": {
+      "initial-observations.json": "c1ef4f55d8a2f2ed7dc00561cb2d5c8ea23b632ead4d088bf2f247fd5ac9783f",
+      "proof.json": "d47b08bc4e76fe9047b4a3730c616af1927c634eaad1c4eb672b09657384ff18",
+      "readonly-checks.json": "f213bd12ea4880f882600fe682948cf13df695160c5abf3351bc45983cfd5c52",
+      "qualification.json": "f183d7d35f6f709a68437866a79ba9461cc93e52f81414f9835bd144efb9f4cc",
+      "registered-record-timeout.json": "60b4dd759ce167c4adcb014044a2d82cdc57a06ad33d87c36bf2847e0920cd96"
+    },
+    "registered_catalog_enumeration_scope": "Enabled tools metadata lists 42 names: 13 Resident, 13 Control, 16 Workbench; not runtime qualification of every tool",
+    "registered_process_deadline_correction_loaded": false,
+    "registered_process_restart": "pending to load PC correction; direct existing registered status calls remain separate evidence"
+  },
+  "pc_diagnostics_followup": {
+    "as_of": "2026-10-13",
+    "ab_probe": {
+      "result": "8 of 8 status GETs passed",
+      "production_client_successes": 4,
+      "raw_socket_successes": 4,
+      "elapsed_seconds": 30.667,
+      "single_native_record_matches": 8,
+      "device_mutations": 0,
+      "mutation_replays": 0,
+      "limitations": [
+        "Diagnostic GET before each trial warms the link",
+        "Does not reproduce isolated ten-second renewal cadence",
+        "Instrumentation can affect timing",
+        "No timeout or parser defect reproduced"
+      ]
+    },
+    "cadence_hold": {
+      "planned_seconds": 90,
+      "result": "failed",
+      "hold_until_failure_seconds": 85.011641,
+      "renewals": 6,
+      "intermediate_diagnostic_reads": 0,
+      "failure_method": "GET",
+      "failure_phase": "read_headers",
+      "failed_pc_connection_index": 15,
+      "python_received_response_bytes": 0,
+      "seventh_renewal_post_submitted": false,
+      "watchdog_shutdown_start_ms": 5013.373,
+      "raw_receive_timeout_ms": 5629.6016,
+      "matching_native_sequence": "0000000000000024",
+      "native_header_bytes_queued": 116,
+      "native_body_bytes_queued": 484,
+      "native_completion_offset_ms": 1,
+      "native_close_result": 0,
+      "cleanup": "confirmed end revision11to12; tick128",
+      "device_app_effects": 0,
+      "mutation_replays": 0,
+      "cause": "Endpoint failure undetermined; pre-fix PC raw read exceeded the intended total five-second budget despite watchdog shutdown"
+    },
+    "pc_deadline_correction": {
+      "implemented": true,
+      "public_source": "resident/http_deadline.py",
+      "remaining_budget_applied_before": [
+        "connect",
+        "each sendall",
+        "every raw readinto below BufferedReader"
+      ],
+      "overall_deadline_seconds": 5,
+      "watchdog_and_final_checks_retained": true,
+      "mutation_retries_added": false,
+      "native_plugin_bytes_changed": false,
+      "new_deadline_tests": 8,
+      "lease_tests": 41,
+      "transport_client_tests": 26,
+      "focused_tests_total": 75,
+      "focused_tests_result": "passed",
+      "private_probe_smoke_cases": 6,
+      "private_probe_smoke_result": "passed",
+      "fresh_process_runtime_qualification": "one instrumented 90-second hold passed at 30-minute standby; broad reliability and delivery cause remain unqualified",
+      "live_receipt_local_path": "evidence/resident/transport-deadline-fixed-20261013T172147Z/proof.json",
+      "source_manifest_refresh": "passed; unchanged native hash/buildID; combined75testlog shared by lease/transport report fields, not double-counted",
+      "pc_source_sha256": {
+        "resident/keep_awake_client.py": "696f6a58d5a9ea87337d445791abd211a1344632b0c28cef944bfe25b88442f9",
+        "resident/keep_awake_transport_client.py": "df18687c8db18917f38634d78f4bf1f04212420d8717de3a11100344a6b59807",
+        "resident/http_deadline.py": "8be5e4ab26a43d407d47b77e1356da2bfb480335972f9236bad10703887a371a"
+      },
+      "fresh_process_hold": {
+        "result": "passed",
+        "hold_seconds": 90.00049859983847,
+        "renewals": 8,
+        "errors": [],
+        "cleanup": "ended",
+        "pc_connections": 22,
+        "zero_receive_connections": 0,
+        "max_observed_connection_ms": 3108.34,
+        "request_retransmitted_bytes": 204,
+        "begin_revision": 13,
+        "final_revision": 22,
+        "final_tick_count": 218,
+        "retained_native_records": 16,
+        "standby_minutes": 30,
+        "device_app_effects": 0,
+        "mutation_replays": 0,
+        "limits": [
+          "One instrumented 90-second pass at unchanged 30-minute standby",
+          "Does not establish or fix the earlier delivery-failure cause",
+          "Does not erase earlier retained failures or qualify broad reliability",
+          "No one-minute physical sleep or native app cycle was tested"
+        ],
+        "proof_sha256": "e36b2f43daf99f2a70eaefd5a1380261beac93718fb6ac05e0a02cb7d67dbfce",
+        "qualification_sha256": "cd6357237b8e26e7e3eaaaf429b747d70af17ce9012dc467dd3f4fe2d886c6d7"
+      },
+      "post_correction_host_checks": {
+        "bridge_stdio_checks": 20,
+        "file_mcp_checks": 16,
+        "native_lifecycle_pc_tests": 41,
+        "result": "passed",
+        "scope": "fresh host fixtures, separate from every-tool Vita runtime qualification",
+        "log_sha256": {
+          "focused-tests.log": "cae669210fb31b14e24a9105277c4be6823418de83cc6bd074dd283058a5155f",
+          "probe-smoke.log": "b09d47e482c6e7ddb5b5ca9879301e4aeafaafea032ed5b570a0baafa89c84a6",
+          "mcp-tests.log": "e0469bf204685b6fe498ddc57d9fd0e6ca32b0a329af050b087b715c62f2a697",
+          "files-mcp-tests.log": "a82ae249953c88deb13134dea8d59bbc6a79b7e1d388fcb4558e1e7167f2c5ff",
+          "native-lifecycle-pc-tests.log": "12feb67671fa95b419145905ea4454de8ba7878a0f9a0426c281e24b52aa5c89"
+        }
+      }
+    },
+    "tcp_info_probe": {
+      "fake_dll_tests": 6,
+      "fake_dll_result": "passed",
+      "localhost_snapshots": 8,
+      "localhost_result": "known payload counted by Windows before app read",
+      "max_localhost_snapshot_ms": 0.11,
+      "live_get_successes": 4,
+      "ordered_native_matches": 4,
+      "fourth_get_request_bytes": 204,
+      "fourth_socket_bytes_out": 408,
+      "fourth_socket_bytes_retransmitted": 204,
+      "fourth_windows_bytes_in": 534,
+      "fourth_python_bytes_received": 534,
+      "interpretation": "Request TCP retransmission occurred on one successful connection; this does not establish the failed-reply cause",
+      "device_mutations": 0,
+      "mutation_replays": 0,
+      "historical_trial_used_private_copy": true,
+      "generic_source_now_public": "tools/resident_tcp_info.py"
+    },
+    "current_standby_minutes": 30,
+    "physical_sleep_acceptance_added": false,
+    "native_cycle_acceptance_added": false,
+    "privacy": "Historical trials used private probe copies; reusable generic PC probe sources are now public. Raw receipts, credentials and iPhone implementation remain private.",
+    "retained_receipt_sha256": {
+      "ab_proof": "a44f017cbfc680bd55fef28854f1b095659da10b154a6622c43ae8658d35e4be",
+      "ab_qualification": "6c50a467b6a5e06afa594037ec48a2003ed644722d37d02d3b434ad7ec557e7d",
+      "cadence_proof": "e2cce221c94aec9b2b528fbaa8ef0e8404ae28b09e261ced3d1c320f34472271",
+      "cadence_qualification": "d6f708848543a3f8b99794147c82cbc6bc5f74aa56089264d5c5a39db2dfd27a",
+      "tcp_info_live_proof": "dfc79f7e20afff2ba8b3b026cf7e28b1275e2007c54f82bf48a8e0835fe1db07",
+      "tcp_info_localhost_proof": "6cfefcc6a61b55b46ec2c90d37995ff347ad279dbf38a2734d02b095dd190c3d",
+      "tcp_info_fake_dll_tests": "427094ad4ac706f8d3aa7ca2d991f431693632bc10d05199345749c156fced06"
+    },
+    "public_probe_tools": {
+      "sources": {
+        "tools/probe_resident_transport.py": "d36890efa9b3d763ec9a2f3257cc713d1ba017fae8560386a62fd527d272765a",
+        "tools/resident_tcp_info.py": "e59fc775e8c73460326bcffa50a5a575127ec33e4252641f16cb0fea05923d5d",
+        "tools/test_resident_tcp_info.py": "8bcf4cf359420923b2f93c385e31ffd4525a263b582a28e216dd1908f0f0337b"
+      },
+      "probe_localhost_smoke_cases": 6,
+      "tcp_fake_dll_tests": 6,
+      "result": "passed",
+      "hardware_scope": "Historical live trials used private copies; generic public copies have these host tests",
+      "usage_guide": "docs/RESIDENT-TRANSPORT.md#public-pc-probes",
+      "raw_receipts_published": false,
+      "log_sha256": {
+        "probe-public-smoke.log": "b09d47e482c6e7ddb5b5ca9879301e4aeafaafea032ed5b570a0baafa89c84a6",
+        "tcp-info-public-tests.log": "b952dcfedeb098924df82657c0a7eaafc54599572fb5786304cccc5bc23a2a67"
+      },
+      "remaining_timeout_before_each_raw_io": true,
+      "windows_public_localhost_cli": {
+        "result": "passed",
+        "raw_receipt_published": false,
+        "proof_sha256": "23980d5b37f192f67c2d50d421c6b04e364afc5633efd3f9b2af81077bcf6f64"
+      }
+    }
+  },
+  "registered_metadata_catalog": {
+    "count": 42,
+    "resident": 13,
+    "control": 13,
+    "workbench": 16,
+    "source": "Enabled tools metadata for current registered vita_resident MCP connection",
+    "receipt_sha256": "234383529b61c995271373f6422d6e3ee60e106a7c42648c2b5a76a0a158db23",
+    "runtime_qualification_of_all_tools": false,
+    "registered_process_restart_for_pc_fix": "pending"
+  },
+  "latest_source_ci": {
+    "configured_groups": 33,
+    "result": "pending after root push",
+    "earlier_pass": "32 groups at 22ea7fbe77f39faf1c99253f5e3a1126f620c594 predates the PC correction and public probe additions"
   }
 }

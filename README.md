@@ -1,15 +1,19 @@
 # PS Vita MCP
 
-**Resident 0.1.6 is installed for qualification.** Bounded keep-awake checks
-passed on hardware; transport reliability and a complete native development
-cycle remain open. Accepted 0.1.5 is retained for rollback.
-[Current results and limits](docs/RESIDENT-KEEP-AWAKE.md).
+**Resident 0.1.7 is running on the Vita with its exact build verified.** Its
+read-only transport diagnostics passed authorization, missing-record and ring
+preservation checks. Two bounded holds stopped on PC GET timeouts; cleanup
+confirmed release. After the PC deadline correction, one fresh-process
+90-second hold passed at 30-minute standby. Transport reliability
+and a complete native development cycle remain open. Earlier plugins are
+retained for rollback. [Current results and limits](docs/RESIDENT-TRANSPORT.md).
 
-**Source candidate 0.1.7 adds read-only transport diagnostics** to investigate
-the intermittent timeouts. Its two new tools bring the source catalog to 42.
-The ARM build and all 32 host groups passed. Hardware activation and
-qualification are pending; the installed Vita remains on 0.1.6.
-[Diagnostic contract and test sequence](docs/RESIDENT-TRANSPORT.md).
+The source catalog and current enabled-tool metadata contain **42 tools**.
+Direct registered Resident status, power status and diagnostic status calls
+passed. Metadata enumeration does not qualify every tool or establish that the
+existing MCP process has loaded the new PC correction; its restart is pending. The ARM
+build, all 32 host groups and remote CI passed for the candidate before the
+subsequent PC deadline correction.
 
 **Develop and inspect PlayStation Vita homebrew through MCP on real hardware.**
 
@@ -26,9 +30,31 @@ six-digit approval. Native code display and graceful challenge timeout passed;
 successful individual credential confirmation remains pending.
 [Pairing contract and device gates](docs/PAIRING.md).
 
-## Status as of October 12 2026
+## Status as of October 13 2026
 
-**Keep-awake candidate:** Resident 0.1.6 passed normal boot, the fresh 40-tool
+**Current hardware check:** Two planned 90-second holds stopped after 36.44
+and 85.01 seconds on renewal-preflight GET timeouts. Native records show complete
+queued replies; the second failure returned zero bytes to Python. Both owners
+were ended without replay or application effects. The endpoint failure's cause
+remains unknown. Eight paired client/raw-socket GETs and four TCP-info GETs
+passed, but these bounded observations do not qualify sustained reliability.
+
+The public PC deadline helper now applies the remaining five-second budget
+before connect, send and each raw read. All 75 focused client tests and six
+private probe smoke cases passed. One instrumented fresh-process hold then
+passed 90 seconds with eight renewals, no errors and confirmed end. All 22
+connections returned bytes within the five-second budget. This single pass
+at unchanged 30-minute standby does not establish the earlier failures' cause,
+broad reliability, one-minute sleep or a native cycle. The native plugin bytes
+are unchanged. Current-build
+physical normal boot, sleep and native-cycle qualification remain open.
+[Reusable PC transport probes and usage](docs/RESIDENT-TRANSPORT.md#public-pc-probes)
+are public; raw receipts and iPhone implementation remain private. Latest-source
+CI is pending after the new 33-group configuration; the earlier 32-group pass
+remains historical.
+[Current diagnostic evidence](docs/resident-transport-validation.json).
+
+**Historical 0.1.6 checks:** Resident 0.1.6 passed normal boot, the fresh 40-tool
 MCP catalog and status/begin/renew/end checks. Bounded hardware passes cover an
 isolated 120-second hold at one-minute standby, renewal during a verified slow
 4 KiB transfer, native 30-second expiry after PC keeper loss, and one controlled
@@ -36,8 +62,9 @@ accepted-renewal reply drop reconciled without replay. A separate 90-second hold
 ended cleanly and the operator confirmed normal automatic sleep afterward. All 41 PC client tests,
 41 native-lifecycle host tests and the actual C integration test passed.
 
-**Wi-Fi interruption:** The PC keeper stopped without replay. After the operator
-manually reconnected Wi-Fi, both services responded on the same build/instance.
+**Historical 0.1.6 Wi-Fi interruption:** The PC keeper stopped without replay.
+After the operator manually reconnected Wi-Fi, both services responded on the
+same build/instance.
 The old lease was inactive at revision 66, ownership cleared and tick count 559
 stable. Its retained reason was `listener_lost`; the first cancellation cause and
 exact timing remain unknown. Separate fresh stdio checks exposed all 40 tools
@@ -51,8 +78,10 @@ native cycle are unqualified; the earlier install rejection's exact cause is
 unknown. Physical sleep after TTL expiry, full suspension and lease cancellation,
 automatic Wi-Fi reassociation and repeated Wi-Fi recovery remain unqualified.
 Power-button/display sleep and wake worked while the keeper continued renewing;
-that observation does not establish full suspension. One-minute standby is
-restored, and automatic sleep after explicit end passed separately.
+that observation does not establish full suspension. One-minute standby was
+restored for those 0.1.6 trials, and automatic sleep after explicit end passed
+separately. The operator confirms current standby is 30 minutes; those results
+do not qualify physical sleep under 0.1.7.
 [Detailed trials and pending gates](docs/RESIDENT-KEEP-AWAKE.md#interim-hardware-results)
 and [dated validation record](docs/resident-keep-awake-validation.json).
 
@@ -70,7 +99,7 @@ Vita. Standalone title deployment and visual/physical acceptance remain separate
 **Native lifecycle baseline:** Corrected Resident 0.1.5 previously passed five
 fixed-Lab install → launch → evaluate → graceful exit cycles across two builds,
 plus same-build journal durability after a normal reboot without replay.
-Those results are historical and do not qualify installation on current 0.1.6.
+Those results are historical and do not qualify installation on current 0.1.7.
 Three PC tools provide exact-package preview, journaled execution and GET-only
 reconciliation for the owned `VMCP00001` development slot.
 [Architecture, ownership limits and qualification](docs/NATIVE-LIFECYCLE.md).
@@ -97,7 +126,7 @@ source developer preview; no final binary release is certified.
 | Component | Role | Source / recorded runtime |
 | --- | --- | --- |
 | Vita DevLoop | Foreground Lua edit/run/observe/recover; ten MCP tools | 01.04 installed; exact runtime identity, live Lua reload/recovery and normal exit passed. Capture mapping, synthetic input and sleep/reopen remain open. |
-| [Vita Resident](docs/RESIDENT.md) | Boot-loaded status, verified package inbox and managed inspection and bounded keep-awake leases and transport diagnostics; thirteen source tools | Two-second-budget 0.1.6 installed after normal boot; lease operations, isolated 120-second power hold, renewal during verified slow transfer and keeper-loss TTL expiry passed. Upload HTTP reply uncertain; later native staging verified, install rejected before launch; exact runtime reason unavailable. PC host tests passed; broader qualification incomplete. Earlier build's online/sleep passes and 0.1.5 native Lab qualification remain historical evidence; rollbacks retained |
+| [Vita Resident](docs/RESIDENT.md) | Boot-loaded status, verified package inbox and managed inspection and bounded keep-awake leases and transport diagnostics; thirteen source tools | 0.1.7 exact running build verified; authenticated read-only diagnostics preserve the ring. Planned 90-second hold stopped at 36.44 seconds on a PC GET timeout despite complete native reply queueing; cleanup confirmed end. Sustained transport, current-build sleep and native redeployment remain unqualified. Earlier lease/native results are historical; rollbacks retained |
 | [Vita Control](docs/CONTROL.md) | Background screen, managed files, app commands and bounded synthetic input; thirteen tools | 0.3.4 pairing candidate installed, ABI 2; earlier manual startup passed, automatic worker/network startup failed; recovery did not reactivate it |
 | [Vita Workbench](workbench/README.md) | Lua iteration, native lifecycle candidate, runtime preparation, input trials, metrics, staging and file recovery; sixteen tools | Developer preview; native lifecycle, script readiness and verified input readiness have separate qualification |
 | [Launch broker candidate](resident/launch_broker/README.md) | Durable fixed-title launch protocol and PC client | 0.1.4 identity/clock continuity passed with the broker disabled; earlier 0.1.3 PID correlation is historical; storage/reboot and launch-policy gates pending |

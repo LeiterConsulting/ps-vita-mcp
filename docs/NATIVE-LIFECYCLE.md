@@ -1,7 +1,22 @@
 # Native installation and lifecycle
 
-Status date: October 12 2026. Resident 0.1.6 is now installed; its partial
-hardware results are recorded below. The corrected Resident 0.1.5 previously
+Status date: October 13 2026. Resident **0.1.7** is running with its exact build
+verified through registered tools. No native application effects were attempted
+during its initial diagnostic checks. A planned 90-second lease hold stopped
+after 36.44 seconds on a preflight GET timeout; cleanup confirmed release with
+no replay. Native records show the matching reply fully queued, which does not
+establish PC receipt or identify the timeout cause. Current-build installation,
+redeployment and an uninterrupted keeper-protected cycle remain unqualified.
+A later hold also stopped after 85.01 seconds, with six successful renewals and
+confirmed cleanup. Python received zero reply bytes despite complete native
+queueing. A PC deadline correction passed 75 focused client tests and one
+instrumented fresh-process 90-second lease hold with eight renewals and confirmed
+end at 30-minute standby. This is separate from native-cycle acceptance and
+does not establish broad delivery reliability or physical sleep. No native app effects were
+added, native plugin bytes are unchanged and no mutation retry was introduced.
+[Current transport evidence](RESIDENT-TRANSPORT.md).
+
+The historical 0.1.6 results are recorded below. The corrected Resident 0.1.5 previously
 passed boot loading and exact device-binary verification after a user-confirmed normal boot.
 Its fresh native instance was unblocked and reported the installer ready, with
 Promoter unloaded. Five fixed-Lab install/launch/evaluate/graceful-exit cycles
@@ -25,9 +40,11 @@ source, Resident plugin, lab package and 27 passing host groups. It records
 staging, the five passed native cycles across two builds and the remaining
 hardware gates separately.
 
-## Resident 0.1.6 hardware check
+<a id="resident-016-hardware-check"></a>
 
-The current keep-awake candidate passed normal boot and bounded power tests;
+## Historical Resident 0.1.6 hardware check
+
+That keep-awake candidate passed normal boot and bounded power tests;
 it does not inherit 0.1.5 installation acceptance. A native execution at
 21:52:59 UTC verified all eight files in stage
 `14ee990ff41641eda253a9cef7a4f498`, then stopped at `install_rejected` after ten
@@ -79,7 +96,7 @@ Separately, one controlled live proxy fault passed exact-owner reconciliation
 of an accepted renewal whose reply was deliberately dropped, with three total
 POSTs (start, renewal, end), tick progress and confirmed end without replay.
 That proof qualifies lease reply-loss handling only; it does not qualify native
-installation or physical Wi-Fi interruption. A separate current-build 90-second
+installation or physical Wi-Fi interruption. A separate 0.1.6 90-second
 hold at restored one-minute standby ended cleanly, followed by operator-confirmed
 normal automatic sleep. That passes sleep after explicit lease end; physical
 sleep after TTL expiry, full suspension and lease cancellation remain pending.

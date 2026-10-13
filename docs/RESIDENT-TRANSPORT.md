@@ -1,11 +1,11 @@
 # Resident transport diagnostics
 
-Status date: October 12, 2026. **Source candidate 0.1.7; hardware activation and
-qualification pending.** The installed Vita still runs 0.1.6. Its intermittent
+Status date: October 13, 2026. **Resident 0.1.7 is running with its exact build
+verified; qualification is partial.** Its intermittent
 HTTP timeouts block qualification of a complete native development cycle.
 [Installed identity and lease evidence](RESIDENT-KEEP-AWAKE.md) remain separate.
 [Source-bound candidate validation](resident-transport-validation.json) records
-the exact package and host checks; its hardware gates remain pending.
+the exact package, host checks and current hardware results.
 
 The candidate adds observability to the existing keep-awake worker on port
 **17869**. It retains the two-second accepted-client budget, ten-millisecond
@@ -18,6 +18,11 @@ boot entry, launcher, persistent power lock or mutation retry.
 The combined source bridge exposes **42 tools**: thirteen Resident, thirteen
 Control and sixteen Workbench. Restart the PC Resident MCP connection after
 updating its source. Discovery alone does not activate the native capability.
+Direct registered main, power and diagnostic status calls passed on the current
+build. Current enabled-tool metadata enumerated all 42 names: thirteen Resident,
+thirteen Control and sixteen Workbench. Metadata enumeration does not qualify
+every runtime operation or prove the existing process loaded the new PC deadline
+correction; its restart is pending.
 
 | Tool | Purpose |
 | --- | --- |
@@ -103,11 +108,138 @@ The ring instruments the lease port; bulk uploads use the separate main port.
 
 ## Qualification sequence
 
+### October 13 hardware results
+
+Registered tools confirmed Resident **0.1.7**, build
+`1a626d099f643cf50c7ad64ddbdfd40c44eb65c7e2371102a5c6195472a7bc4a`,
+plugin SHA-256
+`986527244c745b978a596f260b1ddbe2311cbe9eb7ba9558ca8e581284b9ec8e`.
+Authenticated status and record retrieval, an invalid-credential HTTP 401, and
+zero-sequence `not_found` passed. Thirteen record/status reads preserved ring
+count 12, bounds `1..c` and overwrite count 0. The separate authorization and
+absence checks also left those bounds unchanged.
+
+The planned 90-second lease hold **failed after 36.44 seconds**: two renewals
+succeeded, then the third renewal's preflight GET timed out in PC
+`read_headers`. No third renewal POST or mutation replay occurred. Cleanup
+confirmed end at revision `3→4`, tick count 39, 38.60 seconds after keeper start.
+There were no application effects.
+
+All 12 native records show complete replies queued, successful closes and
+completion offsets of 0–1 ms, without recorded receive/send deadlines,
+would-block calls or socket errors. The matching GET, sequence `9`, queued
+116 header bytes and 480 body bytes at offset 0 ms. The listener retained
+generation 1 with no listen/accept failures; the largest observed worker gap
+was 27 ms, and the latest recorded network loss preceded the hold.
+
+This narrows the failure without identifying its cause. Local queueing does
+not prove PC delivery. PC `read_headers` includes `getresponse()` and its
+following absolute-deadline check, so it does not prove that no header bytes
+reached the PC. Unsynchronized clocks and the absence of request identifiers
+also limit correlation. A later direct registered record read timed out without
+mutation. PktMon status access was denied by its driver; no capture or host
+network setting change occurred. The subsequent probes are recorded below. The operator
+confirms current standby is 30 minutes. Remaining awake after release at that
+setting does not qualify sleep after a one-minute interval. The physical
+normal-boot gate and current-build sleep remain unqualified.
+
+Remote CI run `38340297125` passed at source commit `22ea7fb`. Public validation
+retains hashes of the local receipts; raw evidence and private Companion code
+remain excluded. Earlier 0.1.6 lease/sleep results remain historical evidence.
+
+### October 13 PC receive probes and deadline correction
+
+An A/B observation completed **8 of 8 status GETs in 30.667 seconds**: four
+production-client requests and four raw-socket requests, each matching one
+native record. No timeout or parser defect was reproduced. Diagnostic GETs
+before each trial warmed the link, and instrumentation may affect timing;
+this does not reproduce isolated ten-second renewal cadence.
+
+A subsequent planned 90-second hold, without intermediate diagnostic reads,
+**failed after 85.011641 seconds**, after six renewals. Its seventh renewal
+stopped in the preflight GET; no seventh-renewal POST was submitted. Connection
+15 returned zero response bytes to Python. The watchdog called shutdown at
+5013 ms, while the raw receive returned a timeout at 5629 ms. Matching native
+sequence `24` queued 116 header bytes and 484 body bytes within 1 ms and closed
+successfully. Cleanup confirmed end at revision `11→12`, tick count 128.
+No app effects or mutation replays occurred. The endpoint failure's cause is
+unknown; the PC read exceeded the intended total budget despite the watchdog.
+
+The public [`http_deadline.py`](../resident/http_deadline.py) helper now applies
+the **remaining** budget before connect, each send and every raw read beneath
+the buffered HTTP parser. The five-second overall deadline, watchdog, final
+checks and no-replay policy remain. All **75 focused client tests** passed
+(8 new deadline, 41 lease and 26 diagnostic-client tests), as did six private
+probe smoke cases. Native plugin bytes are unchanged. This corrects PC budget
+enforcement without establishing why a queued reply was unavailable.
+
+A fresh-process instrumented hold with the corrected PC source **passed
+90.0004986 seconds**, with eight renewals, zero errors and confirmed end.
+All 22 connections returned response bytes; the maximum observed connection
+time was 3108.34 ms. One request retransmitted 204 bytes. The lease began at
+revision 13 and ended at revision 22, tick count 218; 16 native records were
+retained. This is one bounded pass at unchanged **30-minute standby**, not a
+delivery-root-cause fix, broad reliability guarantee, one-minute sleep test or
+native app cycle. No mutation was replayed and no app effects occurred.
+The public validation binds the exact three PC source hashes and retained
+proof SHA-256. Fresh host stdio fixtures also passed 20 bridge checks and 16
+file-MCP checks, and all 41 native-lifecycle PC tests passed. These host results
+do not qualify every registered tool on the Vita. The existing registered MCP
+process still needs a restart to load the PC correction.
+
+The private Windows TCP-info probe passed six fake-DLL tests and a localhost
+check with eight snapshots: known payload bytes were counted before the app
+read them, with a maximum snapshot time of 0.110 ms. Four subsequent Vita GETs
+all passed and matched four ordered native records. On the fourth, Windows
+reported 408 bytes out and 204 retransmitted bytes for a 204-byte GET; 534 bytes
+in matched Python's received total. This shows request TCP retransmission on
+one successful connection, not the cause of the failed reply. These historical
+trials ran private probe copies; reusable generic probe sources are now public.
+Raw receipts remain ignored. Standby remained 30 minutes;
+these observations add no physical-sleep or native-cycle acceptance.
+
+### Public PC probes
+
+[`probe_resident_transport.py`](../tools/probe_resident_transport.py) provides
+the bounded GET-only comparison; [`resident_tcp_info.py`](../tools/resident_tcp_info.py)
+provides Windows localhost qualification and `query(sock)`, which returns numeric
+TCP metadata. Six public probe smoke cases and six TCP fake-DLL tests passed.
+The public probe recomputes its remaining budget before each raw connect,
+send and receive. The Windows TCP utility's public localhost CLI also passed.
+The latest CI configuration has 33 groups; the earlier 32-group pass predates
+these sources, and latest-source CI is pending.
+
+```powershell
+.\.venv-devloop\Scripts\python.exe tools/probe_resident_transport.py --smoke
+.\.venv-devloop\Scripts\python.exe tools/probe_resident_transport.py --resident-build-id BUILD_ID --instance-id POWER_INSTANCE_ID --output evidence/resident/fresh/proof.json
+.\.venv-devloop\Scripts\python.exe tools/resident_tcp_info.py qualify-localhost
+```
+
+`--smoke` and localhost qualification do not contact the Vita. The middle
+command requires the awake Vita, its configured administrator endpoint and exact
+build/power-instance pins; it sends bounded status GETs without a lease or app
+effects. Output receipts stay under ignored `evidence/resident/`; localhost
+qualification also chooses an ignored evidence directory automatically. Public
+generic tools contain no device credentials or iPhone implementation.
+
+### Repeatable qualification procedure
+
+The installed binary binds the original working source bytes. A retained CRLF
+variant in `resident/service.c` means the repository's canonical LF checkout
+has a different native fingerprint, even though the only difference is line
+endings. The validation record lists both fingerprints and three source-byte
+variants. A fresh LF build needs its own hardware qualification; this PC
+correction did not change the installed plugin.
+
+The current staging, runtime-identity and read-only results above complete
+parts of this procedure. Physical normal boot, sustained work and sleep remain
+separate gates; the steps also apply to future replacements.
+
 1. Run C policy, diagnostic boundary and actual HTTP tests under sanitizers;
    run strict GET-client, stdio bridge and guarded staging tests. Build the
    ARM plugin with the pinned SDK and bind its hash to the source manifest.
 2. Stage the exact candidate, config proposal and rollback using two readbacks.
-   Preserve the installed 0.1.6 artifact and active configuration. Activation
+   Preserve the previous plugin artifact and active configuration. Activation
    requires the operator's normal reboot; keep withdrawn boot helpers disabled.
 3. Verify normal boot and exact build identity, then inspect diagnostics through
    fresh PC tools. Verify authorization failures, bounded records and retrieval
@@ -120,4 +252,4 @@ The ring instruments the lease port; bulk uploads use the separate main port.
    ownership adoption remains a separate implementation gate.
 
 Host tests and ARM packaging do not qualify hardware. A new plugin build does
-not inherit the installed 0.1.6 lease results or historical 0.1.5 native cycles.
+not inherit the historical 0.1.6 lease results or 0.1.5 native cycles.

@@ -1,17 +1,45 @@
 # Background status and verified uploads
 
-**Resident 0.1.6 is installed after a confirmed normal boot; qualification is
-incomplete.** The SceShell user plugin provides background status, a bounded
+**As of October 13, 2026, Resident 0.1.7 is running with its exact build verified;
+qualification is incomplete.** The SceShell user plugin provides background
+status, a bounded
 upload inbox and managed-file inspection on port **17866**. The PC MCP bridge is
 `resident/bridge.py`. Its separate port **17869** serves bounded keep-awake leases
 without changing saved sleep or brightness settings.
 
-Source candidate **0.1.7** adds two administrator-only, read-only diagnostic
+Resident **0.1.7** adds two administrator-only, read-only diagnostic
 routes on port 17869. It retains the existing request budget, lease policy and
-boot path. Its hardware activation and qualification are pending; installed
-0.1.6 does not implement these routes. [Transport diagnostics](RESIDENT-TRANSPORT.md).
+boot path. Authorization, missing-record and ring-preservation checks passed
+on hardware. Direct registered main, power and diagnostic status calls passed;
+the source catalog and current enabled-tool metadata list 42 tools. This is
+metadata enumeration, not runtime qualification of every tool. The existing
+registered process still needs a restart to load the PC deadline correction.
+[Transport diagnostics](RESIDENT-TRANSPORT.md).
 
-Hardware passes cover fresh MCP lease operations, an isolated 120-second hold
+A planned 90-second hold stopped after 36.44 seconds on the third renewal's
+preflight GET timeout. Only two renewals were submitted successfully; no third
+renewal POST followed. All 12 native records show complete queued responses
+and successful closes. The matching GET queued 596 bytes within 1 ms, which
+does not prove PC receipt or identify the failure's cause. Cleanup confirmed
+release at revision 4; no application effects or mutation replays occurred.
+The physical normal-boot gate, current-build sleep and broad transport reliability
+remain unqualified. A subsequent hold failed after 85.01 seconds with six
+renewals; Python received zero bytes despite the matching native reply being
+fully queued. Eight paired client/raw-socket GETs and four TCP-info GETs passed
+separately, without establishing the failed reply's cause.
+
+The public PC deadline correction reapplies the remaining five-second budget
+before connect, send and each raw read. All 75 focused client tests and six
+private probe smoke cases passed. One instrumented fresh-process 90-second
+hold then passed with eight renewals, no errors and confirmed end. All 22
+connections returned bytes; the maximum observed connection was 3108.34 ms.
+This single pass at 30-minute standby does not establish the failed replies'
+cause, broad reliability, physical sleep or native-cycle acceptance. Native
+plugin bytes and mutation retry policy are unchanged.
+[Current validation](resident-transport-validation.json).
+
+Historical **0.1.6** hardware passes cover fresh MCP lease operations, an isolated
+120-second hold
 at one-minute standby, renewal during a verified slow 4 KiB transfer, native
 30-second expiry after PC keeper loss and one controlled lost-renewal reply
 reconciled without replay. A launch-only probe passed self-test and acknowledged
@@ -32,8 +60,9 @@ historical install rejection's exact cause is unknown. Physical sleep after TTL
 expiry, full suspension and lease cancellation, automatic Wi-Fi reassociation
 and repeated Wi-Fi recovery remain unqualified. Power-button/display sleep and
 wake worked while renewal continued; full suspension was not established.
-One-minute standby is restored, and automatic sleep after explicit end passed
-separately.
+One-minute standby was restored for those 0.1.6 trials, and automatic sleep after
+explicit end passed separately. The operator confirms current standby is
+30 minutes; those results do not qualify sleep under 0.1.7.
 [Exact installed identity, detailed trials and pending gates](RESIDENT-KEEP-AWAKE.md)
 and [dated validation record](resident-keep-awake-validation.json).
 

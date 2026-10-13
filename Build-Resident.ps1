@@ -18,7 +18,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Resident replacement tests failed.' }
     & $residentPython -m unittest workbench.test_native_lifecycle 2>&1 | Tee-Object (Join-Path $residentEvidence 'native-lifecycle-pc-tests.log')
     if ($LASTEXITCODE -ne 0) { throw 'Native lifecycle PC transport and iteration tests failed.' }
-    & $residentPython -m unittest resident.test_keep_awake_client 2>&1 | Tee-Object (Join-Path $residentEvidence 'keep-awake-pc-tests.log')
+    & $residentPython -m unittest resident.test_keep_awake_client resident.test_http_deadline 2>&1 | Tee-Object (Join-Path $residentEvidence 'keep-awake-pc-tests.log')
     if ($LASTEXITCODE -ne 0) { throw 'Resident keep-awake PC tests failed.' }
     & $residentPython -m unittest resident.test_keep_awake_transport_client 2>&1 | Tee-Object (Join-Path $residentEvidence 'keep-awake-transport-pc-tests.log')
     if ($LASTEXITCODE -ne 0) { throw 'Resident keep-awake transport inspection PC tests failed.' }

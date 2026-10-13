@@ -1,15 +1,41 @@
 # Vita Resident
 
-**Resident 0.1.6 is installed after a confirmed normal boot; qualification is
-incomplete.** It adds a bounded keep-awake lease for active development jobs.
+**As of October 13, 2026, Resident 0.1.7 is running with its exact build verified;
+qualification is incomplete.** It provides a bounded keep-awake lease for active
+development jobs.
 The combined source catalog exposes 42 tools: thirteen Resident, thirteen Control
 and sixteen Workbench. Leases do not change saved brightness or sleep settings.
 
-Source candidate 0.1.7 adds two read-only transport diagnostic tools. Hardware
-activation and qualification are pending; installed 0.1.6 has no diagnostic
-routes. [Contract and qualification sequence](../docs/RESIDENT-TRANSPORT.md).
+Its two read-only diagnostic tools passed authorization, missing-record and
+ring-preservation checks on hardware. Direct registered main, power and
+diagnostic status calls passed; current enabled-tool metadata lists all 42
+names. Metadata enumeration does not qualify every tool or confirm the existing
+process loaded the PC correction; its restart is pending. Exact running identity does not confirm the physical
+normal-boot gate. [Contract and qualification](../docs/RESIDENT-TRANSPORT.md).
 
-Hardware passes cover fresh MCP lease operations, an isolated 120-second hold
+A planned 90-second hold stopped after 36.44 seconds on a PC preflight GET
+timeout, after two successful renewals. All 12 native replies were fully queued
+and closed successfully, but queueing does not prove PC receipt or identify the
+failure cause. Cleanup confirmed release; no application effects or mutation
+replays occurred. A later direct registered record read also timed out.
+Current-build broad transport reliability and physical sleep remain unqualified.
+A second hold stopped after 85.01 seconds with six renewals and zero Python
+reply bytes, despite complete native reply queueing; cleanup confirmed end.
+Eight paired client/raw-socket GETs and four TCP-info GETs passed separately.
+The timeout cause remains unknown.
+
+The public PC deadline helper now applies the remaining five-second budget
+before connect, send and every raw read. Its 75 focused client tests and six
+private probe smoke cases passed. One instrumented fresh-process 90-second
+hold then passed with eight renewals, no errors and confirmed end. All 22
+connections returned bytes, with at most 3108.34 ms per connection. This is
+one pass at 30-minute standby, not a delivery-cause fix, broad reliability,
+physical sleep or native-cycle qualification. Native plugin bytes and no-replay
+policy are unchanged.
+[Current validation](../docs/resident-transport-validation.json).
+
+Historical **0.1.6** hardware passes cover fresh MCP lease operations, an isolated
+120-second hold
 at one-minute standby, renewal during a verified slow 4 KiB transfer, native
 30-second expiry after PC keeper loss and one controlled lost-renewal reply
 reconciled without replay. A separate launch-only probe passed self-test and
@@ -30,8 +56,9 @@ install rejection's exact runtime cause is unknown. Physical sleep after TTL
 expiry, full suspension and lease cancellation, automatic Wi-Fi reassociation
 and repeated Wi-Fi recovery remain unqualified. Power-button/display sleep and
 wake worked while renewal continued; full suspension was not established.
-One-minute standby is restored, and automatic sleep after explicit end passed
-separately.
+One-minute standby was restored for those 0.1.6 trials, and automatic sleep
+after explicit end passed separately. Current standby is operator-confirmed at
+30 minutes; those results do not qualify 0.1.7 physical sleep.
 [Detailed evidence and pending gates](../docs/RESIDENT-KEEP-AWAKE.md) and
 [dated validation record](../docs/resident-keep-awake-validation.json).
 

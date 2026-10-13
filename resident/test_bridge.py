@@ -91,7 +91,7 @@ async def main():
     try:
         with tempfile.TemporaryDirectory() as temp:
             fixture_root = Path(temp)
-            for name in ('resident/bridge.py', 'resident/files_client.py', 'resident/launch_client.py', 'resident/lifecycle_client.py', 'resident/keep_awake_client.py', 'resident/keep_awake_transport_client.py', 'bridge/server.py', 'bridge/ftp_staging.py', 'resident/control/bridge_tools.py', 'resident/control/rgb_codec.py'):
+            for name in ('resident/bridge.py', 'resident/files_client.py', 'resident/launch_client.py', 'resident/lifecycle_client.py', 'resident/keep_awake_client.py', 'resident/keep_awake_transport_client.py', 'resident/http_deadline.py', 'bridge/server.py', 'bridge/ftp_staging.py', 'resident/control/bridge_tools.py', 'resident/control/rgb_codec.py'):
                 destination = fixture_root / name
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(ROOT / name, destination)

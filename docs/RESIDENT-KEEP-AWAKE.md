@@ -1,16 +1,17 @@
 # Resident keep-awake lease
 
-As of October 12, 2026, the **Resident 0.1.6 candidate with a two-second native
-HTTP budget is installed after a confirmed normal boot**. Its plugin SHA-256 is
-`dd8da21847f5341bc70112f86176e2f864c92b10aaeb3400ec9855751a6b1ef8`
+As of October 13, 2026, **Resident 0.1.7 is running with its exact build verified
+through registered tools**. Its plugin SHA-256 is
+`986527244c745b978a596f260b1ddbe2311cbe9eb7ba9558ca8e581284b9ec8e`
 and its Resident build ID is
-`47ece86ad3b5258b6a52b4aaffefb8046e5af48c69f49a763001bf36bd815240`.
-Short MCP checks, an isolated 120-second renewed hold, renewal during a verified
-slow transfer and expiry after PC keeper loss passed. Transport failures remain
-retained. **Keep-awake
-qualification is incomplete.** The accepted 0.1.5
-is retained for rollback. [The dated evidence record](resident-keep-awake-validation.json)
-keeps host, packaging, API and physical results separate.
+`1a626d099f643cf50c7ad64ddbdfd40c44eb65c7e2371102a5c6195472a7bc4a`.
+Authenticated read-only diagnostics preserve the ring, but a planned 90-second
+hold stopped after 36.44 seconds on a PC GET timeout. Cleanup confirmed release.
+**Keep-awake qualification remains incomplete.** Exact runtime identity does
+not confirm the physical normal-boot gate. Earlier plugins remain available for
+rollback. [Current diagnostic validation](resident-transport-validation.json)
+and the [historical lease record](resident-keep-awake-validation.json) keep
+host, packaging, API and physical results separate.
 
 The lease is designed to keep an already awake Vita available while a bounded development
 job runs. When the job finishes, loses its connection or stops renewing, Resident
@@ -22,7 +23,91 @@ by a lease. An already suspended Vita still needs a physical wake.
 
 ## Interim hardware results
 
-On the currently installed two-second-budget build, fresh actual stdio MCP
+### October 13: Resident 0.1.7
+
+Direct registered main, power and diagnostic status tools confirmed the exact
+running build. Current enabled-tool metadata enumerated all 42 source names
+(13 Resident, 13 Control and 16 Workbench). This is not runtime qualification
+of every tool or proof the existing registered process loaded the PC correction;
+its restart is pending. Administrator rejection
+(HTTP 401), zero-sequence `not_found` and retained-ring checks passed.
+
+The planned 90-second hold **stopped after 36.44 seconds**. Two renewals
+succeeded, but the third renewal's preflight GET timed out in PC `read_headers`,
+before any third-renewal POST. Cleanup confirmed release at revision `3→4`,
+tick count 39, 38.60 seconds after keeper start. No application effects or
+mutation replays occurred.
+
+All 12 native records show complete queued replies and successful closes,
+with completion offsets of 0–1 ms and no recorded receive/send deadlines,
+would-block calls or socket errors. Sequence `9`, matching the failed GET,
+queued 116 header bytes and 480 body bytes at offset 0 ms. The listener had no
+listen/accept failure, the maximum observed worker gap was 27 ms, and the latest
+recorded network loss preceded this hold. Thirteen diagnostic reads left
+count 12, bounds `1..c` and overwrite count 0 unchanged.
+
+These records narrow the failure without establishing its cause. Queueing does
+not establish PC receipt; `read_headers` includes parsing and its following
+absolute-deadline check. A later direct registered record retrieval also timed
+out without mutation. Subsequent PC probes and the deadline correction are
+recorded below. PktMon status access was denied by its driver; no capture or host network
+setting change occurred. The operator reports the Vita still awake after
+release. The operator confirms current standby is 30 minutes; remaining awake
+at that setting does not qualify one-minute sleep behavior. Current-build
+physical sleep remains unqualified. [Diagnostic interpretation and limits](RESIDENT-TRANSPORT.md).
+
+### October 13 PC deadline follow-up
+
+Eight paired production-client/raw-socket status GETs passed in 30.667 seconds,
+with eight matching native records. A diagnostic GET before each trial warmed
+the link, so this does not qualify isolated renewal cadence or reproduce the
+earlier timeout. A subsequent planned 90-second hold without intermediate
+diagnostic reads **failed after 85.011641 seconds**, after six renewals.
+The seventh renewal stopped during its preflight GET, with no POST submitted.
+Python received zero response bytes. Watchdog shutdown occurred at 5013 ms,
+but the raw receive timed out at 5629 ms. Native sequence `24` queued
+116 header bytes and 484 body bytes within 1 ms and closed successfully.
+Cleanup confirmed release at revision `11→12`, tick count 128, without replay
+or app effects. The endpoint failure cause remains unknown.
+
+The public PC helper now reapplies the remaining five-second budget before
+connect, each send and each raw read beneath the HTTP buffer. The watchdog,
+final checks and no-replay rule remain; native plugin bytes are unchanged.
+All 75 focused client tests passed (8 deadline, 41 lease and 26 diagnostics),
+plus six private probe smoke cases. A corrected fresh-process instrumented
+hold then **passed 90.0004986 seconds**: eight renewals, zero errors and confirmed
+end. All 22 connections returned response bytes, with a maximum observed
+connection time of 3108.34 ms; one request retransmitted 204 bytes. The lease
+began at revision 13 and ended at revision 22, tick count 218, with 16 native
+records retained. This is one pass at unchanged 30-minute standby. It does not
+erase the earlier failures, establish their cause, qualify broad reliability,
+test physical one-minute sleep or complete a native app cycle. The public
+[validation](resident-transport-validation.json) pins the PC source and proof hashes.
+
+Fresh host stdio fixtures passed 20 bridge checks and 16 file-MCP checks;
+all 41 native-lifecycle PC tests passed. These are separate from the metadata
+enumeration and direct registered status calls. The registered MCP process
+still needs a restart to load the deadline correction.
+
+A private TCP-info probe passed six fake-DLL cases and eight localhost
+snapshots, counting known payload bytes before app reads with at most
+0.110 ms per snapshot. Four live GETs then passed and matched ordered native
+records. The fourth showed 408 bytes out and 204 retransmitted bytes for a
+204-byte GET; Windows counted the same 534 received bytes as Python. That is
+request-retransmission evidence on a successful connection, not an explanation
+for the failed reply. Those trials ran private probe copies; reusable
+[generic PC probes](RESIDENT-TRANSPORT.md#public-pc-probes) are now public,
+with six smoke and six TCP fake-DLL tests passed. Raw receipts remain ignored.
+Standby stayed at 30 minutes; no current-build sleep or native-cycle gate passed.
+
+### Historical Resident 0.1.6 results
+
+The following results belong to Resident 0.1.6, plugin SHA-256
+`dd8da21847f5341bc70112f86176e2f864c92b10aaeb3400ec9855751a6b1ef8`,
+build `47ece86ad3b5258b6a52b4aaffefb8046e5af48c69f49a763001bf36bd815240`.
+They do not qualify the current 0.1.7 build.
+
+On that two-second-budget build, fresh actual stdio MCP
 exposed all 40 tools and passed status, begin, renew and end. The trial started
 inactive, observed successful ticks, ended the exact owner and observed no tick
 growth afterward.
@@ -134,7 +219,7 @@ Subsequent GET-only reconciliation at 22:01:48 UTC confirmed two stable
 idle/closed-Lab observations and the same power instance inactive at revision 37
 with reason `lease_expired`. It made zero device mutations and retained the
 original job result. This establishes native launch, self-test, acknowledged
-exit and later absence. It does not establish current-build installation,
+exit and later absence. It does not establish 0.1.6 installation,
 redeployment or an uninterrupted keeper-protected native cycle.
 Local receipt: `evidence/workbench/native-launch-only-20261012T215805Z-bf7f2d34/report.json`.
 The public [validation record](resident-keep-awake-validation.json) summarizes it.
@@ -150,14 +235,14 @@ those trials; network unavailability alone did not establish sleep. The operator
 temporarily selected 30-minute standby for investigation and has now restored
 the original one-minute setting.
 
-A separate current-build **90-second hold passed** at the restored one-minute
+A separate 0.1.6 **90-second hold passed** at the restored one-minute
 setting: eight renewals, zero reconciliations, no keeper errors and confirmed
 explicit end at 22:20:15 UTC. A subsequent GET-only observer requested 95 seconds
 without renewing and recorded eight paired-port timeout observations. The
 operator then directly confirmed, “Yes—it entered normal sleep,” and physically
 woke the Vita to LiveArea. The subsequent lease begin confirmed the same Resident
 build and power-worker instance. This qualifies normal automatic sleep after
-explicit lease end on the current build. Physical sleep after TTL expiry,
+explicit lease end on that 0.1.6 build. Physical sleep after TTL expiry,
 full suspension and lease cancellation remain separate gates. The later Wi-Fi
 trial below qualifies service recovery after manual reconnection only.
 
@@ -207,7 +292,9 @@ unqualified; this bounded pass required the operator to reconnect the network.
 Code review identified a response-budget edge: a lease POST can commit near the
 end of its two-second connection budget, leaving no time to write its response
 headers. This is a possible lost-reply path, not an established cause of the
-periodic delays observed on hardware. Phase instrumentation is the next step.
+periodic delays observed on hardware. The subsequent 0.1.7 phase instrumentation
+and its first hardware result are recorded above; that failed GET had a complete
+queued native reply.
 
 The following results belong to the **previous 300 ms native-budget build**,
 plugin SHA-256 `d8ca07cfb6ef6e367ed792b08f4bfe134053e609dfeb10a20c8845aff508c45a`,
@@ -243,13 +330,16 @@ confirmed full automatic sleep and physically woke the Vita into FTP. That
 explicit-end sleep result is scoped to the previous build. It does not establish
 a full configured standby interval starting at release, or qualify TTL expiry.
 
-First, instrument the transport phases and response-budget edge, then qualify
+The next step is to correlate PC receive timing with the new native transport
+phases, establish and fix the failure, then qualify
 an uninterrupted keeper-protected native cycle. The launch-only runtime proof
 and later absence observations do not qualify installation or redeployment. Cross-build ownership
 adoption is queued future work, with pinned prior evidence and a distinct receipt;
 it is not implemented and current permissions are unchanged.
-The original standby setting is restored and normal automatic sleep after
-explicit end is passed. Physical sleep after TTL expiry, full suspension and
+The original standby setting was restored and normal automatic sleep after
+explicit end passed under 0.1.6. The current setting is operator-confirmed
+30-minute standby; 0.1.7 physical sleep remains unqualified.
+Physical sleep after TTL expiry, full suspension and
 lease cancellation still need qualification. Wi-Fi service recovery after manual
 reconnection passed; autonomous reassociation and repeated interruption reliability
 remain unqualified. Verified slow-transfer renewal and
@@ -288,7 +378,7 @@ revision, or leave it to expire.
 ## What is protected automatically
 
 The native lifecycle execute tool acquires a lease before device writes when
-Resident advertises the 0.1.6 capability, with a fixed thirty-minute job ceiling. It renews every ten seconds, checks
+Resident advertises the 0.1.6-or-later capability, with a fixed thirty-minute job ceiling. It renews every ten seconds, checks
 ownership before native effects and releases the lease in cleanup. Lost lease
 confirmation stops further effects. Already submitted operations may still
 need the existing read-only reconciliation workflow. Legacy 0.1.5 jobs retain
@@ -321,7 +411,10 @@ the previous job has ended, rather than extending its original deadline.
 Restart the PC Resident MCP connection after updating the checkout. The combined
 source catalog contains **42 tools**, including these four lease tools and
 two [0.1.7 transport diagnostic tools](RESIDENT-TRANSPORT.md). The installed
-0.1.6 service implements the lease tools; diagnostic activation is pending.
+0.1.7 service implements both namespaces. Enabled-tool metadata enumerated all
+42 names and direct registered status calls passed; metadata does not qualify
+every runtime operation. The existing process's restart to load the PC deadline
+correction remains pending.
 
 | Tool | Behavior |
 | --- | --- |
@@ -340,8 +433,10 @@ A separate, bounded HTTP worker serves `GET /keep-awake/status` and
 `POST /keep-awake/lease`. Bulk transfers on port 17866 cannot queue ahead of
 lease renewals. The installed candidate gives each lease connection a two-second
 total budget, with a five-second absolute PC HTTP deadline; the worker checks policy
-while handling network I/O. Its build, host tests, normal boot and short MCP
-checks passed; sustained hardware qualification remains incomplete.
+while handling network I/O. Its build, host tests, exact runtime identity and
+direct registered status checks and one corrected fresh-process 90-second
+lease hold passed. The physical normal-boot gate, broad transport reliability
+and current-build sleep remain unqualified.
 Once per second, an active lease calls
 `sceKernelPowerTick(SCE_KERNEL_POWER_TICK_DISABLE_AUTO_SUSPEND)`.
 It does not acquire a persistent power lock or refresh OLED dim/off timers.
