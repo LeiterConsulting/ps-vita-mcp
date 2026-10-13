@@ -30,18 +30,23 @@ accepted-renewal reply drop reconciled without replay. A separate 90-second hold
 ended cleanly and the operator confirmed normal automatic sleep afterward. All 41 PC client tests,
 41 native-lifecycle host tests and the actual C integration test passed.
 
+**Wi-Fi interruption:** The PC keeper stopped without replay. After the operator
+manually reconnected Wi-Fi, both services responded on the same build/instance.
+The old lease was inactive at revision 66, ownership cleared and tick count 559
+stable. Its retained reason was `listener_lost`; the first cancellation cause and
+exact timing remain unknown. Separate fresh stdio checks exposed all 40 tools
+and passed lease status/begin/renew/end.
+
 **Remaining blockers:** Intermittent HTTP timeouts still interrupt production
 freshness checks. A launch-only probe passed self-test and acknowledged exit,
 with later absence confirmed, but its original result remains unconfirmed.
 Current-build installation/redeployment and an uninterrupted keeper-protected
 native cycle are unqualified; the earlier install rejection's exact cause is
 unknown. Physical sleep after TTL expiry, full suspension and lease cancellation,
-and real Wi-Fi recovery remain pending. A physical Wi-Fi-off/on trial confirmed
-PC safe-stop without replay, but post-reconnect status reads timed out; native
-cancellation and recovery are unconfirmed. Power-button/display sleep and wake
-worked while the keeper continued renewing; that observation does not establish full
-suspension. One-minute standby is restored, and automatic sleep after explicit
-end passed separately.
+automatic Wi-Fi reassociation and repeated Wi-Fi recovery remain unqualified.
+Power-button/display sleep and wake worked while the keeper continued renewing;
+that observation does not establish full suspension. One-minute standby is
+restored, and automatic sleep after explicit end passed separately.
 [Detailed trials and pending gates](docs/RESIDENT-KEEP-AWAKE.md#interim-hardware-results)
 and [dated validation record](docs/resident-keep-awake-validation.json).
 
@@ -178,7 +183,7 @@ flowchart LR
 - Control files are confined to fresh revisions under `ux0:data/vita-control/workspace`; transfers are at most 8 MiB. System and installed-app writes are outside this API.
 - DevLoop Lua source is at most 16 KiB, with a 1 MiB allocation budget per VM and callback instruction budgets. Drawing is limited to 256 buffered commands. Script state is in RAM; assets/audio/file APIs are future work.
 - Script sessions evaluate at most eight candidates with 120 seconds aggregate warmup/measurement, excluding requests and restoration. They use the local operation lock and revision/hash guards, without a remote scene lease. Lost mutation replies stop iteration without replay; another remote client's request race remains possible. Without qualified Control, these jobs cannot keep the screen awake, change brightness, capture the foreground or inject input.
-- Accepted-path native installation, startup confirmation and reboot recovery require an operator. The fixed Lifecycle Lab path passed five cycles across two builds and same-build normal-reboot journal durability without replay. Extension to DevLoop, automatic Control bootstrap and interrupted-native/power-cut recovery remain unqualified. Both current boot experiments are withdrawn from routine use after boot failures. Physical touch restoration, sleep/wake, independent Wi-Fi-loss recovery and additional device combinations need qualification. Pairing uses unencrypted HTTP on a trusted LAN.
+- Accepted-path native installation, startup confirmation and reboot recovery require an operator. The fixed Lifecycle Lab path passed five cycles across two builds and same-build normal-reboot journal durability without replay. Extension to DevLoop, automatic Control bootstrap and interrupted-native/power-cut recovery remain unqualified. Both current boot experiments are withdrawn from routine use after boot failures. Physical touch restoration, sleep/wake, automatic Wi-Fi reassociation and repeated interruption recovery and additional device combinations need qualification. Pairing uses unencrypted HTTP on a trusted LAN.
 - Script readiness does not prove the foreground input target. Legacy DevLoop lacks native title/PID mapping and cannot run synthetic Workbench profiles under the current safety checks.
 
 These are current implementation limits. A heartbeat or accepted API call alone does not establish a working autonomous session. [New-device acceptance](docs/BASELINE.md#acceptance-on-a-new-device) is the gate for remaining DevLoop work.

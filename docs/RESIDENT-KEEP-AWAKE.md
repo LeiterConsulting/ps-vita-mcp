@@ -158,7 +158,8 @@ operator then directly confirmed, “Yes—it entered normal sleep,” and physi
 woke the Vita to LiveArea. The subsequent lease begin confirmed the same Resident
 build and power-worker instance. This qualifies normal automatic sleep after
 explicit lease end on the current build. Physical sleep after TTL expiry,
-full suspension and lease cancellation, and real Wi-Fi loss remain separate gates.
+full suspension and lease cancellation remain separate gates. The later Wi-Fi
+trial below qualifies service recovery after manual reconnection only.
 
 Local receipts:
 `evidence/resident/keep-awake-hold-20261012T221842Z/proof.json`,
@@ -174,19 +175,34 @@ with PS/Power and reported normal behavior. This is partial physical
 button/display sleep-and-wake evidence. The keeper continued renewing, so full
 suspension and lease cancellation during full suspension were not established.
 Local receipt: `evidence/resident/keep-awake-hold-20261012T222511Z/proof.json`.
-A later physical **Wi-Fi interruption trial is partial**. After five successful
+A later physical **Wi-Fi interruption trial initially had partial evidence**. After five successful
 renewals through revision 65, the operator reported completing the requested
 roughly 20-second Wi-Fi-off/on step. The keeper stopped when the next renewal's read-only
 preflight timed out; neither that renewal POST nor an end POST followed, and
 no operation was replayed. The original hold remains `failed_or_interrupted`.
 After the operator reported reconnection and LiveArea, three power status GETs
-and one main status GET timed out. Current IP and awake-state confirmation is
-pending; address change and one-minute standby remain possible confounds.
-Native cancellation reason, timing and service recovery are unconfirmed. No new
-lease, application operation or reboot was submitted after the interruption.
+and one main status GET timed out. At that initial readback, IP and awake-state
+confirmation was pending; address change and one-minute standby were possible
+confounds. Cancellation cause, timing and service recovery were unconfirmed.
+No new lease, application operation or reboot was submitted during that readback.
 Local receipts: `evidence/resident/keep-awake-hold-20261013T020247Z/proof.json`
 and `evidence/resident/keep-awake-wifi-20261013T020450Z/qualification.json`.
-Real Wi-Fi recovery qualification remains pending.
+The operator subsequently reported needing to reconnect Wi-Fi. After that manual
+reconnection, **two GET-only observations passed**: both Resident services answered
+on the same build and power-worker instance; the old lease was inactive with no
+owner, revision 66 followed the last accepted revision 65, and tick count 559
+stayed unchanged. This confirms service recovery and original-lease inactivity
+without reboot or Starter. The retained reason was `listener_lost`; the first
+cancellation cause and exact latency are not established by that single field.
+
+A **separate fresh stdio MCP test passed** after the read-only recovery proof:
+all 40 tools were discovered, begin/renew/end advanced revisions 67/68/69, and
+post-end ticks stayed unchanged. The old interrupted job was not resumed or
+replayed. Local receipts:
+`evidence/resident/keep-awake-wifi-reconnected-20261013T021249Z/proof.json` and
+`evidence/resident/keep-awake-tools-20261013T021339Z/proof.json`.
+Autonomous Wi-Fi reassociation and repeated interruption reliability remain
+unqualified; this bounded pass required the operator to reconnect the network.
 
 Code review identified a response-budget edge: a lease POST can commit near the
 end of its two-second connection budget, leaving no time to write its response
@@ -234,7 +250,9 @@ adoption is queued future work, with pinned prior evidence and a distinct receip
 it is not implemented and current permissions are unchanged.
 The original standby setting is restored and normal automatic sleep after
 explicit end is passed. Physical sleep after TTL expiry, full suspension and
-lease cancellation, and real Wi-Fi loss still need qualification. Verified slow-transfer renewal and
+lease cancellation still need qualification. Wi-Fi service recovery after manual
+reconnection passed; autonomous reassociation and repeated interruption reliability
+remain unqualified. Verified slow-transfer renewal and
 keeper-loss native TTL expiry are completed evidence tiers; retained transport failures
 remain evidence to investigate. CI at commit `5f18a25` passed with 32 hashed
 artifact files; that result predates the subsequent PC reconciliation change.

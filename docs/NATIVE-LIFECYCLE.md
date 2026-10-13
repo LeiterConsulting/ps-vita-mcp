@@ -82,12 +82,20 @@ That proof qualifies lease reply-loss handling only; it does not qualify native
 installation or physical Wi-Fi interruption. A separate current-build 90-second
 hold at restored one-minute standby ended cleanly, followed by operator-confirmed
 normal automatic sleep. That passes sleep after explicit lease end; physical
-sleep after TTL expiry, full suspension and lease cancellation, and real Wi-Fi
-loss remain separate. A later 90-second continuity trial passed seven renewals
-and confirmed end while Power-button/display sleep and wake worked normally.
-Renewal continued, so full suspension and cancellation during it were not
-established. These observations do not alter the native installation or cycle
-limitations above.
+sleep after TTL expiry, full suspension and lease cancellation remain pending.
+A later 90-second continuity trial passed seven renewals and confirmed end while
+Power-button/display sleep and wake worked normally. Renewal continued, so full
+suspension and cancellation during it were not established.
+
+A physical Wi-Fi interruption stopped the PC keeper without replay; the original
+hold remains `failed_or_interrupted`. After the operator manually reconnected
+Wi-Fi, two GET-only observations found both services responding on the same
+build/instance, the original lease inactive at revision 66, ownership cleared
+and tick count 559 stable. The retained reason was `listener_lost`; first cause
+and exact cancellation timing remain unknown. Separate fresh stdio checks then
+exposed all 40 tools and passed lease status/begin/renew/end. Automatic Wi-Fi
+reassociation and repeated recovery remain unqualified. These power-service
+checks add no application effects or native installation/cycle acceptance.
 
 Explicit cross-build ownership adoption is queued future work. It must pin
 the old Resident build, verified install receipt, immutable stage and hashes;
