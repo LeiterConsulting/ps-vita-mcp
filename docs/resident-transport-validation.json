@@ -1,0 +1,114 @@
+{
+  "as_of": "2026-10-12",
+  "recorded_utc": "2026-10-13T03:06:30.417297+00:00",
+  "candidate_version": "0.1.7",
+  "installed_version": "0.1.6",
+  "device_acceptance": "candidate staged and read-back verified; manual config copy, normal reboot and runtime qualification pending",
+  "scope": "Keep-awake-port numeric transport diagnostics only; no mutation retry or power/listener policy change",
+  "candidate_plugin": {
+    "bytes": 74743,
+    "sha256": "986527244c745b978a596f260b1ddbe2311cbe9eb7ba9558ca8e581284b9ec8e",
+    "build_id": "1a626d099f643cf50c7ad64ddbdfd40c44eb65c7e2371102a5c6195472a7bc4a",
+    "elf_sha256": "cc84c2e6036dc2304d93208d44cd0ffe0e17f3e552d4ded57995d2ca1310940c",
+    "velf_sha256": "1eb4bc331043d2ad41785d05c077b21d139fc59f481e5b2e25898f2f50ee9a3b",
+    "linked_allocated_section_bytes": 420792,
+    "worker_stack_bytes": 65536,
+    "keep_awake_worker_stack_bytes": 32768
+  },
+  "rollback016_plugin_sha256": "dd8da21847f5341bc70112f86176e2f864c92b10aaeb3400ec9855751a6b1ef8",
+  "contract": {
+    "protocol": 1,
+    "port": 17869,
+    "read_only": true,
+    "authenticated": true,
+    "completed_records": 16,
+    "record_max_bytes": 192,
+    "response_max_bytes": 1399,
+    "volatile": true,
+    "resource_sampling": false,
+    "captures_request_payload": false,
+    "records_diagnostic_reads": false,
+    "request_deadline_ms": 2000,
+    "listener_recovery_changed": false,
+    "power_policy_changed": false
+  },
+  "build": {
+    "pinned_sdk_image": "vitasdk/vitasdk@sha256:fd82d88ff456d118eef16533ebf9a3a6ae0e292684fb8a3a35f15f0707b4692d",
+    "result": "passed",
+    "undefined_symbols": 0,
+    "imports_unchanged": true,
+    "new_host_fault_seams_in_native": false,
+    "evidence": "evidence/resident/build-20261013T0243442908184Z",
+    "test_log_sha256": {
+      "c-service-tests.log": "0332930ebf340280124104e43476bdfd47b98dc6dcd729c27408afacc0b448a5",
+      "mcp-tests.log": "e0469bf204685b6fe498ddc57d9fd0e6ca32b0a329af050b087b715c62f2a697",
+      "files-mcp-tests.log": "a82ae249953c88deb13134dea8d59bbc6a79b7e1d388fcb4558e1e7167f2c5ff",
+      "ftp-tests.log": "dfe181f36693a3fbfd763b0a8f1d3c800a1fbe5c5954547adee6d5b995c02348",
+      "update-tests.log": "d5c434f5f52b831ba4edc9ffde735ff37eca5925745065ba6a4697352e31d336",
+      "native-lifecycle-pc-tests.log": "d99c783b972073d7e3909e448eb317c15503f4b74903e8a41b2620967e802ee9",
+      "keep-awake-pc-tests.log": "8d5b0eaa69cc7ce5d4cc96e46d72544c0557ce298b80f4113748c8e0e4652003",
+      "keep-awake-transport-pc-tests.log": "e9059451c61bb1403b9677e47cf2e99d1d8b298cd309d53b864c299c47d3eb4b",
+      "native-build.log": "b309d1d2a6d611a80021a86f9f3f60190cbea61922a9ccb5e0f436fb8ddabb05"
+    },
+    "build_report_sha256": "3bdb4531be4107c8da790397e90747659e2220d3a11d55a1d5625fd72421236a",
+    "metadata_refresh": "Removed trailing blank line in PC client;26 client tests rerun and source manifest refreshed. Native build ID and plugin bytes unchanged; original staged report retained."
+  },
+  "host_checks": {
+    "actual_c_transport_tests": 16,
+    "pc_transport_tests": 26,
+    "real_stdio_bridge_checks": 20,
+    "guarded_staging_tests": 17,
+    "replacement_tests": 3,
+    "native_lifecycle_pc_tests": 41,
+    "existing_lease_pc_tests": 41,
+    "result": "passed",
+    "full_host_suite": {
+      "result": "passed",
+      "groups": 32,
+      "artifact_files": 33,
+      "report_sha256": "210382055877af4175196dc5217dfc7e555fa3fb112be0688a2815702c4d39cf",
+      "initial_failure": "One obsolete Resident11-tool-count fixture failed; corrected to13 and affected group plus remaining groups passed. Initial failure retained separately."
+    }
+  },
+  "host_reproduction": {
+    "accepted_policy_change_with_zero_queued_headers": "passed using host-only post-apply clock advance; does not establish the cause of live timeouts",
+    "error_errno_retention": "receive,send,close,listen,accept,client-nonblocking and raw NetCtl loss retained after recovery",
+    "max_width_json_bytes_bound": 1399,
+    "record_bytes_host": 144
+  },
+  "hardware_gates": [
+    "Stage and read back exact candidate and rollback with active config/pairing unchanged",
+    "Normal reboot and exact installed0.1.7 build identity",
+    "Administrator-only diagnostic retrieval and retained ring integrity",
+    "Bounded lease hold, PC/native phase correlation and unchanged release/sleep behavior",
+    "Reproduce intermittent failure before selecting transport behavior changes"
+  ],
+  "native_redeploy_gate": "Cross-build ownership adoption remains unimplemented; no new native app effects were attempted",
+  "privacy": "Public PC/Vita source and protocol guides only; iPhone source/signing/build artifacts remain private",
+  "live_preflight": {
+    "installed_main_service": "0.1.6 responded",
+    "ftp": "initial greeting/read timeouts; later1208-byte config retrieval passed with exact accepted hash",
+    "lease_port": "GET timed out",
+    "device_writes": "fresh setup only; active configuration and pairing unchanged",
+    "staging_attempted": true,
+    "live_mutations": "staging only; no lease or native app operations"
+  },
+  "staging": {
+    "state": "passed",
+    "prepared_utc": "2026-10-13T02:58:52.817848+00:00",
+    "verified_utc": "2026-10-13T03:05:03.700816+00:00",
+    "attempt": "setup-986527244c74-a4f498be331840be91730981348e6108",
+    "plugin_sha256": "986527244c745b978a596f260b1ddbe2311cbe9eb7ba9558ca8e581284b9ec8e",
+    "active_config_before_sha256": "e6e6a6819bd748aaaf88fabe7d46b135b39e82d60e63f26eb0e7de303eb667d0",
+    "proposed_config_sha256": "dcbc8e3c0fe31645b014476e6e0001065a975848ddca648a3dca60af2499fd83",
+    "files_verified": 3,
+    "read_back_checks_per_file": 2,
+    "pairing_preserved": true,
+    "active_config_unchanged": true,
+    "rollback": "config.txt.before-update points to unchanged0.1.6 plugin",
+    "initial_timeout": "plugin .part readback timed out; exact SIZE and full hash/bytes verified later",
+    "recovery": "same attempt completed with fresh FTP sessions; original plugin STOR not repeated",
+    "plugin_upload_replays": 0,
+    "original_build_report_sha256": "0e670f2d75429240a3c4d98dcdce0b50da13e7f8df3077c1e2e1b3c63eafcd48"
+  }
+}

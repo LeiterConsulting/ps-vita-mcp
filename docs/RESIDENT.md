@@ -6,6 +6,11 @@ upload inbox and managed-file inspection on port **17866**. The PC MCP bridge is
 `resident/bridge.py`. Its separate port **17869** serves bounded keep-awake leases
 without changing saved sleep or brightness settings.
 
+Source candidate **0.1.7** adds two administrator-only, read-only diagnostic
+routes on port 17869. It retains the existing request budget, lease policy and
+boot path. Its hardware activation and qualification are pending; installed
+0.1.6 does not implement these routes. [Transport diagnostics](RESIDENT-TRANSPORT.md).
+
 Hardware passes cover fresh MCP lease operations, an isolated 120-second hold
 at one-minute standby, renewal during a verified slow 4 KiB transfer, native
 30-second expiry after PC keeper loss and one controlled lost-renewal reply
@@ -49,7 +54,7 @@ From the repository root, with Docker Desktop running:
 
 The accepted predecessor is the corrected Resident 0.1.5 [native lifecycle candidate](NATIVE-LIFECYCLE.md), retained after normal-boot and exact-binary verification; five fixed-Lab install/launch/evaluate/graceful-exit cycles across two native builds passed on hardware, with same-build normal-reboot journal durability passed without replay, and accepted 0.1.4 is retained for rollback. The candidate adds owned Lifecycle Lab installation and fixed-title launching. The legacy DevLoop launch broker remains disabled. The historical 0.1.4 normal-boot and read-only inspection results above do not qualify the new build. The build runs the actual C HTTP/storage service under sanitizers with host adapters, MCP stdio fixtures, first-install FTP fixtures and update fixtures. It validates the ARM module's identity, imports, lifecycle, unresolved symbols and source fingerprint. Outputs are `dist/resident/vita_resident.suprx` and `dist/resident/build-report.json`. Building does not contact the Vita.
 
-The combined public source bridge exposes eleven Resident tools, thirteen [Control tools](CONTROL.md) and sixteen [Workbench tools](../workbench/README.md), for 40 total. Three native lifecycle tools require Resident 0.1.5 and target only the dedicated `VMCP00001` lab; retained 0.1.4 does not implement that namespace. Script-preparation/session tools run on the PC through the existing foreground DevLoop API; they do not add native capabilities to installed Resident. Three inspection tools introduced in 0.1.4 are documented in [Managed files](MANAGED-FILES.md): `vita_resident_list_inbox`, `vita_resident_file_info` and `vita_resident_read_file`. They inspect permitted inbox attempts and retained parts without changing files. Older supported versions, including the 0.1.3 rollback, do not implement them. The original Resident subset retains these four operations:
+The combined public source bridge exposes thirteen Resident tools, thirteen [Control tools](CONTROL.md) and sixteen [Workbench tools](../workbench/README.md), for 42 total. Three native lifecycle tools require Resident 0.1.5 and target only the dedicated `VMCP00001` lab; retained 0.1.4 does not implement that namespace. Script-preparation/session tools run on the PC through the existing foreground DevLoop API; they do not add native capabilities to installed Resident. Three inspection tools introduced in 0.1.4 are documented in [Managed files](MANAGED-FILES.md): `vita_resident_list_inbox`, `vita_resident_file_info` and `vita_resident_read_file`. They inspect permitted inbox attempts and retained parts without changing files. Older supported versions, including the 0.1.3 rollback, do not implement them. The original Resident subset retains these four operations:
 
 | Tool | Operation |
 | --- | --- |

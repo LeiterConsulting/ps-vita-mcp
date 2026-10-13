@@ -62,30 +62,41 @@ def plugin_bytes(root):
     report = json.loads((root / 'dist/resident/build-report.json').read_text(encoding='utf-8'))
     payload = (root / 'dist/resident/vita_resident.suprx').read_bytes()
     info = report['plugin']
-    if not 0 < len(payload) <= 256 * 1024 or len(payload) != info['bytes'] or sha(payload) != info['sha256'] or payload[:4] != b'SCE\0' or report['version'] not in ('0.1.2', '0.1.3', '0.1.4', '0.1.5', '0.1.6') or info['module_attributes'] != 0:
+    if not 0 < len(payload) <= 256 * 1024 or len(payload) != info['bytes'] or sha(payload) != info['sha256'] or payload[:4] != b'SCE\0' or report['version'] not in ('0.1.2', '0.1.3', '0.1.4', '0.1.5', '0.1.6', '0.1.7') or info['module_attributes'] != 0:
         raise ValueError('Plugin bytes and build evidence do not match')
-    if report['version'] in ('0.1.3', '0.1.4', '0.1.5', '0.1.6'):
+    if report['version'] in ('0.1.3', '0.1.4', '0.1.5', '0.1.6', '0.1.7'):
         gate = report.get('launch_broker', {})
         if (gate.get('enabled') is not False or gate.get('startup_dispatch') is not False
                 or gate.get('native_submission') != 'unconditionally refused'
                 or gate.get('store_format') != 1 or gate.get('store_capacity_records') != 128):
             raise ValueError('Resident candidate must retain its disabled qualification contract')
-    if report['version'] in ('0.1.4', '0.1.5', '0.1.6') and report.get('managed_files') != {
+    if report['version'] in ('0.1.4', '0.1.5', '0.1.6', '0.1.7') and report.get('managed_files') != {
             'protocol': 1, 'read_only': True, 'root': 'ux0:data/vita-resident/inbox',
             'page_entries': 32, 'max_offset': 1000, 'max_read_bytes': 16384,
             'max_file_bytes': 8388608, 'snapshot': False}:
         raise ValueError('Resident file inspection contract differs from the reviewed bounds')
-    if report['version'] in ('0.1.5', '0.1.6') and report.get('native_lifecycle') != {
+    if report['version'] in ('0.1.5', '0.1.6', '0.1.7') and report.get('native_lifecycle') != {
             'protocol': 1, 'project': 'lifecycle_lab', 'title_id': 'VMCP00001',
             'policy': 'idle_shell_only', 'file_count': 8, 'max_file_bytes': 8388608,
             'max_total_bytes': 16777216, 'startup_dispatch': False,
             'foreground_verified': False, 'protected_ui_verified': False}:
         raise ValueError('Native lifecycle contract differs from the reviewed bounds')
-    if report['version'] == '0.1.6' and report.get('keep_awake') != {
+    if report['version'] in ('0.1.6', '0.1.7') and report.get('keep_awake') != {
             'protocol': 1, 'port': 17869, 'ttl_ms': [5000, 30000],
             'max_duration_ms': 1800000, 'automatic_suspend_only': True,
             'persistent': False, 'status_renews': False, 'display_settings_changed': False}:
         raise ValueError('Resident keep-awake contract differs from the reviewed bounds')
+    if report['version'] == '0.1.7':
+        transport_contract = {
+            'protocol': 1, 'port': 17869, 'read_only': True,
+            'authenticated': True, 'completed_records': 16, 'record_max_bytes': 192,
+            'response_max_bytes': 1399, 'volatile': True, 'resource_sampling': False,
+            'captures_request_payload': False, 'records_diagnostic_reads': False,
+            'request_deadline_ms': 2000, 'listener_recovery_changed': False,
+            'power_policy_changed': False}
+        # JSON comparison distinguishes booleans from integers as well as extra fields.
+        if json.dumps(report.get('keep_awake_transport'), sort_keys=True) != json.dumps(transport_contract, sort_keys=True):
+            raise ValueError('Resident transport diagnostics contract differs from the reviewed bounds')
     for relative, expected in report['source_hashes'].items():
         if sha((root / relative).read_bytes()) != expected:
             raise ValueError('Rebuild after changing a recorded source: ' + relative)

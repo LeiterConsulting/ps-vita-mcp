@@ -16,6 +16,11 @@ from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from resident.test_keep_awake_transport_client import (
+    BUILD as TRANSPORT_BUILD, INSTANCE as TRANSPORT_INSTANCE, SEQUENCE as TRANSPORT_SEQUENCE,
+    record as transport_record_fixture, status as transport_status_fixture,
+)
 TOKEN = 'a' * 32
 files = {}
 fault = {'drop_reply': False, 'bad_readback': False, 'rejection': None, 'version': '0.1.1'}
@@ -42,6 +47,12 @@ class Device(BaseHTTPRequestHandler):
         calls.append(('GET', self.path))
         if self.headers.get('Authorization') != 'Bearer ' + TOKEN:
             return self.reply(401, {'error': 'Unauthorized'})
+        if self.path == '/keep-awake/transport-status':
+            if fault['version'] != '0.1.7':
+                return self.reply(404, {'error': 'route_not_found'})
+            return self.reply(200, transport_status_fixture())
+        if self.path == '/keep-awake/transport-record/' + TRANSPORT_SEQUENCE:
+            return self.reply(200, transport_record_fixture())
         if self.path == '/status':
             return self.reply(200, {'app': 'Vita Resident', 'protocol': 1, 'version': fault['version'], 'build_id': '0' * 64, 'started_ms': 100, 'uptime_ms': 1000, 'heartbeat': 2, 'requests': len(calls), 'uploads': len(files), 'battery_percent': 73, 'charging': 0, 'clocks_mhz': [333, 222, 111, 111], 'network_state': 3, 'keep_awake': False})
         key = self.path.removeprefix('/files/')
@@ -80,7 +91,7 @@ async def main():
     try:
         with tempfile.TemporaryDirectory() as temp:
             fixture_root = Path(temp)
-            for name in ('resident/bridge.py', 'resident/files_client.py', 'resident/launch_client.py', 'resident/lifecycle_client.py', 'resident/keep_awake_client.py', 'bridge/server.py', 'bridge/ftp_staging.py', 'resident/control/bridge_tools.py', 'resident/control/rgb_codec.py'):
+            for name in ('resident/bridge.py', 'resident/files_client.py', 'resident/launch_client.py', 'resident/lifecycle_client.py', 'resident/keep_awake_client.py', 'resident/keep_awake_transport_client.py', 'bridge/server.py', 'bridge/ftp_staging.py', 'resident/control/bridge_tools.py', 'resident/control/rgb_codec.py'):
                 destination = fixture_root / name
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(ROOT / name, destination)
@@ -124,22 +135,58 @@ async def main():
             config = Path(temp) / 'resident.json'
             config.write_text(json.dumps({'host': '127.0.0.1', 'port': server.server_port, 'token': TOKEN}), encoding='utf-8')
             env = {**os.environ, 'VITA_RESIDENT_CONFIG': str(config), 'VITA_WORKBENCH_LOCK': str(fixture_root / 'session.lock')}
-            async with stdio_client(StdioServerParameters(command=sys.executable, args=[str(fixture_root / 'resident/bridge.py')], env=env)) as (read, write):
+            # The product always uses the dedicated17869 listener. Redirect only
+            # this copied fixture's constructor default to its ephemeral port;
+            # retain the actual bridge registration and MCP stdio transport.
+            bootstrap = (f'import runpy,sys; sys.path[:0]=[{str(fixture_root)!r},{str(fixture_root / "resident")!r}]; '
+                         'from resident.keep_awake_transport_client import KeepAwakeTransportClient; '
+                         f'KeepAwakeTransportClient.__init__.__kwdefaults__["port"]={server.server_port}; '
+                         f'runpy.run_path({str(fixture_root / "resident/bridge.py")!r},run_name="__main__")')
+            async with stdio_client(StdioServerParameters(command=sys.executable, args=['-c', bootstrap], env=env)) as (read, write):
                 async with ClientSession(read, write) as session:
                     await session.initialize()
                     tools = await session.list_tools()
-                    assert len(tools.tools) == 40
+                    assert len(tools.tools) == 42
                     assert {'vita_resident_status', 'vita_resident_verify_upload', 'vita_resident_probe_upload', 'vita_resident_stage_package'}.issubset({tool.name for tool in tools.tools})
-                    checks.append('eleven-resident-thirteen-control-sixteen-workbench-tools-listed')
+                    checks.append('thirteen-resident-thirteen-control-sixteen-workbench-tools-listed')
+                    transport_names = {'vita_resident_keep_awake_transport_status', 'vita_resident_keep_awake_transport_record'}
+                    transport_tools = [tool for tool in tools.tools if tool.name in transport_names]
+                    assert len(transport_tools) == 2
+                    assert all(tool.annotations.readOnlyHint is True and tool.annotations.destructiveHint is False
+                               and tool.annotations.idempotentHint is True for tool in transport_tools)
+                    checks.append('transport-tools-registered-with-read-only-annotations')
+                    fault['version'] = '0.1.6'
+                    before = len(calls)
+                    unsupported = await session.call_tool('vita_resident_keep_awake_transport_status', {})
+                    assert unsupported.isError and 'does not implement transport inspection' in unsupported.content[0].text
+                    assert calls[before:] == [('GET', '/keep-awake/transport-status')]
+                    checks.append('transport-old-installed-route-reports-unsupported-through-MCP')
+                    fault['version'] = '0.1.7'
+                    before = len(calls)
+                    observed = await session.call_tool('vita_resident_keep_awake_transport_status', {})
+                    assert not observed.isError and value(observed) == transport_status_fixture()
+                    observed = await session.call_tool('vita_resident_keep_awake_transport_record', {
+                        'sequence': TRANSPORT_SEQUENCE, 'resident_build_id': TRANSPORT_BUILD,
+                        'instance_id': TRANSPORT_INSTANCE})
+                    assert not observed.isError and value(observed)['record_status'] == 'available'
+                    assert calls[before:] == [('GET', '/keep-awake/transport-status'),
+                                             ('GET', '/keep-awake/transport-record/' + TRANSPORT_SEQUENCE)]
+                    before = len(calls)
+                    refused = await session.call_tool('vita_resident_keep_awake_transport_record', {
+                        'sequence': '../lease', 'resident_build_id': TRANSPORT_BUILD,
+                        'instance_id': TRANSPORT_INSTANCE})
+                    assert refused.isError and len(calls) == before
+                    checks.append('transport-status-record-and-preflight-refusal-through-real-MCP-GET-only')
+                    fault['version'] = '0.1.1'
                     status = await session.call_tool('vita_resident_status', {})
                     assert not status.isError and value(status)['app'] == 'Vita Resident'
                     checks.append('status-through-MCP')
-                    for supported in ('0.1.1', '0.1.2', '0.1.3', '0.1.4', '0.1.5', '0.1.6'):
+                    for supported in ('0.1.1', '0.1.2', '0.1.3', '0.1.4', '0.1.5', '0.1.6', '0.1.7'):
                         fault['version'] = supported
                         status = await session.call_tool('vita_resident_status', {})
                         assert not status.isError and value(status)['version'] == supported
                     checks.append('supported-installed-and-disabled-candidate-versions-through-MCP')
-                    for unsupported in ('0.1.7', '', 1):
+                    for unsupported in ('0.1.8', '', 1):
                         fault['version'] = unsupported
                         status = await session.call_tool('vita_resident_status', {})
                         assert status.isError

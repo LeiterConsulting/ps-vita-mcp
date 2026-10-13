@@ -319,7 +319,9 @@ the previous job has ended, rather than extending its original deadline.
 ## MCP tools
 
 Restart the PC Resident MCP connection after updating the checkout. The combined
-catalog contains **40 tools**, including these four additions:
+source catalog contains **42 tools**, including these four lease tools and
+two [0.1.7 transport diagnostic tools](RESIDENT-TRANSPORT.md). The installed
+0.1.6 service implements the lease tools; diagnostic activation is pending.
 
 | Tool | Behavior |
 | --- | --- |

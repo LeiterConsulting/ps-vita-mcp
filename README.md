@@ -5,6 +5,12 @@ passed on hardware; transport reliability and a complete native development
 cycle remain open. Accepted 0.1.5 is retained for rollback.
 [Current results and limits](docs/RESIDENT-KEEP-AWAKE.md).
 
+**Source candidate 0.1.7 adds read-only transport diagnostics** to investigate
+the intermittent timeouts. Its two new tools bring the source catalog to 42.
+The ARM build and all 32 host groups passed. Hardware activation and
+qualification are pending; the installed Vita remains on 0.1.6.
+[Diagnostic contract and test sequence](docs/RESIDENT-TRANSPORT.md).
+
 **Develop and inspect PlayStation Vita homebrew through MCP on real hardware.**
 
 PS Vita MCP connects a desktop MCP client to a modded Vita. Its PC bridges combine live Lua editing with background status, verified file transfer, screen readback and bounded input. The repository contains the PC and Vita source, build scripts, examples and tests needed to reproduce this developer preview.
@@ -91,7 +97,7 @@ source developer preview; no final binary release is certified.
 | Component | Role | Source / recorded runtime |
 | --- | --- | --- |
 | Vita DevLoop | Foreground Lua edit/run/observe/recover; ten MCP tools | 01.04 installed; exact runtime identity, live Lua reload/recovery and normal exit passed. Capture mapping, synthetic input and sleep/reopen remain open. |
-| [Vita Resident](docs/RESIDENT.md) | Boot-loaded status, verified package inbox and managed inspection and bounded keep-awake leases; eleven source tools | Two-second-budget 0.1.6 installed after normal boot; lease operations, isolated 120-second power hold, renewal during verified slow transfer and keeper-loss TTL expiry passed. Upload HTTP reply uncertain; later native staging verified, install rejected before launch; exact runtime reason unavailable. PC host tests passed; broader qualification incomplete. Earlier build's online/sleep passes and 0.1.5 native Lab qualification remain historical evidence; rollbacks retained |
+| [Vita Resident](docs/RESIDENT.md) | Boot-loaded status, verified package inbox and managed inspection and bounded keep-awake leases and transport diagnostics; thirteen source tools | Two-second-budget 0.1.6 installed after normal boot; lease operations, isolated 120-second power hold, renewal during verified slow transfer and keeper-loss TTL expiry passed. Upload HTTP reply uncertain; later native staging verified, install rejected before launch; exact runtime reason unavailable. PC host tests passed; broader qualification incomplete. Earlier build's online/sleep passes and 0.1.5 native Lab qualification remain historical evidence; rollbacks retained |
 | [Vita Control](docs/CONTROL.md) | Background screen, managed files, app commands and bounded synthetic input; thirteen tools | 0.3.4 pairing candidate installed, ABI 2; earlier manual startup passed, automatic worker/network startup failed; recovery did not reactivate it |
 | [Vita Workbench](workbench/README.md) | Lua iteration, native lifecycle candidate, runtime preparation, input trials, metrics, staging and file recovery; sixteen tools | Developer preview; native lifecycle, script readiness and verified input readiness have separate qualification |
 | [Launch broker candidate](resident/launch_broker/README.md) | Durable fixed-title launch protocol and PC client | 0.1.4 identity/clock continuity passed with the broker disabled; earlier 0.1.3 PID correlation is historical; storage/reboot and launch-policy gates pending |
@@ -101,7 +107,7 @@ source developer preview; no final binary release is certified.
 | [Boot resource diagnostic](resident/boot_diagnostic/README.md) | Isolated SDK mutex/thread probe without Control or network loads | 0.1.0 withdrawn after boot failure; resource trial not established, root cause unknown |
 | [Control Inspector](docs/INSPECTOR.md) | Optional read-only app/Shell diagnostic | 01.03; not required for the baseline |
 
-Resident, Control and Workbench source now share one **40-tool desktop MCP server**: eleven Resident, thirteen Control and sixteen Workbench tools. DevLoop has its own ten-tool server. The computer speaks MCP over stdio; the Vita runs authenticated HTTP services. Restart the PC MCP connection after updating its source to discover new tools. The three native lifecycle tools require Resident 0.1.5 and the dedicated lab qualification; corrected 0.1.5 passed five native Lab cycles and a GET-only normal-reboot durability check, while the original unknown attempt remains retained without replay; retained 0.1.4 does not implement that namespace. The existing manual Starter path keeps Control available after Starter exits, until normal reboot. DevLoop must be running for Lua operations.
+Resident, Control and Workbench source now share one **42-tool desktop MCP server**: thirteen Resident, thirteen Control and sixteen Workbench tools. DevLoop has its own ten-tool server. The computer speaks MCP over stdio; the Vita runs authenticated HTTP services. Restart the PC MCP connection after updating its source to discover new tools. The three native lifecycle tools require Resident 0.1.5 and the dedicated lab qualification; corrected 0.1.5 passed five native Lab cycles and a GET-only normal-reboot durability check, while the original unknown attempt remains retained without replay; retained 0.1.4 does not implement that namespace. The existing manual Starter path keeps Control available after Starter exits, until normal reboot. DevLoop must be running for Lua operations.
 
 After the PC Resident MCP was restarted, the actual registered catalog exposed all **36 tools**. Direct Resident status, an unexecuted native preview and GET-only reconciliation of the completed post-reboot job passed. These read-only checks are separate from the five mutating cycles run through fresh stdio sessions. [Qualification details](docs/NATIVE-LIFECYCLE.md#registered-mcp-readiness-pass).
 
@@ -162,7 +168,7 @@ The [Lua interface](SCRIPTING.md) covers drawing, input observations, metrics an
 ```mermaid
 flowchart LR
     Client[MCP client] <-->|stdio| DevBridge[DevLoop bridge: 10 tools]
-    Client <-->|stdio| Background[Resident Control and Workbench: 40 tools]
+    Client <-->|stdio| Background[Resident Control and Workbench: 42 tools]
     DevBridge <-->|LAN HTTP :17865| DevLoop[Foreground Lua app]
     Background <-->|LAN HTTP :17866| Resident[Resident in SceShell]
     Background <-->|LAN HTTP :17867| Control[Control in SceShell]

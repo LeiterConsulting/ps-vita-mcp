@@ -2,8 +2,12 @@
 
 **Resident 0.1.6 is installed after a confirmed normal boot; qualification is
 incomplete.** It adds a bounded keep-awake lease for active development jobs.
-The combined source catalog exposes 40 tools: eleven Resident, thirteen Control
+The combined source catalog exposes 42 tools: thirteen Resident, thirteen Control
 and sixteen Workbench. Leases do not change saved brightness or sleep settings.
+
+Source candidate 0.1.7 adds two read-only transport diagnostic tools. Hardware
+activation and qualification are pending; installed 0.1.6 has no diagnostic
+routes. [Contract and qualification sequence](../docs/RESIDENT-TRANSPORT.md).
 
 Hardware passes cover fresh MCP lease operations, an isolated 120-second hold
 at one-minute standby, renewal during a verified slow 4 KiB transfer, native

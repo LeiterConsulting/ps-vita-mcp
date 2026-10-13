@@ -166,6 +166,48 @@ class StageTests(unittest.TestCase):
                     stage(self.root, EXPECTED)
                 self.assertFalse(any(c in ['STOR', 'MKD', 'RNTO'] for c, p in self.ftp.commands))
 
+    def transport_report(self):
+        path, report = self.keep_awake_report()
+        report['version'] = '0.1.7'
+        report['keep_awake_transport'] = {
+            'protocol': 1, 'port': 17869, 'read_only': True,
+            'authenticated': True, 'completed_records': 16, 'record_max_bytes': 192,
+            'response_max_bytes': 1399, 'volatile': True, 'resource_sampling': False,
+            'captures_request_payload': False, 'records_diagnostic_reads': False,
+            'request_deadline_ms': 2000, 'listener_recovery_changed': False,
+            'power_policy_changed': False}
+        return path, report
+
+    def test_transport_candidate_stages_without_activation(self):
+        path, report = self.transport_report()
+        path.write_text(json.dumps(report))
+        self.assertEqual(stage(self.root, EXPECTED)['version'], '0.1.7')
+        self.assert_untouched()
+
+    def test_transport_contract_changes_refused_before_connection_or_writes(self):
+        for key, value in [('authenticated', False), ('read_only', 1),
+                           ('completed_records', 32), ('record_max_bytes', 256),
+                           ('response_max_bytes', 8192), ('volatile', False),
+                           ('resource_sampling', True), ('captures_request_payload', True),
+                           ('records_diagnostic_reads', True), ('request_deadline_ms', 4000),
+                           ('listener_recovery_changed', True), ('power_policy_changed', True),
+                           ('port', 17866), ('extra', True)]:
+            with self.subTest(key=key):
+                path, report = self.transport_report()
+                report['keep_awake_transport'][key] = value
+                path.write_text(json.dumps(report))
+                with self.assertRaises(ValueError):
+                    stage(self.root, EXPECTED)
+                self.assertEqual(self.ftp.commands, [])
+
+    def test_missing_transport_contract_refused_before_connection(self):
+        path, report = self.transport_report()
+        del report['keep_awake_transport']
+        path.write_text(json.dumps(report))
+        with self.assertRaises(ValueError):
+            stage(self.root, EXPECTED)
+        self.assertEqual(self.ftp.commands, [])
+
     def test_config_change_and_precedence_refuse_before_device_writes(self):
         for mode in ['changed', 'ux0']:
             with self.subTest(mode=mode):

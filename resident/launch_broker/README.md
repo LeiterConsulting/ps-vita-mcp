@@ -36,7 +36,7 @@ selected the faster and restored the original native world paused under the
 same DevLoop build/PID/run. Lua finished inactive with the last VM retained;
 the broker kept its instance and stayed disabled and unblocked. Fresh stdio
 verified the historical 30-tool catalog, both script tools and 0.1.3 status. The
-current source exposes 40 tools, including sixteen Workbench tools. The earlier
+current source exposes 42 tools, including sixteen Workbench tools. The earlier
 October 12 fresh-stdio and registered 33-tool checks verified installed 0.1.4.
 Direct registered-tool calls passed exact installed 0.1.4 status, managed listing,
 file information and a complete 4096-byte read with full-file hash verification. Storage durability across reboot, phone credential confirmation

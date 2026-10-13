@@ -5,7 +5,7 @@ include("$ENV{VITASDK}/share/vita.cmake" REQUIRED)
 add_executable(vita_resident service.c sha256.c platform_vita.c pairing.c pairing_json.c pairing_io.c files.c files_platform_vita.c
     launch_broker/core.c launch_broker/http.c launch_broker/store.c launch_broker/native_vita.c launch_broker/service.c
     native_install/service.c native_install/platform_vita.c native_launch/native_launch.c
-    keep_awake/policy.c keep_awake/service.c keep_awake/power_platform_vita.c)
+    keep_awake/policy.c keep_awake/service.c keep_awake/transport.c keep_awake/power_platform_vita.c)
 set(resident_fingerprint "")
 foreach(resident_source service.c sha256.c sha256.h platform.h platform_vita.c pairing.c pairing_json.c pairing_io.c pairing.h CMakeLists.txt exports.yml files.c files.h files_platform.h files_platform_vita.c
     launch_broker/core.c launch_broker/launch_broker.h launch_broker/http.c launch_broker/http.h
@@ -13,7 +13,7 @@ foreach(resident_source service.c sha256.c sha256.h platform.h platform_vita.c p
     launch_broker/service.c launch_broker/service.h
     native_install/service.c native_install/service.h native_install/platform.h native_install/platform_vita.c native_install/paths.h
     native_launch/native_launch.c native_launch/native_launch.h
-    keep_awake/policy.c keep_awake/policy.h keep_awake/service.c keep_awake/service.h
+    keep_awake/policy.c keep_awake/policy.h keep_awake/service.c keep_awake/service.h keep_awake/transport.c keep_awake/transport.h
     keep_awake/power_platform.h keep_awake/power_platform_vita.c)
     file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/${resident_source}" resident_digest)
     string(APPEND resident_fingerprint "${resident_digest}")
