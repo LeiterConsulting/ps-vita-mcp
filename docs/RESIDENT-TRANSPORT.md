@@ -276,8 +276,17 @@ for the missing-response cause.
 All **58 focused lease tests** passed. Together with eight deadline and 26
 transport-client tests, current focused coverage totals **92**. Six Windows TCP
 tests are separate. Current host stdio, file-MCP and all 41 native-lifecycle PC
-tests passed. Current-source full CI and native install/deploy qualification
-remain pending. Earlier failures and passes retain their original scopes.
+tests passed.
+[CI run 38456106601](https://github.com/LeiterConsulting/ps-vita-mcp/actions/runs/38456106601)
+passed all 33 expected host groups at code commit
+`2a32d08c733962804ca5c065c121e2f4f85e4bc1`. All 34 required artifact files were
+independently size/hash-verified, with no extra or missing files. The lease CI
+group ran 72 tests (58 lease, eight deadline and six Windows TCP tests), with
+one expected Windows ABI declaration skip on Linux; the 26 transport-client
+tests ran separately. This later documentation-only checkpoint preserves that
+PC and native code; CI ran on the named code commit. Native install/deploy
+qualification remains pending. Earlier failures and passes retain their
+original scopes.
 Restart the PC
 Resident MCP before using the new keeper in registered jobs. The native plugin
 and 42-tool public catalog are unchanged. [Detailed recovery contract](RESIDENT-KEEP-AWAKE.md#renewal-preflight-recovery).

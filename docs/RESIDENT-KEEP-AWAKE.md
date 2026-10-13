@@ -120,7 +120,15 @@ tests** passed, including the new recovery and existing no-replay cases. With
 eight deadline and 26 diagnostic-client tests, current focused host coverage
 totals **92**; the six Windows TCP tests are separate. Current host integrations
 also passed 20 stdio checks, 16 file-MCP checks and 41 native-lifecycle PC tests.
-Current-source full CI and native application cycles remain pending.
+[CI run 38456106601](https://github.com/LeiterConsulting/ps-vita-mcp/actions/runs/38456106601)
+passed all 33 expected host groups at code commit
+`2a32d08c733962804ca5c065c121e2f4f85e4bc1`. All 34 required artifact files were
+independently size/hash-verified, with no extra or missing files. The lease CI
+group ran 72 tests (58 lease, eight deadline and six Windows TCP tests), with
+one expected Windows ABI declaration skip on Linux; the 26 transport-client
+tests ran separately. This later documentation-only checkpoint preserves that
+PC and native code; it does not claim CI ran on the later commit. Native
+application cycles remain unqualified.
 [Recovery contract](#renewal-preflight-recovery).
 
 Current PC source then **passed 90.0007406 seconds at one-minute standby**, with

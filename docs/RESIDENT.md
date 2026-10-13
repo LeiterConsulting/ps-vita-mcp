@@ -26,9 +26,12 @@ stopped on read-only baselines with zero POSTs. The comparison is inconclusive;
 the operator restored the original checked setting and reconnected Wi-Fi.
 Registered power and transport reads passed on the same build and instance,
 with the lease inactive at revision 43, tick 399. All 92 focused client tests and current host
-stdio, file-MCP and 41 native-lifecycle PC tests passed. Current-source CI remains
-pending; `caf5008` passed 33 groups with 34 artifact files verified before this
-recovery change. Restart the PC MCP to load the new keeper into registered jobs.
+stdio, file-MCP and 41 native-lifecycle PC tests passed.
+[CI run 38456106601](https://github.com/LeiterConsulting/ps-vita-mcp/actions/runs/38456106601)
+passed all 33 host groups at code commit `2a32d08`, with all 34 required artifact
+files independently size/hash-verified. This later documentation-only checkpoint
+preserves that PC and native code; CI ran on the named code commit.
+Restart the PC MCP to load the new keeper into registered jobs.
 
 Registered main/power/diagnostic status and record reads and begin/renew/end
 passed after the previous restart. Enabled metadata lists 42 names; this is

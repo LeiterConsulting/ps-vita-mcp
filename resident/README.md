@@ -25,9 +25,12 @@ unqualified.
 [Recovery contract and evidence](../docs/RESIDENT-KEEP-AWAKE.md#renewal-preflight-recovery).
 
 All 92 focused client tests passed (58 lease, eight deadline, 26 transport),
-as did current host stdio, file-MCP and 41 native-lifecycle PC tests. Full CI for
-this source is pending. CI at `caf5008` passed 33 groups and 34 verified artifact
-files before renewal recovery was added. Native plugin bytes, saved settings
+as did current host stdio, file-MCP and 41 native-lifecycle PC tests.
+[CI run 38456106601](https://github.com/LeiterConsulting/ps-vita-mcp/actions/runs/38456106601)
+passed all 33 host groups at code commit `2a32d08`; all 34 required artifact
+files were independently size/hash-verified. This later documentation-only
+checkpoint preserves that PC and native code, rather than claiming CI ran on
+the later commit. Native plugin bytes, saved settings
 and the 42-tool catalog are unchanged. Restart the PC Resident MCP so registered
 jobs load the new keeper; no Vita reboot is required.
 

@@ -10,9 +10,11 @@ Rollbacks are retained. [Current results and limits](docs/RESIDENT-TRANSPORT.md)
 
 The source catalog contains **42 tools**. A registered Resident subset passed
 status, diagnostics and begin/renew/end after the previous PC restart. The new
-keeper still needs a PC MCP restart before in-process jobs use it. CI passed
-33 host groups at `caf5008`, with all 34 artifact files verified; that result
-predates the new renewal recovery.
+keeper still needs a PC MCP restart before in-process jobs use it.
+[CI run 38456106601](https://github.com/LeiterConsulting/ps-vita-mcp/actions/runs/38456106601)
+passed all 33 host groups at code commit `2a32d08`, with all 34 required artifact
+files independently size/hash-verified. This later documentation-only checkpoint
+preserves that PC and native code; CI ran on the named code commit.
 
 **Develop and inspect PlayStation Vita homebrew through MCP on real hardware.**
 
@@ -40,7 +42,7 @@ begin/end and native effect freshness checks remain strict.
 All **92 focused client tests** passed: 58 lease, eight deadline and 26 transport
 tests. Current host checks also passed 20 actual stdio checks, 16 file-MCP checks,
 41 native-lifecycle PC tests, six probe smoke cases and six Windows TCP-info
-tests. Current-source CI remains pending.
+tests. The named code commit also passed the 33-group CI run above.
 
 On the exact installed 0.1.7, current PC source passed **90 seconds at one-minute
 standby**, with eight renewals and confirmed end at revision 41. After 75 quiet
@@ -52,7 +54,7 @@ was sent; begin/end were the only two POSTs and cleanup confirmed end at
 revision 43. Later unchecked/checked Wi-Fi power-saving comparisons stopped on
 their read-only baselines with zero POSTs. The comparison is inconclusive, and
 the operator restored the original checked setting. Recovery remains
-unqualified; current-source CI is pending.
+unqualified despite passing host CI.
 
 Lease coverage is per job: the command wrapper protects one host command, and
 native execution starts its keeper after local preparation and initial status.

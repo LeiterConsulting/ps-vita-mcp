@@ -23,9 +23,12 @@ begin/end POSTs and confirmed end at revision 43, tick 399. The relay used a
 unchecked/checked Wi-Fi power-saving comparisons stopped on read-only baselines
 with zero POSTs. The comparison is inconclusive; the operator restored the
 original checked setting. Controlled recovery remains unqualified. Current host stdio/file-MCP checks and
-all 41 native-lifecycle PC tests passed; current-source full CI remains pending.
-CI at `caf5008` passed 33 host groups with 34 artifact files verified before
-this recovery change. These host results do not qualify a native application
+all 41 native-lifecycle PC tests passed.
+[CI run 38456106601](https://github.com/LeiterConsulting/ps-vita-mcp/actions/runs/38456106601)
+passed all 33 host groups at code commit `2a32d08`; all 34 required artifact
+files were independently size/hash-verified. This later documentation-only
+checkpoint preserves that PC and native code; CI ran on the named code commit.
+These host results do not qualify a native application
 cycle. Native plugin bytes are unchanged; restart the PC MCP for registered
 jobs to load the new keeper.
 [Current transport evidence](RESIDENT-TRANSPORT.md).

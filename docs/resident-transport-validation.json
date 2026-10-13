@@ -1,6 +1,6 @@
 {
   "as_of": "2026-10-13",
-  "recorded_utc": "2026-10-13T19:30:58.677196+00:00",
+  "recorded_utc": "2026-10-13T19:45:53.726336+00:00",
   "candidate_version": "0.1.7",
   "installed_version": "0.1.7",
   "device_acceptance": "Exact running 0.1.7 and registered subset passed. Current PC source passed one 90-second hold at one-minute standby with eight renewals, confirmed end and operator-confirmed normal sleep. No retry was needed; controlled retry and broad reliability/native cycles remain separate.",
@@ -50,10 +50,10 @@
       "keep-awake-transport-pc-tests.log": "f5eafc36e6fb0b3de1a9b00eb78c35407bbd7f3168022c510420eebc27c3607e",
       "native-build.log": "b309d1d2a6d611a80021a86f9f3f60190cbea61922a9ccb5e0f436fb8ddabb05"
     },
-    "build_report_sha256": "5ef78e74e3ac215cd8f56c1c14d1b28fcd019a5ca187ac2dea37b2514b219018",
+    "build_report_sha256": "2023ee084b2fa0f83b1963a50e2f33dd187c4895b3e922eb99ac4b77cb48d770",
     "metadata_refresh": "Guarded PC renewal-read recovery and current qualification guides; no native recompile or source change. Historical native/C and unchanged staging logs retained; current host runs are source-bound separately.",
-    "source_manifest_evidence": "evidence/resident/pc-renewal-source-20261013T193517Z",
-    "refresh_provenance_sha256": "a1e734f57a66bd59e78c07a3cfcafc13e503467e7bbfd8b6af7bbbfa0899ea07",
+    "source_manifest_evidence": "evidence/resident/pc-renewal-source-20261013T194618Z",
+    "refresh_provenance_sha256": "899519141e8465e74a0c6287140f24aa20ec89cbe874c494bc1b518e244baa49",
     "combined_pc_test_log_note": "Lease/deadline log contains separate 58-case and 8-case runs; transport log contains 26 cases. No test count is additive across duplicated logs.",
     "source_byte_provenance": {
       "native_input_files": 40,
@@ -134,19 +134,22 @@
     "original_build_report_sha256": "0e670f2d75429240a3c4d98dcdce0b50da13e7f8df3077c1e2e1b3c63eafcd48"
   },
   "remote_ci": {
-    "run_id": "38440741379",
-    "source_commit": "caf50080b1a7c1224ae11544f6b3d9c390cb21e2",
+    "run_id": "38456106601",
+    "url": "https://github.com/LeiterConsulting/ps-vita-mcp/actions/runs/38456106601",
+    "source_commit": "2a32d08c733962804ca5c065c121e2f4f85e4bc1",
     "result": "passed",
     "groups": 33,
     "downloaded_artifact_files": 34,
     "required_files": 34,
     "required_files_verified": 34,
-    "artifact_id": 11835362243,
+    "artifact_id": 11843051950,
+    "artifact_uncompressed_bytes": 46703,
     "report_sha256": "d654227a3015b6291f18cd9b7ff66238919eebbd794510f6681272a8873ec264",
-    "private_verification_manifest_sha256": "83a895b64cf2de91ba0a7da3c6b53f262f6e75106295a85f745a36028ce3383f",
+    "private_verification_manifest_sha256": "067fb9050e30babdf8b4b97496f1004a7c63d07ecc23a9542fd79c86f94cf517",
     "failures": [],
-    "platform_note": "Linux 55-case keep-awake group has one expected Windows ABI declaration skip",
-    "scope": "Historical host-only validation at exact caf5008 before guarded renewal read recovery; current source needs new CI. Canonical LF native fingerprint remains hardware-unqualified."
+    "platform_note": "Linux lease group ran72 tests:58 lease,8 deadline,6 TCP-info; one expected Windows ABI declaration skip. Separate transport group ran26 tests.",
+    "independent_download_note": "This run artifact was downloaded and reread independently. Report content matches the older deterministic names/exit-code report, without reusing older outcomes or hashes.",
+    "scope": "Full host checks at the pinned code commit; later documentation-only qualification checkpoint leaves PC/native code unchanged and does not claim CI ran on that later commit. Canonical LF native fingerprint remains hardware-unqualified."
   },
   "historical_staging_preflight": {
     "installed_main_service": "0.1.6 responded",
@@ -530,7 +533,8 @@
     },
     "independent_source_review": "No blockers found on frozen source, including the post-connect zero-submission guard and meaningful failure-boundary tests",
     "hardware_result": "One 90-second one-minute-standby hold and normal release sleep passed without retry. A controlled timeout triggered one retry, but the relay GET timed out; no renewal POST, confirmed end. Live recovery remains unqualified.",
-    "qualification_note": "Historical source-bound passes remain separate. No live timeout occurred, so the retry path needs controlled hardware qualification. Current-source CI and broad reliability remain open; installed native plugin unchanged."
+    "qualification_note": "Historical source-bound passes remain separate. Current-source host CI passed. The controlled hardware retry did not recover; successful live retry and broader reliability remain unqualified. Installed native plugin unchanged.",
+    "current_source_ci": "Passed33 host groups at2a32d08c733962804ca5c065c121e2f4f85e4bc1; all34 artifact files independently verified"
   },
   "current_source_one_minute_hold": {
     "as_of": "2026-10-13",
@@ -603,5 +607,20 @@
     "current": "A single host command can use run_command. Native execute starts its Keeper after local validation, plan claim, payload archival and initial status, then releases in finally.",
     "gap": "Planning, ordinary build tooling and Lua sessions do not automatically share a continuous lease.",
     "next_design": "Explicit bounded work-session injection or borrowing with one renewal owner and outer-only release; nested Keepers would conflict. Not implemented."
+  },
+  "historical_remote_ci_pre_recovery": {
+    "run_id": "38440741379",
+    "source_commit": "caf50080b1a7c1224ae11544f6b3d9c390cb21e2",
+    "result": "passed",
+    "groups": 33,
+    "downloaded_artifact_files": 34,
+    "required_files": 34,
+    "required_files_verified": 34,
+    "artifact_id": 11835362243,
+    "report_sha256": "d654227a3015b6291f18cd9b7ff66238919eebbd794510f6681272a8873ec264",
+    "private_verification_manifest_sha256": "83a895b64cf2de91ba0a7da3c6b53f262f6e75106295a85f745a36028ce3383f",
+    "failures": [],
+    "platform_note": "Linux 55-case keep-awake group has one expected Windows ABI declaration skip",
+    "scope": "Historical host-only validation at exact caf5008 before guarded renewal read recovery; current source needs new CI. Canonical LF native fingerprint remains hardware-unqualified."
   }
 }
