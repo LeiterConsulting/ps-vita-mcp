@@ -174,7 +174,19 @@ with PS/Power and reported normal behavior. This is partial physical
 button/display sleep-and-wake evidence. The keeper continued renewing, so full
 suspension and lease cancellation during full suspension were not established.
 Local receipt: `evidence/resident/keep-awake-hold-20261012T222511Z/proof.json`.
-Real Wi-Fi-loss qualification remains pending.
+A later physical **Wi-Fi interruption trial is partial**. After five successful
+renewals through revision 65, the operator reported completing the requested
+roughly 20-second Wi-Fi-off/on step. The keeper stopped when the next renewal's read-only
+preflight timed out; neither that renewal POST nor an end POST followed, and
+no operation was replayed. The original hold remains `failed_or_interrupted`.
+After the operator reported reconnection and LiveArea, three power status GETs
+and one main status GET timed out. Current IP and awake-state confirmation is
+pending; address change and one-minute standby remain possible confounds.
+Native cancellation reason, timing and service recovery are unconfirmed. No new
+lease, application operation or reboot was submitted after the interruption.
+Local receipts: `evidence/resident/keep-awake-hold-20261013T020247Z/proof.json`
+and `evidence/resident/keep-awake-wifi-20261013T020450Z/qualification.json`.
+Real Wi-Fi recovery qualification remains pending.
 
 Code review identified a response-budget edge: a lease POST can commit near the
 end of its two-second connection budget, leaving no time to write its response

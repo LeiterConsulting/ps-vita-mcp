@@ -36,8 +36,10 @@ with later absence confirmed, but its original result remains unconfirmed.
 Current-build installation/redeployment and an uninterrupted keeper-protected
 native cycle are unqualified; the earlier install rejection's exact cause is
 unknown. Physical sleep after TTL expiry, full suspension and lease cancellation,
-and real Wi-Fi loss remain pending. Power-button/display sleep and wake worked
-while the keeper continued renewing; that observation does not establish full
+and real Wi-Fi recovery remain pending. A physical Wi-Fi-off/on trial confirmed
+PC safe-stop without replay, but post-reconnect status reads timed out; native
+cancellation and recovery are unconfirmed. Power-button/display sleep and wake
+worked while the keeper continued renewing; that observation does not establish full
 suspension. One-minute standby is restored, and automatic sleep after explicit
 end passed separately.
 [Detailed trials and pending gates](docs/RESIDENT-KEEP-AWAKE.md#interim-hardware-results)

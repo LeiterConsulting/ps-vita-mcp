@@ -8,7 +8,7 @@
   "live_keep_awake": "short MCP operations, isolated 120-second power hold, renewal during a verified 35-second transfer, keeper-loss native TTL expiry and one controlled accepted-renewal reply-loss reconciliation passed; separate native launch/self-test/acknowledged exit and later GET-only absence observed, but that job remained unconfirmed after a keeper freshness timeout; second probe stopped before lease or native mutation; broader HTTP reliability, uninterrupted native cycle, installation and physical qualification incomplete",
   "live_expiry_and_normal_sleep": "native 30-second TTL expiry after PC keeper loss passed; current-build normal automatic sleep after explicit end passed by 90-second renewed hold, confirmed end, GET-only observer and direct operator confirmation; physical sleep after TTL expiry remains pending",
   "physical_manual_sleep_wake": "partial: operator-reported Power-button/display sleep and wake worked while keeper continued renewing; full suspension and cancellation during full suspension not established",
-  "physical_wifi_loss": "pending",
+  "physical_wifi_loss": "partial: operator completed Wi-Fi off/on; keeper stopped during GET preflight without failed-renewal/end POST or replay; post-reconnect reads timed out, so native cancellation and service recovery remain unqualified pending awake/IP confirmation",
   "sleep_settings_changed": true,
   "iphone_code_published": false,
   "plugin_sha256": "dd8da21847f5341bc70112f86176e2f864c92b10aaeb3400ec9855751a6b1ef8",
@@ -664,6 +664,41 @@
     "lease_cancellation_during_full_suspension_established": false,
     "local_receipt": "evidence/resident/keep-awake-hold-20261012T222511Z/proof.json",
     "receipt_sha256": "aca28c2f9ad55ee2306bae16305d3b351dfce8cc435481df83d5b9807efa5102",
-    "qualification_scope": "partial Power-button/display sleep-wake observation plus 90-second keeper continuity; full suspension and lease cancellation during it not established; real Wi-Fi-loss test remains pending"
+    "qualification_scope": "partial Power-button/display sleep-wake observation plus 90-second keeper continuity; full suspension and lease cancellation during it not established; real Wi-Fi recovery remains pending"
+  },
+  "physical_wifi_interruption_trial": {
+    "result": "partial; PC safe-stop passed, device cancellation and recovery unconfirmed",
+    "recorded_utc": "2026-10-13T02:09:07.485136+00:00",
+    "operator_report": "Wi-Fi restored; LiveArea visible",
+    "physical_action": "requested Wi-Fi off about 20 seconds then on; operator confirmed completion",
+    "original_hold_result": "failed_or_interrupted",
+    "successful_renewals": 5,
+    "last_confirmed_revision": 65,
+    "last_confirmed_tick_count": 555,
+    "failed_operation": {
+      "method": "GET",
+      "phase": "send_request",
+      "cause_type": "TimeoutError"
+    },
+    "failed_renewal_post_sent": false,
+    "cleanup_end_post_sent": false,
+    "effect_replays": 0,
+    "keeper_restarted_after_reconnect": false,
+    "cleanup_result": "unconfirmed; expires within 30 seconds of last accepted renewal",
+    "post_reconnect_power_get_timeouts": 3,
+    "post_reconnect_main_get_timeouts": 1,
+    "current_ip_and_awake_state": "operator confirmation pending; sleep and address change remain possible confounds",
+    "initial_cancellation_reason_and_timing": "unconfirmed",
+    "resident_build_id": "47ece86ad3b5258b6a52b4aaffefb8046e5af48c69f49a763001bf36bd815240",
+    "power_instance_id": "955b387f8dd6800315e7678941f513b0",
+    "work_local_receipt": "evidence/resident/keep-awake-hold-20261013T020247Z/proof.json",
+    "work_receipt_sha256": "f3738f0216370850c812e13b2f47651b1ef052d2d5f1b3653efaee47c68f9a43",
+    "readback_local_receipt": "evidence/resident/keep-awake-wifi-20261013T020450Z/proof.json",
+    "readback_receipt_sha256": "ba95adcc0f642465c008513899c48725a7393957b3ae691ce658afdf25cea89d",
+    "main_readback_local_receipt": "evidence/resident/keep-awake-wifi-20261013T020450Z/main-service-readback.json",
+    "main_readback_receipt_sha256": "d56a819a119e68fd97be45c92772a70676b1d5cc64cce5f59e92b3d7080f6bbe",
+    "qualification_scope": "Deliberate physical Wi-Fi switch and bounded PC stop are observed. Device recovery, native cancellation reason, exact latency and independent Wi-Fi recovery acceptance remain unqualified. The operator toggled Wi-Fi; the PC made no application mutation and neither the PC nor lease changed saved standby settings.",
+    "combined_local_receipt": "evidence/resident/keep-awake-wifi-20261013T020450Z/qualification.json",
+    "combined_receipt_sha256": "182be2cb3f213d1cd6d5c170045ada6dfdb41f57aa3a67b5def00125051cdc03"
   }
 }
