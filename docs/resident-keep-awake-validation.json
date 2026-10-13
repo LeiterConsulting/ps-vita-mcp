@@ -8,7 +8,7 @@
   "live_keep_awake": "short MCP operations, isolated 120-second power hold, renewal during a verified 35-second transfer, keeper-loss native TTL expiry and one controlled accepted-renewal reply-loss reconciliation passed; separate native launch/self-test/acknowledged exit and later GET-only absence observed, but that job remained unconfirmed after a keeper freshness timeout; second probe stopped before lease or native mutation; broader HTTP reliability, uninterrupted native cycle, installation and physical qualification incomplete",
   "live_expiry_and_normal_sleep": "native 30-second TTL expiry after PC keeper loss passed; current-build normal automatic sleep after explicit end passed by 90-second renewed hold, confirmed end, GET-only observer and direct operator confirmation; physical sleep after TTL expiry remains pending",
   "physical_manual_sleep_wake": "partial: operator-reported Power-button/display sleep and wake worked while keeper continued renewing; full suspension and cancellation during full suspension not established",
-  "physical_wifi_loss": "pending",
+  "physical_wifi_loss": "bounded physical interruption and service recovery after manual Wi-Fi reconnection passed: PC stopped without replay, same-instance services recovered with original lease inactive and stable ticks, and separate fresh MCP lease operations passed; autonomous Wi-Fi reassociation and repeat reliability remain unqualified",
   "sleep_settings_changed": true,
   "iphone_code_published": false,
   "plugin_sha256": "dd8da21847f5341bc70112f86176e2f864c92b10aaeb3400ec9855751a6b1ef8",
@@ -148,7 +148,7 @@
     "resident_build_id": "ed4abe7bbf3f5cb6f52899d4bcace5483dd2fd19b193e7e6034fb1338ffd04d4",
     "evidence_tier": "historical previous 300 ms native-budget build; does not qualify current build"
   },
-  "first_priority": "instrument transport phases and response-budget edge; qualify an uninterrupted keeper-protected native cycle; design explicit pinned cross-build ownership adoption before qualifying installation/redeployment; confirm physical sleep after TTL expiry, full suspension and lease cancellation, and real Wi-Fi loss; explicit-end automatic sleep and original standby restoration passed separately",
+  "first_priority": "instrument transport phases and response-budget edge; qualify an uninterrupted keeper-protected native cycle; design explicit pinned cross-build ownership adoption before qualifying installation/redeployment; confirm physical sleep after TTL expiry, full suspension and lease cancellation, and autonomous Wi-Fi reassociation/repeated recovery; first cancellation cause and latency remain unproven; explicit-end automatic sleep and original standby restoration passed separately",
   "pending_hardware_gates": [
     "diagnostic GET transport reliability and production freshness checks remain unqualified",
     "uninterrupted keeper-protected native cycle: launch-only self-test/acknowledged exit and later absence observed, but original job remained unconfirmed after final freshness GET timeout",
@@ -156,7 +156,7 @@
     "explicit cross-build ownership adoption is future work only; current permissions unchanged",
     "physical normal sleep after native TTL expiry on current build; explicit-end automatic sleep passed separately",
     "physical full suspension and lease cancellation during full suspension; button/display sleep-wake observed while renewal continued",
-    "physical Wi-Fi interruption and recovery"
+    "autonomous Wi-Fi reassociation and repeated interruption recovery; bounded service recovery after manual reconnection passed, while first cancellation cause and exact latency remain unproven"
   ],
   "first_candidate": {
     "plugin_sha256": "8d75572f6fedafeb27d053ba0b3f693bd9821a97336aa398d4eefa725ff37bb4",
@@ -254,7 +254,7 @@
       "session deadline does not extend the original ceiling",
       "active healthy lease with fresh sufficient time"
     ],
-    "live_acceptance": "one controlled live accepted-renewal reply drop reconciled with one GET and exact-owner adoption without replay; physical Wi-Fi loss and general transport reliability remain unqualified"
+    "live_acceptance": "one controlled live accepted-renewal reply drop reconciled with one GET and exact-owner adoption without replay; separate later physical interruption/service recovery after manual Wi-Fi reconnection passed; autonomous reassociation, repeat reliability and general transport reliability remain unqualified"
   },
   "ci_current_pre_reconciliation": {
     "commit": "5f18a25",
@@ -664,6 +664,85 @@
     "lease_cancellation_during_full_suspension_established": false,
     "local_receipt": "evidence/resident/keep-awake-hold-20261012T222511Z/proof.json",
     "receipt_sha256": "aca28c2f9ad55ee2306bae16305d3b351dfce8cc435481df83d5b9807efa5102",
-    "qualification_scope": "partial Power-button/display sleep-wake observation plus 90-second keeper continuity; full suspension and lease cancellation during it not established; real Wi-Fi-loss test remains pending"
+    "qualification_scope": "partial Power-button/display sleep-wake observation plus 90-second keeper continuity; full suspension and lease cancellation during it not established; autonomous Wi-Fi reassociation and repeated recovery remain pending"
+  },
+  "physical_wifi_interruption_trial": {
+    "result": "partial; PC safe-stop passed, device cancellation and recovery unconfirmed",
+    "recorded_utc": "2026-10-13T02:09:07.485136+00:00",
+    "operator_report": "Wi-Fi restored; LiveArea visible",
+    "physical_action": "requested Wi-Fi off about 20 seconds then on; operator confirmed completion",
+    "original_hold_result": "failed_or_interrupted",
+    "successful_renewals": 5,
+    "last_confirmed_revision": 65,
+    "last_confirmed_tick_count": 555,
+    "failed_operation": {
+      "method": "GET",
+      "phase": "send_request",
+      "cause_type": "TimeoutError"
+    },
+    "failed_renewal_post_sent": false,
+    "cleanup_end_post_sent": false,
+    "effect_replays": 0,
+    "keeper_restarted_after_reconnect": false,
+    "cleanup_result": "unconfirmed; expires within 30 seconds of last accepted renewal",
+    "post_reconnect_power_get_timeouts": 3,
+    "post_reconnect_main_get_timeouts": 1,
+    "current_ip_and_awake_state": "operator confirmation pending; sleep and address change remain possible confounds",
+    "initial_cancellation_reason_and_timing": "unconfirmed",
+    "resident_build_id": "47ece86ad3b5258b6a52b4aaffefb8046e5af48c69f49a763001bf36bd815240",
+    "power_instance_id": "955b387f8dd6800315e7678941f513b0",
+    "work_local_receipt": "evidence/resident/keep-awake-hold-20261013T020247Z/proof.json",
+    "work_receipt_sha256": "f3738f0216370850c812e13b2f47651b1ef052d2d5f1b3653efaee47c68f9a43",
+    "readback_local_receipt": "evidence/resident/keep-awake-wifi-20261013T020450Z/proof.json",
+    "readback_receipt_sha256": "ba95adcc0f642465c008513899c48725a7393957b3ae691ce658afdf25cea89d",
+    "main_readback_local_receipt": "evidence/resident/keep-awake-wifi-20261013T020450Z/main-service-readback.json",
+    "main_readback_receipt_sha256": "d56a819a119e68fd97be45c92772a70676b1d5cc64cce5f59e92b3d7080f6bbe",
+    "qualification_scope": "Deliberate physical Wi-Fi switch and bounded PC stop are observed. Device recovery, native cancellation reason, exact latency and independent Wi-Fi recovery acceptance remain unqualified. The operator toggled Wi-Fi; the PC made no application mutation and neither the PC nor lease changed saved standby settings.",
+    "combined_local_receipt": "evidence/resident/keep-awake-wifi-20261013T020450Z/qualification.json",
+    "combined_receipt_sha256": "182be2cb3f213d1cd6d5c170045ada6dfdb41f57aa3a67b5def00125051cdc03",
+    "record_scope": "historical initial readback snapshot before the operator manually reconnected Wi-Fi; see physical_wifi_recovery_followup"
+  },
+  "physical_wifi_recovery_followup": {
+    "result": "bounded physical interruption and service recovery after manual Wi-Fi reconnection passed",
+    "recorded_utc": "2026-10-13T02:16:18.506339+00:00",
+    "operator_followup": "Had to reconnect the WiFi; should be available now",
+    "manual_wifi_reconnection_required": true,
+    "recovery_observations": 2,
+    "both_resident_services_reachable": true,
+    "same_build_and_power_instance": true,
+    "original_lease_inactive_owner_cleared": true,
+    "revision_before_interruption": 65,
+    "revision_after_reconnection": 66,
+    "inactive_tick_count": 559,
+    "inactive_ticks_stable": true,
+    "retained_reason": "listener_lost",
+    "first_cancellation_cause_and_exact_latency": "not established; later listener errors can replace the single retained reason",
+    "automatic_old_work_restart": false,
+    "old_effect_replays": 0,
+    "recovery_readback_mutations": 0,
+    "recovery_local_receipt": "evidence/resident/keep-awake-wifi-reconnected-20261013T021249Z/proof.json",
+    "recovery_receipt_sha256": "e7ff2abc94c36e60338507c17bb6407d5904eb3c5ea4c1dfea72837426e288f0",
+    "fresh_explicit_stdio_test": {
+      "result": "passed",
+      "tool_count": 40,
+      "operations": [
+        "status",
+        "begin",
+        "renew",
+        "end"
+      ],
+      "begin_revision": 67,
+      "renew_revision": 68,
+      "end_revision": 69,
+      "end_active": false,
+      "end_reason": "released",
+      "tick_growth_after_end": false,
+      "finished_utc": "2026-10-13T02:13:45.512729+00:00",
+      "local_receipt": "evidence/resident/keep-awake-tools-20261013T021339Z/proof.json",
+      "receipt_sha256": "a20fb8dfa7083ae48420570d6e9e1d0c94e392f192286b04d44fbe92b0597ecb"
+    },
+    "qualification_scope": "Original interrupted hold and initial readback timeouts remain unchanged. After operator manual Wi-Fi reconnection, both services recovered without reboot or Starter, the original lease stayed inactive, and a separate fresh short MCP lease passed. Autonomous Wi-Fi reassociation, repeated interruption reliability and full native development-cycle acceptance remain unqualified.",
+    "combined_local_receipt": "evidence/resident/keep-awake-wifi-reconnected-20261013T021249Z/qualification.json",
+    "combined_receipt_sha256": "1d809ac727a9975e087605086f870a6305dca45d0506e1a0c93c24510ea51d07"
   }
 }

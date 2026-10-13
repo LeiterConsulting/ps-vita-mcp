@@ -13,14 +13,22 @@ reconciled without replay. A launch-only probe passed self-test and acknowledged
 exit, with later absence confirmed. A separate 90-second hold ended cleanly,
 followed by operator-confirmed normal automatic sleep.
 
+A physical Wi-Fi interruption stopped the PC keeper without replay. After the
+operator manually reconnected Wi-Fi, both services responded on the same
+build/instance: the old lease was inactive at revision 66, ownership cleared and
+tick count 559 stable. Its retained `listener_lost` reason does not establish the
+first cancellation cause or exact timing. Separate fresh stdio checks exposed
+all 40 tools and passed lease status/begin/renew/end.
+
 Intermittent HTTP timeouts still interrupt freshness checks, and the launch-only
 job's original result remains unconfirmed. Current-build installation/redeployment
 and an uninterrupted keeper-protected native cycle remain unqualified; the
 historical install rejection's exact cause is unknown. Physical sleep after TTL
-expiry, full suspension and lease cancellation, and real Wi-Fi interruption remain
-pending. Power-button/display sleep and wake worked while renewal continued;
-full suspension was not established. One-minute standby is restored, and automatic
-sleep after explicit end passed separately.
+expiry, full suspension and lease cancellation, automatic Wi-Fi reassociation
+and repeated Wi-Fi recovery remain unqualified. Power-button/display sleep and
+wake worked while renewal continued; full suspension was not established.
+One-minute standby is restored, and automatic sleep after explicit end passed
+separately.
 [Exact installed identity, detailed trials and pending gates](RESIDENT-KEEP-AWAKE.md)
 and [dated validation record](resident-keep-awake-validation.json).
 
